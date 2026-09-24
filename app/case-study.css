@@ -1,0 +1,1144 @@
+/* ==========================================================================
+   Votex case study — layout
+
+   Built the way the reference case study is: white page, almost no boxes, one
+   accent colour, and imagery that runs to the edges of the screen. Structure
+   comes from whitespace and a grey opening line on each block rather than from
+   borders and cards. Text stays in one column of the same width the whole way
+   down; only imagery and colour bands break out of it.
+   ========================================================================== */
+
+/* --- page flow ------------------------------------------------------------ */
+.cs-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sec-gap);
+  padding-block: 0 clamp(64px, 7vw, 104px);
+}
+.cs-main > section {
+  padding: 0;
+  scroll-margin-top: var(--s8);
+}
+
+/* --- opening band --------------------------------------------------------- */
+.cs-hero {
+  margin: var(--edge) 0 0;
+  width: calc(100vw - var(--edge) * 2);
+  margin-left: calc(50% - 50vw + var(--edge));
+  aspect-ratio: var(--_ratio, 16 / 9); /* the page overrides this per image */
+  border-radius: var(--r-img);
+  overflow: hidden;
+  background: var(--soft);
+}
+.cs-hero img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* --- title block ---------------------------------------------------------- */
+.cs-header {
+  padding-top: clamp(36px, 4.4vw, 64px);
+}
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  font: 500 11px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--faint);
+  margin-bottom: var(--s6);
+}
+.crumbs span:not(:last-child)::after {
+  content: "›";
+  margin-left: var(--s2);
+  opacity: 0.6;
+}
+.crumbs span:last-child {
+  color: var(--muted);
+}
+
+/* the headline carries the accent inside the sentence, not around it */
+.cs-title {
+  font: 800 clamp(34px, 4.6vw, 62px) / 1.1 var(--display);
+  letter-spacing: -0.035em;
+  max-width: 20ch;
+  text-wrap: balance;
+}
+.cs-title em {
+  font-style: normal;
+  color: var(--red);
+}
+.cs-title .plain {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  margin-top: clamp(24px, 3vw, 36px);
+}
+.pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  padding: 8px 17px;
+  font-size: 14px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.pill i {
+  font-style: normal;
+  font: 500 11.5px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--faint);
+}
+.pill.accent {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.cs-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  flex-wrap: wrap;
+  margin-top: clamp(28px, 3.4vw, 40px);
+}
+.cs-actions .note {
+  font: 500 11px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+/* --- chapter rule ---------------------------------------------------------- */
+.chap {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(16px, 2.4vw, 28px);
+  padding-top: clamp(20px, 2.6vw, 32px);
+  border-top: 1px solid var(--line);
+}
+.chap-n {
+  font: 800 clamp(34px, 3.8vw, 54px) / 1 var(--display);
+  color: var(--red);
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.chap-t {
+  font: 800 clamp(28px, 3.4vw, 46px) / 1.08 var(--display);
+  letter-spacing: -0.03em;
+}
+.chap p {
+  color: var(--muted);
+  max-width: 44ch;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-left: auto;
+}
+
+/* --- prose ------------------------------------------------------------------ */
+.prose {
+  display: grid;
+  gap: var(--s5);
+  max-width: 66ch;
+  font-size: clamp(17px, 1.7vw, 19px);
+  line-height: 1.65;
+  color: var(--ink);
+}
+.prose2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s5) clamp(32px, 4.5vw, 72px);
+}
+.prose2 p {
+  color: var(--ink);
+  font-size: 16.5px;
+  line-height: 1.65;
+  max-width: 52ch;
+}
+
+/* the one big sentence that turns the problem into the answer */
+.statement {
+  font: 500 clamp(28px, 3.7vw, 50px) / 1.24 var(--display);
+  letter-spacing: -0.03em;
+  max-width: 26ch;
+  margin-left: clamp(0px, 8vw, 132px);
+  text-wrap: balance;
+}
+.statement em {
+  font-style: normal;
+  font-weight: 800;
+  color: var(--red);
+}
+
+/* --- figures: problem, solution, facts ---------------------------------------- */
+.figs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, 3vw, 52px);
+}
+.figs.four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.fig b {
+  display: block;
+  font: 700 clamp(30px, 3.4vw, 46px) / 1.08 var(--display);
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.fig p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: var(--s4);
+  max-width: 32ch;
+}
+.figs.solved .fig b {
+  color: var(--red);
+}
+/* a name rather than a figure heads the cell */
+.figs.small .fig b {
+  font: 700 22px var(--display);
+  letter-spacing: -0.02em;
+}
+
+/* --- icon rows: services, product families -------------------------------------- */
+.iconrow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(26px, 3vw, 40px) clamp(20px, 2.2vw, 32px);
+}
+.iconrow.four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.it svg {
+  display: block;
+  width: 44px;
+  height: 44px;
+  color: var(--red);
+}
+.it.product svg {
+  width: 60px;
+  height: 60px;
+}
+.it b {
+  display: block;
+  font: 600 16.5px var(--body);
+  letter-spacing: -0.01em;
+  margin-top: clamp(14px, 1.6vw, 20px);
+}
+.it p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin-top: var(--s2);
+  max-width: 30ch;
+}
+.it .mono-note {
+  font: 12.5px/1.6 var(--mono);
+  color: var(--muted);
+  margin-top: var(--s2);
+  display: block;
+  max-width: 30ch;
+}
+
+/* --- a plain list of pairs, hairline separated ------------------------------------ */
+.pairs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 clamp(32px, 5vw, 80px);
+}
+.pairs > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--s2) var(--s5);
+  align-items: baseline;
+  padding-block: clamp(18px, 2.2vw, 26px);
+  border-top: 1px solid var(--line);
+}
+.pairs .n {
+  font: 500 12px var(--mono);
+  color: var(--faint);
+  letter-spacing: 0.1em;
+}
+.pairs h3 {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.pairs p {
+  grid-column: 2;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 46ch;
+}
+.pairs .resp {
+  grid-column: 2;
+  display: inline-flex;
+  gap: var(--s2);
+  font: 500 12.5px var(--mono);
+  color: var(--red);
+  margin-top: var(--s2);
+}
+.pairs .resp::before {
+  content: "→";
+  opacity: 0.8;
+}
+
+/* --- process steps ---------------------------------------------------------------- */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(24px, 2.6vw, 40px);
+}
+.step {
+  border-top: 2px solid var(--ink);
+  padding-top: var(--s5);
+}
+.step .num {
+  font: 500 12px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--red);
+}
+.step h3 {
+  margin-top: var(--s3);
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.step .label {
+  display: block;
+  margin-top: var(--s1);
+}
+.step p {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: var(--s4);
+}
+
+.specs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: clamp(24px, 3vw, 36px);
+}
+.specs .label {
+  margin-right: var(--s2);
+}
+.specs span:not(.label) {
+  font: 12.5px var(--mono);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 7px 14px;
+  color: var(--muted);
+}
+
+/* --- quotes -------------------------------------------------------------------------- */
+.quotes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 3.4vw, 56px);
+}
+.quotes blockquote {
+  margin: 0;
+  border-top: 2px solid var(--copper);
+  padding-top: var(--s5);
+}
+.quotes p {
+  font: 500 clamp(21px, 2.3vw, 28px) / 1.34 var(--display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.quotes cite {
+  display: block;
+  margin-top: var(--s4);
+  font: normal 14px var(--body);
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   Brand — colour bands, type specimens and imagery that runs to the edges
+   ========================================================================== */
+
+/* a solid panel beside a photograph */
+.band {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--edge);
+}
+.band > * {
+  margin: 0;
+  position: relative;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--r-img);
+  overflow: hidden;
+}
+.band img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.panel {
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 4vw, 56px);
+  background: var(--navy);
+}
+.panel.light {
+  background: var(--soft);
+}
+.panel svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.band-cap {
+  position: absolute;
+  left: clamp(16px, 2vw, 24px);
+  bottom: clamp(14px, 1.8vw, 20px);
+  font: 500 11px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.72);
+}
+.band-cap.ink {
+  color: var(--muted);
+}
+
+/* --- type specimen --------------------------------------------------------------------- */
+.spec {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.35fr);
+  gap: clamp(20px, 2.6vw, 36px);
+  align-items: stretch;
+}
+.face {
+  display: flex;
+  flex-direction: column;
+}
+.face .aa {
+  font: 800 clamp(96px, 11vw, 168px) / 0.82 var(--display);
+  letter-spacing: -0.05em;
+  color: var(--red);
+}
+.face.secondary .aa {
+  font-family: var(--body);
+  font-weight: 600;
+  color: var(--line-strong);
+}
+.face dl {
+  margin: auto 0 0;
+  padding-top: var(--s5);
+  display: grid;
+  /* a fixed term column, so both specimens' rules and values line up */
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: var(--s2) var(--s5);
+  border-top: 1px solid var(--line);
+}
+.face dt {
+  font: 500 10.5px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--faint);
+}
+.face dd {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink);
+}
+.face dd em {
+  font-style: normal;
+  font-weight: 700;
+}
+.face dd .off {
+  color: var(--faint);
+}
+
+/* the card that sits beside the specimens, carrying the voice */
+.voice-card {
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--r-img);
+  padding: clamp(24px, 2.8vw, 36px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+}
+.voice-card > .label {
+  color: #8fa3b8;
+}
+.voice-card .line {
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  padding-top: var(--s4);
+}
+.voice-card b {
+  display: block;
+  font: 500 10.5px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--s2);
+}
+.voice-card .say b {
+  color: #6fd39a;
+}
+.voice-card .avoid b {
+  color: #ff8a7e;
+}
+.voice-card p {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: #d7dee6;
+}
+.voice-card .avoid p {
+  color: #93a3b4;
+}
+
+/* --- palette ------------------------------------------------------------------------------ */
+.pal {
+  display: grid;
+  gap: var(--edge);
+}
+.pal-row {
+  display: grid;
+  gap: var(--edge);
+}
+.pal-row.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.pal-row.mixed {
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+}
+.chipx {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(150px, 17vw, 230px);
+  padding: clamp(18px, 2vw, 26px);
+  font: 13px var(--mono);
+  border-radius: var(--r-img);
+}
+.pal-row.mixed .chipx {
+  min-height: clamp(120px, 13vw, 180px);
+}
+.chipx span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.chipx strong {
+  font: 500 15px var(--body);
+}
+.chipx small {
+  font: 13px/1.5 var(--body);
+  opacity: 0.75;
+  max-width: 30ch;
+  margin-top: 2px;
+}
+.chipx.light {
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* --- imagery grids -------------------------------------------------------------------------- */
+.mk-head {
+  display: flex;
+  width: calc(100vw - var(--edge) * 2);
+  max-width: none;
+  margin-left: calc(50% - 50vw + var(--edge));
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s4);
+  flex-wrap: wrap;
+  margin-bottom: clamp(20px, 2.4vw, 30px);
+}
+/* a gallery head that follows copy needs to clear it */
+.prose + .mk-head,
+.prose2 + .mk-head,
+.pal + .mk-head {
+  margin-top: clamp(32px, 4vw, 56px);
+}
+.mk-head h3 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+/* six columns, every tile in a row the same height, so the gallery reads as
+   rows rather than as a ragged mosaic */
+.mk-gallery {
+  --mk-h: clamp(230px, 24vw, 380px);
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(22px, 2.4vw, 32px) var(--edge);
+}
+.mk-tile {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  min-width: 0;
+}
+.mk-s2 {
+  grid-column: span 2;
+}
+.mk-s3 {
+  grid-column: span 3;
+}
+.mk-s4 {
+  grid-column: span 4;
+}
+.mk-s6 {
+  grid-column: span 6;
+  --mk-h: clamp(300px, 38vw, 560px);
+}
+.mk-art {
+  height: var(--mk-h);
+  border-radius: var(--r-img);
+  overflow: hidden;
+  background: var(--soft);
+}
+.mk-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s var(--ease);
+}
+.mk-tile:hover .mk-art img {
+  transform: scale(1.03);
+}
+.mk-tile figcaption {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+  padding-inline: var(--s1);
+}
+.mk-tile figcaption b {
+  color: var(--ink);
+  font-weight: 600;
+  margin-right: var(--s2);
+}
+.mk-empty {
+  border: 1px dashed var(--ph-line);
+  border-radius: var(--r-img);
+  background: var(--ph);
+  padding: var(--s9);
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ==========================================================================
+   Screens still to come, results, investors
+   ========================================================================== */
+
+.ph-stack,
+.ph-row {
+  display: grid;
+  gap: clamp(24px, 3vw, 40px);
+}
+.ph-row.phones {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.ph-row.kit {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.ph-well {
+  background: var(--soft);
+  border-radius: var(--r-img);
+  padding: clamp(28px, 4vw, 56px);
+}
+.ph {
+  position: relative;
+  border: 1px dashed var(--ph-line);
+  border-radius: var(--r-img);
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0 9px,
+      rgba(20, 32, 46, 0.022) 9px 10px
+    ),
+    var(--ph);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  padding: var(--s6) var(--s5);
+  text-align: center;
+  min-height: 180px;
+  transition: border-color 0.18s var(--ease);
+}
+.ph:hover {
+  border-color: var(--muted);
+}
+.ph.phone {
+  border-radius: var(--r-xl);
+  aspect-ratio: 9 / 19;
+  max-width: 250px;
+  margin-inline: auto;
+  width: 100%;
+  padding: var(--s5) var(--s4);
+}
+.ph-tag {
+  font: 500 10px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  border: 1px solid var(--ph-line);
+  border-radius: var(--r-pill);
+  padding: 3px 10px;
+  background: #fff;
+}
+.ph-name {
+  font: 600 15px var(--body);
+  color: var(--ink);
+  line-height: 1.3;
+  text-wrap: balance;
+}
+.ph-size {
+  font: 11px var(--mono);
+  color: var(--muted);
+}
+.ph-note {
+  font-size: 12.5px;
+  color: var(--muted);
+  max-width: 44ch;
+  line-height: 1.55;
+}
+.ph.phone .ph-name {
+  font-size: 13px;
+}
+.ph.phone .ph-note {
+  font-size: 11px;
+}
+/* a reserved frame shown inside a browser mockup: it fills the viewport area
+   and drops its own frame, because the mockup already draws one */
+.mockup {
+  margin: 0;
+}
+.mockup .ph {
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+}
+
+/* a row of laptop mockups, each with its caption under the base */
+.laptops {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* three laptop bases are wider than the reading column, so the row opens out
+     and the side gap stays tight enough to keep them on one line */
+  gap: clamp(28px, 3.4vw, 52px) clamp(14px, 1.4vw, 22px);
+}
+.laptops figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.laptops .ph-cap {
+  text-align: center;
+  max-width: 34ch;
+}
+
+.ph-cap {
+  margin-top: var(--s3);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--muted);
+  text-align: left;
+}
+.ph-cap b {
+  color: var(--ink);
+  font-weight: 600;
+  margin-right: var(--s2);
+}
+
+.goals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(24px, 3vw, 48px);
+}
+.goals div {
+  border-top: 2px solid var(--red);
+  padding-top: var(--s4);
+}
+.goals b {
+  font: 700 clamp(20px, 2.2vw, 26px) var(--display);
+  letter-spacing: -0.025em;
+  display: block;
+}
+.goals p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: var(--s2);
+}
+
+.out {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(24px, 3vw, 48px);
+}
+.out > div {
+  border-top: 1px solid var(--line);
+  padding-top: var(--s5);
+  display: flex;
+  flex-direction: column;
+}
+.out .label {
+  display: block;
+}
+.out-before {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: var(--s4);
+}
+.out-before b {
+  font-weight: 600;
+  color: var(--ink);
+  opacity: 0.5;
+  text-decoration: line-through;
+  text-decoration-color: var(--red);
+}
+.out-rule {
+  height: 1px;
+  background: var(--line);
+  margin: var(--s4) 0;
+  position: relative;
+}
+.out-rule::after {
+  content: "↓";
+  position: absolute;
+  left: 0;
+  top: -9px;
+  background: #fff;
+  padding-right: var(--s2);
+  font-size: 12px;
+  color: var(--red);
+  line-height: 1;
+}
+.out-after {
+  font: 800 clamp(22px, 2.4vw, 28px) / 1.08 var(--display);
+  color: var(--ink);
+  letter-spacing: -0.03em;
+}
+.out-after span {
+  display: block;
+  font: 400 12.5px/1.55 var(--body);
+  color: var(--muted);
+  margin-top: var(--s2);
+  letter-spacing: 0;
+}
+
+.ir-over {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(28px, 4.5vw, 72px);
+  align-items: start;
+}
+.ir-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 2.4vw, 32px);
+}
+.ir-facts div {
+  border-top: 1px solid var(--line);
+  padding-top: var(--s4);
+}
+.ir-facts b {
+  display: block;
+  font: 700 clamp(20px, 2vw, 26px) var(--display);
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+.ir-facts span {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* --- link out to the live site ------------------------------------------------------------ */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s3);
+  text-decoration: none;
+  font: 600 14px var(--body);
+  color: #fff;
+  background: var(--red);
+  border-radius: var(--r-pill);
+  padding: 11px 12px 11px 22px;
+  border: 1px solid var(--red);
+  transition:
+    background 0.16s var(--ease),
+    border-color 0.16s var(--ease),
+    transform 0.16s var(--ease);
+}
+.cta i {
+  font-style: normal;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--red);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  line-height: 1;
+}
+.cta:hover {
+  background: var(--red-ink);
+  border-color: var(--red-ink);
+  transform: translateY(-1px);
+}
+.cta:focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: 3px;
+}
+.cta.ghost {
+  background: #fff;
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+.cta.ghost i {
+  background: var(--navy);
+  color: #fff;
+}
+.cta.ghost:hover {
+  background: var(--soft);
+  border-color: var(--muted);
+}
+
+/* --- closing band --------------------------------------------------------------------------- */
+.cs-outro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s6) var(--s8);
+  flex-wrap: wrap;
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--r-img);
+  padding: clamp(32px, 4.5vw, 64px);
+}
+.cs-outro h2 {
+  color: #fff;
+  font-size: clamp(26px, 3.2vw, 40px);
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  margin-top: var(--s2);
+}
+.cs-outro p {
+  color: #9fb0c2;
+  font-size: 14px;
+  margin-top: var(--s3);
+  max-width: 46ch;
+}
+.cs-outro .cta {
+  background: #fff;
+  color: var(--navy);
+  border-color: #fff;
+}
+.cs-outro .cta i {
+  background: var(--red);
+  color: #fff;
+}
+.cs-outro .cta:hover {
+  background: #eef1f4;
+  border-color: #eef1f4;
+}
+.cs-outro .cta:focus-visible {
+  outline-color: #fff;
+}
+
+/* --- footer ----------------------------------------------------------------------------------- */
+.cs-footer {
+  padding-block: clamp(40px, 5vw, 64px) clamp(32px, 4vw, 48px);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+}
+.cs-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  padding-bottom: clamp(28px, 3.4vw, 44px);
+}
+.logo {
+  font: 800 28px var(--display);
+  letter-spacing: -0.045em;
+  color: var(--navy);
+}
+.logo i {
+  font-style: normal;
+  color: var(--red);
+}
+.cs-foot p {
+  margin-top: var(--s3);
+  max-width: 36ch;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.cs-foot h3 {
+  font: 500 11px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+}
+.cs-foot ul {
+  list-style: none;
+  margin: var(--s4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.cs-foot a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13.5px;
+  transition: color 0.16s var(--ease);
+}
+.cs-foot a:hover {
+  color: var(--ink);
+}
+.cs-foot .cta {
+  margin-top: var(--s5);
+}
+.cs-legal {
+  border-top: 1px solid var(--line);
+  padding-top: var(--s5);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s5);
+  flex-wrap: wrap;
+  font-size: 12.5px;
+}
+
+/* ==========================================================================
+   Responsive — column counts step down in one order everywhere:
+   6 → 3 → 2, 4 → 2 → 1, 3 → 1.
+   ========================================================================== */
+
+@media (max-width: 1080px) {
+  .iconrow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .spec {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .spec .voice-card {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 900px) {
+  .steps,
+  .goals,
+  .out,
+  .iconrow.four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .figs,
+  .figs.four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pairs,
+  .quotes,
+  .ir-over,
+  .prose2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .chap {
+    flex-wrap: wrap;
+  }
+  .chap p {
+    margin-left: 0;
+    text-align: left;
+    flex-basis: 100%;
+    max-width: 60ch;
+  }
+  .statement {
+    margin-left: 0;
+    max-width: 30ch;
+  }
+  .ph-row.kit,
+  .ph-row.phones {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mk-s2,
+  .mk-s3,
+  .mk-s4 {
+    grid-column: span 3;
+  }
+  .mk-art {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .mk-s6 .mk-art {
+    aspect-ratio: 16 / 9;
+  }
+  .pal-row.mixed {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .pal-row.mixed .chipx:first-child {
+    grid-column: span 3;
+  }
+}
+
+@media (max-width: 640px) {
+  .band,
+  .pal-row.two,
+  .pal-row.mixed,
+  .iconrow,
+  .iconrow.four,
+  .steps,
+  .goals,
+  .out,
+  .figs,
+  .figs.four,
+  .spec,
+  .ph-row.kit,
+  .ph-row.phones,
+  .cs-foot {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pal-row.mixed .chipx:first-child,
+  .spec .voice-card {
+    grid-column: auto;
+  }
+  .face .aa {
+    font-size: 104px;
+  }
+  .mk-s2,
+  .mk-s3,
+  .mk-s4 {
+    grid-column: span 6;
+  }
+  .mk-art,
+  .mk-s6 .mk-art {
+    aspect-ratio: 4 / 3;
+  }
+  .band > * {
+    aspect-ratio: 4 / 3;
+  }
+}
