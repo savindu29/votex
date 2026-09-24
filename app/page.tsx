@@ -265,8 +265,6 @@ export default function CaseStudy() {
     <>
       <ProductIconSprite />
 
-     
-
       <main className="wrap cs-main">
         {/* title ----------------------------------------------------------- */}
         <header className="cs-header">
@@ -428,14 +426,16 @@ export default function CaseStudy() {
         </section>
 
         <section>
-          <h2 className="eyebrow">Solution</h2>
-          <div className="figs solved">
-            {SOLUTION.map(([stat, body]) => (
-              <div className="fig" key={stat}>
-                <b>{stat}</b>
-                <p>{body}</p>
-              </div>
-            ))}
+          <div className="band-dark full">
+            <h2 className="eyebrow">Solution</h2>
+            <div className="figs">
+              {SOLUTION.map(([stat, body]) => (
+                <div className="fig" key={stat}>
+                  <b>{stat}</b>
+                  <p>{body}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
