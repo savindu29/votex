@@ -45,7 +45,8 @@ export function SiteFooter() {
               A concept study for a Sri Lankan electrical group — cables, wall
               switches, plugs and circuit protection under one brand.
             </p>
-            <LiveLink ghost>Open the live site</LiveLink>
+            {/* the live site isn't up yet — put this back when it is
+            <LiveLink ghost>Open the live site</LiveLink> */}
           </div>
 
           <div>

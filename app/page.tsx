@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { PrimaryLogo, ReversedLogo } from "@/components/concept/BrandMockups";
-import { LiveLink, SiteFooter } from "@/components/concept/SiteChrome";
+import { /* LiveLink, */ SiteFooter } from "@/components/concept/SiteChrome";
 import { SvcIcon, type ServiceIcon } from "@/components/concept/ServiceIcons";
 import { GalleryHead, MockupGrid } from "@/components/concept/MockupGrid";
 import {
@@ -294,7 +294,8 @@ export default function CaseStudy() {
           </div>
 
           <div className="cs-actions">
-            <LiveLink />
+            {/* the live site isn't up yet — put this back when it is
+            <LiveLink /> */}
             <span className="note">votex.lk</span>
           </div>
         </header>
@@ -866,7 +867,8 @@ export default function CaseStudy() {
                 kit put to work.
               </p>
             </div>
-            <LiveLink>Open the live site</LiveLink>
+            {/* the live site isn't up yet — put this back when it is
+            <LiveLink>Open the live site</LiveLink> */}
           </div>
         </section>
       </main>
