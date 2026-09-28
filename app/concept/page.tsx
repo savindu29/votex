@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import fs from "node:fs";
 import path from "node:path";
 import { Compare } from "./Compare";
+import { VenueShowcase, type Venue } from "./VenueShowcase";
 import "./concept.css";
 
 const poppins = Poppins({
@@ -112,41 +113,6 @@ function findShot(name: string) {
   return null;
 }
 
-function Shot({
-  id,
-  label,
-  ratio = "16 / 10",
-  phone = false,
-}: {
-  id: ShotKey;
-  label: string;
-  ratio?: string;
-  phone?: boolean;
-}) {
-  const src = findShot(SHOTS[id]);
-  return (
-    <figure
-      className={phone ? "sp-shot is-phone" : "sp-shot"}
-      style={{ aspectRatio: phone ? "9 / 19" : ratio }}
-    >
-      {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={label} loading="lazy" />
-      ) : (
-        <div
-          className="sp-shot-empty"
-          role="img"
-          aria-label={`Screenshot to come: ${label}`}
-        >
-          <span>Screenshot</span>
-          <b>{label}</b>
-          <code>public/skypass/{SHOTS[id]}.png</code>
-        </div>
-      )}
-    </figure>
-  );
-}
-
 /** A UI crop shown whole (never cropped), for the gallery panels. */
 function Piece({ id, label }: { id: ShotKey; label: string }) {
   const src = findShot(SHOTS[id]);
@@ -230,11 +196,11 @@ const JOURNEY = [
   },
 ];
 
-const VENUES: { key: ShotKey; type: string; where: string; tiers: string; cls: string }[] = [
-  { key: "venueGround", cls: "is-wide", type: "Open-air ground", where: "Galle Face Green · Galle Fort Esplanade", tiers: "VIP Floor · Front Stand · Rear Stand" },
-  { key: "venueCinema", cls: "is-narrow", type: "Cinema hall", where: "Scope Cinemas · Liberty by Scope", tiers: "Recliners · Premium Rows · Standard Rows" },
-  { key: "venueArena", cls: "is-half", type: "Indoor arena", where: "Sugathadasa Indoor Stadium", tiers: "Arena Floor · Lower Tier · Upper Tier" },
-  { key: "venueCricket", cls: "is-half", type: "Cricket ground", where: "R. Premadasa · Galle International", tiers: "Pavilion · Lower Stand · Upper Stand" },
+const VENUES: { key: ShotKey; type: string; where: string; tiers: [string, string, string] }[] = [
+  { key: "venueGround", type: "Open-air ground", where: "Galle Face Green · Galle Fort Esplanade", tiers: ["VIP Floor", "Front Stand", "Rear Stand"] },
+  { key: "venueArena", type: "Indoor arena", where: "Sugathadasa Indoor Stadium", tiers: ["Arena Floor", "Lower Tier", "Upper Tier"] },
+  { key: "venueCinema", type: "Cinema hall", where: "Scope Cinemas · Liberty by Scope", tiers: ["Recliners", "Premium Rows", "Standard Rows"] },
+  { key: "venueCricket", type: "Cricket ground", where: "R. Premadasa · Galle International", tiers: ["Pavilion", "Lower Stand", "Upper Stand"] },
 ];
 
 const PHONES: { id: ShotKey; t: string; d: string; label: string }[] = [
@@ -538,20 +504,17 @@ export default function ConceptPage() {
         </section>
         <section className="sp-bleed" id="venues">
           <div className="sp-venues-stage">
-          <div className="sp-venues">
-            {VENUES.map((v) => (
-              <figure key={v.key} className={`sp-venue ${v.cls}`}>
-                <div className="sp-venue-frame">
-                  <Piece id={v.key} label={v.type} />
-                  <span className="sp-venue-chip">{v.type}</span>
-                </div>
-                <figcaption>
-                  <b>{v.where}</b>
-                  {v.tiers}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+            <VenueShowcase
+              venues={VENUES.map(
+                (v): Venue => ({
+                  src: findShot(SHOTS[v.key]),
+                  file: SHOTS[v.key],
+                  type: v.type,
+                  where: v.where,
+                  tiers: v.tiers,
+                }),
+              )}
+            />
           <p className="sp-venues-more">
             Also modelled: <b>Stadium</b> (Pallekele) and <b>Amphitheatre</b>{" "}
             (Nelum Pokuna Open-Air Theatre).
@@ -675,7 +638,7 @@ export default function ConceptPage() {
           </Block>
         </section>
         <section className="sp-bleed">
-          <div className="sp-stage is-dark">
+          <div className="sp-stage is-darkapp">
             <div className="sp-browser">
               <div className="sp-browser-bar" aria-hidden="true">
                 <i />
@@ -755,11 +718,46 @@ export default function ConceptPage() {
 
         {/* thanks */}
         <section className="sp-thanks">
-          <h2>Thank you for watching!</h2>
-          <p>Love it? Appreciate it!</p>
-          <a href={PROTOTYPE_URL} target="_blank" rel="noreferrer">
-            Try the prototype
-          </a>
+          <p className="sp-thanks-kicker">
+            <span /> End of case study
+          </p>
+          <h2>
+            Thank you for <em>watching!</em>
+          </h2>
+          <p className="sp-thanks-sub">Love it? Appreciate it!</p>
+          <div className="sp-thanks-actions">
+            <a className="is-primary" href={PROTOTYPE_URL} target="_blank" rel="noreferrer">
+              Try the prototype
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a className="is-ghost" href="#top">
+              Back to top
+              <span aria-hidden="true">↑</span>
+            </a>
+          </div>
+          <div className="sp-thanks-pass" aria-hidden="true">
+            <div>
+              <small>From</small>
+              <b>STG</b>
+              <small>Main stage</small>
+            </div>
+            <div className="sp-thanks-route">
+              <i />
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" />
+              </svg>
+              <i />
+            </div>
+            <div className="r">
+              <small>To</small>
+              <b>YOU</b>
+              <small>Best seat in the house</small>
+            </div>
+            <div className="sp-thanks-stub">
+              <small>Booking reference</small>
+              <b>SKY-THANKS</b>
+            </div>
+          </div>
         </section>
       </main>
 
