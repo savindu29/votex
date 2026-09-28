@@ -749,6 +749,8 @@ html:has(.sp) {
   border: 1px solid rgba(255, 255, 255, 0.14);
 }
 .sp-vs-info li i {
+  display: block;
+  flex: none;
   width: 8px;
   height: 8px;
   border-radius: 50%;
