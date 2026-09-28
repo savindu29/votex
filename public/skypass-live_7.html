@@ -1,0 +1,1841 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SkyPass Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#EEF0F3; --surface:#FFFFFF; --surface-2:#F4F5F7; --ink:#111318; --ink-2:#3B404A; --muted:#6B7280; --line:#E6E8EC; --line-2:#D5D9DF;
+  --brand:#EF4444; --brand-hover:#DC3535; --brand-soft:#FDECEC; --link:#D63A3A; --on-brand:#FFFFFF;
+  --dark-card:#16171B; --dark-2:#24262C; --dark-ink:#F4F5F7; --dark-muted:#A2A7B0; --dark-line:#34373F;
+  --pill:#111318; --pill-ink:#FFFFFF; --hatch:#CDD2D9; --seat-line:#C3C8D0;
+  --first:#B7791F; --business:#4F63D2; --economy:#0C8F6A;
+  --success:#15803D; --ok-bg:#E7F6EC; --warn:#B45309; --warn-bg:#FEF3E2; --danger:#B42318; --danger-bg:#FDECEA;
+  --overlay:rgba(255,255,255,.96); --shadow:0 10px 30px rgba(17,19,24,.08); --shadow-lg:0 18px 48px rgba(17,19,24,.18);
+  --sans:"Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif:"Poppins", ui-sans-serif, system-ui, sans-serif;
+  --mono:"Poppins", ui-sans-serif, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#000000; --surface:#0A0A0B; --surface-2:#161618; --ink:#F4F4F5; --ink-2:#CFCFD4; --muted:#9A9AA2; --line:#232326; --line-2:#333338;
+    --brand:#F05252; --brand-hover:#F76B6B; --brand-soft:#2A1010; --link:#FF8A8A; --on-brand:#FFFFFF;
+    --dark-card:#141416; --dark-2:#1F1F22; --dark-ink:#F4F4F5; --dark-muted:#9A9AA2; --dark-line:#34343A;
+    --pill:#F2F3F5; --pill-ink:#111318; --hatch:#38383D; --seat-line:#4A4A50;
+    --first:#D59A3A; --business:#7F8FEA; --economy:#3CB894;
+    --success:#6FD39A; --ok-bg:#13301F; --warn:#F0B25A; --warn-bg:#3A2A10; --danger:#FF8A7E; --danger-bg:#3A1714;
+    --overlay:rgba(10,10,11,.92); --shadow:0 10px 30px rgba(0,0,0,.35); --shadow-lg:0 18px 48px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#000000; --surface:#0A0A0B; --surface-2:#161618; --ink:#F4F4F5; --ink-2:#CFCFD4; --muted:#9A9AA2; --line:#232326; --line-2:#333338;
+  --brand:#F05252; --brand-hover:#F76B6B; --brand-soft:#2A1010; --link:#FF8A8A; --on-brand:#FFFFFF;
+  --dark-card:#141416; --dark-2:#1F1F22; --dark-ink:#F4F4F5; --dark-muted:#9A9AA2; --dark-line:#34343A;
+  --pill:#F2F3F5; --pill-ink:#111318; --hatch:#38383D; --seat-line:#4A4A50;
+  --first:#D59A3A; --business:#7F8FEA; --economy:#3CB894;
+  --success:#6FD39A; --ok-bg:#13301F; --warn:#F0B25A; --warn-bg:#3A2A10; --danger:#FF8A7E; --danger-bg:#3A1714;
+  --overlay:rgba(10,10,11,.92); --shadow:0 10px 30px rgba(0,0,0,.35); --shadow-lg:0 18px 48px rgba(0,0,0,.55);
+}
+[hidden]{display:none!important;}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--sans);-webkit-font-smoothing:antialiased;letter-spacing:.005em;}
+b,strong{font-weight:600;}
+small{font-weight:400;}
+h1,h2,h3,h4{font-weight:600;}
+button,select,input{font:inherit;color:inherit;}
+button{cursor:pointer;}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--brand) 55%,transparent);outline-offset:2px;border-radius:10px;}
+.mono{font-family:var(--mono);}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+svg.i{width:18px;height:18px;flex:none;}
+
+#app{height:100%;display:grid;grid-template-rows:64px 1fr;grid-template-columns:var(--pw-o,460px) 12px minmax(0,1fr);grid-template-areas:"hd hd hd" "pn sp mp";overflow:hidden;}
+#app.resizing{transition:none;cursor:col-resize;}
+#app.resizing *{user-select:none;}
+#app.resizing #scene{pointer-events:none;}
+.splitter{grid-area:sp;position:relative;background:var(--surface-2);border-inline:1px solid var(--line);cursor:col-resize;touch-action:none;display:grid;place-items:center;z-index:6;outline:none;}
+.splitter .grip{width:4px;height:48px;border-radius:999px;background:var(--line-2);transition:background .15s,height .15s;}
+.splitter::after{content:"";position:absolute;inset:0 -6px;}
+.splitter:hover,.splitter:focus-visible,#app.resizing .splitter{background:var(--brand-soft);}
+.splitter:hover .grip,.splitter:focus-visible .grip,#app.resizing .splitter .grip{background:var(--brand);height:72px;}
+.splitter .tip{position:absolute;top:50%;left:16px;translate:0 -50%;white-space:nowrap;font-size:12px;font-weight:600;padding:6px 10px;border-radius:999px;background:var(--pill);color:var(--pill-ink);opacity:0;pointer-events:none;transition:opacity .15s;}
+.splitter:hover .tip,.splitter:focus-visible .tip{opacity:1;}
+#app.resizing .splitter .tip{opacity:0;}
+.split{display:flex;flex-direction:column;gap:22px;}
+.split .main,.split .side{display:flex;flex-direction:column;gap:20px;min-width:0;}
+.progress{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.progress li{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:var(--muted);}
+.progress li::before{content:"";height:5px;border-radius:999px;background:var(--line);}
+.progress li.done{color:var(--ink-2);}
+.progress li.done::before{background:var(--brand);}
+.progress li.cur{color:var(--ink);}
+.progress li.cur::before{background:linear-gradient(90deg,var(--brand) 50%,var(--line) 50%);}
+.best{height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);font-size:12.5px;font-weight:600;color:var(--link);display:inline-flex;align-items:center;gap:6px;}
+.best:hover{border-color:var(--brand);}
+.side-card{border:1px solid var(--line);border-radius:24px;padding:22px;background:var(--surface);display:flex;flex-direction:column;gap:18px;}
+.side-cta{display:none;}
+.pay-side{display:none;}
+@media (min-width:1100px){ body.wide .pay-side{display:flex;} }
+@media (min-width:1100px){
+  body.wide #app{grid-template-columns:var(--pw-w,calc((100% - 12px) * .6667)) 12px minmax(0,1fr);}
+  body.wide .split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:32px;align-items:start;}
+  body.wide .split .side{position:sticky;top:14px;}
+  body.wide .pad{padding:32px 40px 0;}
+  body.wide .footbar{display:none;}
+  body.wide .side-cta{display:flex;flex-direction:column;align-items:stretch;gap:12px;}
+  body.wide .side-cta .sum b{white-space:nowrap;}
+  body.wide .side-cta .pill-cta{margin-left:0;justify-content:space-between;width:100%;}
+  body.wide .seatmap{max-height:none;gap:5px;}
+  body.wide .hint,body.wide #heatBtn{display:none;}
+  body.wide .display{font-size:34px;}
+}
+.hd{grid-area:hd;display:flex;align-items:center;gap:20px;padding:0 24px;background:var(--surface);border-bottom:1px solid var(--line);z-index:30;}
+.logo{display:flex;align-items:center;gap:11px;color:var(--ink);text-decoration:none;flex:none;}
+.logo .mark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,color-mix(in srgb,var(--brand) 82%,#fff),var(--brand) 55%,color-mix(in srgb,var(--brand) 70%,#000));box-shadow:0 6px 16px color-mix(in srgb,var(--brand) 35%,transparent),inset 0 1px 0 rgba(255,255,255,.3);}
+.logo .mark svg{width:24px;height:24px;}
+.logo .word{display:flex;flex-direction:column;line-height:1.05;font-weight:600;font-size:18px;letter-spacing:-.005em;}
+.logo .word small{font-size:10.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+.hd-div{width:1px;height:28px;background:var(--line);flex:none;}
+.hd-right{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted);}
+.round{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--surface);color:var(--ink);flex:none;}
+.round:hover{background:var(--surface-2);}
+.wallet-btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 14px 0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:13.5px;color:var(--ink);}
+.wallet-btn:hover{background:var(--surface-2);}
+.wallet-btn .n{min-width:22px;height:22px;border-radius:999px;background:var(--brand);color:#fff;font-size:12px;display:grid;place-items:center;padding:0 6px;}
+.wallet-btn .n[data-zero="true"]{background:var(--surface-2);color:var(--muted);}
+.w-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;max-height:60vh;overflow:auto;}
+.w-item{background:var(--dark-2);border-radius:18px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;}
+.w-item b{font-size:15.5px;}
+.w-item small{display:block;font-size:12.5px;color:var(--dark-muted);}
+.w-item .ref{font:600 12px var(--mono);color:var(--dark-ink);letter-spacing:.04em;}
+.w-item button{grid-row:1/4;grid-column:2;}
+.w-empty{border:1px dashed var(--dark-line);border-radius:18px;padding:22px;text-align:center;color:var(--dark-muted);font-size:14px;}
+.hold{color:var(--link);font-weight:600;}
+.hold.low{color:var(--danger);}
+.pt.still{animation:none;}
+.chip-sm{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;background:var(--surface-2);font-weight:600;font-size:13px;color:var(--ink-2);}
+
+/* panel */
+.pn{grid-area:pn;background:var(--surface);overflow:auto;position:relative;display:flex;flex-direction:column;}
+.view{display:flex;flex-direction:column;min-height:100%;}
+.pad{padding:28px 28px 0;display:flex;flex-direction:column;gap:24px;}
+.eyebrow{font-size:13px;color:var(--muted);font-weight:500;margin:0;}
+.display{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;font-size:32px;line-height:1.05;letter-spacing:-.01em;margin:2px 0 0;text-wrap:balance;}
+.h2{font-family:var(--serif);font-weight:600;font-size:19px;margin:0;letter-spacing:-.01em;}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.dates{display:flex;gap:10px;overflow-x:auto;margin:0 -28px;padding:4px 28px 8px;scrollbar-width:none;}
+.dates::-webkit-scrollbar{display:none;}
+.date{flex:none;width:64px;height:78px;border-radius:16px;border:0;background:var(--surface-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;color:var(--muted);position:relative;}
+.date small{font-size:10.5px;font-weight:500;letter-spacing:.08em;}
+.date b{font-size:22px;line-height:1.1;color:var(--ink-2);}
+.date span{font-size:12px;}
+.date[aria-selected="true"]{background:var(--surface);box-shadow:var(--shadow);outline:1px solid var(--line);color:var(--ink);}
+.date[aria-selected="true"] b{color:var(--ink);}
+.date[aria-selected="true"]::before{content:"";position:absolute;top:8px;width:16px;height:3px;border-radius:2px;background:var(--brand);}
+.ev-card{background:var(--dark-card);color:var(--dark-ink);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:18px;}
+.ev-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.tag{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--dark-line);font-size:12px;font-weight:600;color:var(--dark-ink);}
+.ev-card h3{margin:0;font-size:19px;font-weight:600;letter-spacing:0;}
+.ev-card .v{margin:-14px 0 0;font-size:13px;color:var(--dark-muted);}
+.tl{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;}
+.tl b{display:block;font-size:17px;}
+.tl small{font-size:12px;color:var(--dark-muted);}
+.tl .r{text-align:right;}
+.tline{display:flex;align-items:center;gap:6px;color:var(--brand);}
+.tline i{flex:1;height:0;border-top:2px dotted var(--dark-line);}
+.tline .dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--dark-ink);}
+.tline .dot.f{background:var(--dark-ink);}
+.ev-foot{background:var(--dark-2);border-radius:16px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;}
+.ev-foot small{display:block;font-size:12px;color:var(--dark-muted);}
+.ev-foot b{font-size:18px;}
+.badge{display:inline-flex;align-items:center;gap:4px;font:600 11.5px var(--sans);padding:4px 9px;border-radius:999px;white-space:nowrap;}
+.b-ok{background:var(--ok-bg);color:var(--success);}
+.b-warn{background:var(--warn-bg);color:var(--warn);}
+.b-danger{background:var(--danger-bg);color:var(--danger);}
+.b-neutral{background:var(--surface-2);color:var(--ink-2);}
+.tiles{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;}
+.tile{border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;background:var(--surface);min-width:0;}
+.tile.full{grid-column:1/-1;flex-direction:column;align-items:stretch;gap:6px;}
+.tile .ic{width:40px;height:40px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;color:var(--brand);flex:none;}
+.tile small{display:block;font-size:12px;color:var(--muted);}
+.tile b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mini-step{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.mini-step button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);font-size:17px;line-height:1;}
+.mini-step button:disabled{opacity:.35;cursor:not-allowed;}
+.mini-step output{min-width:18px;text-align:center;font-weight:600;}
+input[type=range]{width:100%;accent-color:var(--brand);height:26px;margin:0;}
+.seg{display:flex;gap:4px;background:var(--surface-2);border-radius:16px;padding:5px;overflow-x:auto;scrollbar-width:none;}
+.seg button{flex:1 0 auto;border:0;background:transparent;border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:500;color:var(--ink-2);white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:6px;}
+.seg button i{width:8px;height:8px;border-radius:50%;}
+.seg button[aria-pressed="true"]{background:var(--pill);color:var(--pill-ink);}
+.pills{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+.pills button{flex:none;height:38px;padding:0 16px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);font-size:13px;font-weight:500;color:var(--ink-2);}
+.pills button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--on-brand);}
+.count{font-size:13px;color:var(--muted);margin:-12px 0 0;}
+.secs{list-style:none;margin:0;padding:0 0 28px;display:flex;flex-direction:column;gap:12px;}
+.sec-card{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:18px 20px 16px;text-align:left;display:flex;flex-direction:column;gap:14px;transition:border-color .15s,box-shadow .15s,transform .15s;}
+.sec-card:hover,.sec-card.hl{border-color:var(--brand);box-shadow:var(--shadow);transform:translateY(-1px);}
+.sec-card:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;border-color:var(--line);}
+.sc-route{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;}
+.sc-route b{display:block;font-size:22px;font-weight:600;letter-spacing:-.01em;line-height:1.05;}
+.sc-route small{display:block;font-size:12px;color:var(--muted);}
+.sc-route .r{text-align:right;}
+.sc-line{display:flex;align-items:center;gap:4px;color:var(--brand);}
+.sc-line i{flex:1;border-top:2px dashed color-mix(in srgb,var(--brand) 55%,transparent);}
+.sc-line svg{width:18px;height:18px;transform:rotate(90deg);}
+.sc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px dashed var(--line-2);padding-top:12px;font-size:13px;color:var(--muted);}
+.sc-foot .left{color:var(--link);font-weight:600;}
+.sc-foot .left.low{color:var(--warn);}
+.sc-foot b{font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums;}
+.sc-foot .cls{display:inline-flex;align-items:center;gap:6px;}
+.sc-foot .cls i{width:8px;height:8px;border-radius:50%;}
+.empty{padding:18px;border:1px dashed var(--line-2);border-radius:18px;color:var(--muted);font-size:14px;text-align:center;}
+
+/* seats + pay */
+.topbar{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:10px;}
+.topbar h2{margin:0;text-align:center;font-size:16px;font-weight:600;}
+.stepno-unused{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font-size:12px;font-weight:600;color:var(--ink-2);}
+.cls-cards{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;}
+.cls-card{border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:2px;border:1px solid var(--line);background:var(--surface);text-align:left;}
+.cls-card.on{background:var(--dark-card);color:var(--dark-ink);border-color:var(--dark-card);}
+.cls-card b{font-size:15px;}
+.cls-card small{font-size:12px;color:var(--muted);}
+.cls-card.on small{color:var(--dark-muted);}
+.cls-card .p{font-size:20px;font-weight:600;margin-top:6px;}
+.cls-card.alt{justify-content:center;gap:6px;color:var(--ink-2);}
+.cls-card.alt:hover{background:var(--surface-2);}
+.facts{display:flex;flex-wrap:wrap;gap:6px;}
+.legend-row{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);}
+.legend-row span{display:flex;align-items:center;gap:7px;}
+.lg{width:16px;height:16px;border-radius:5px;border:1.5px solid var(--seat-line);background:var(--surface);}
+.lg.t{background:repeating-linear-gradient(45deg,var(--hatch) 0 2px,transparent 2px 5px);border-color:var(--hatch);}
+.lg.s{background:var(--brand);border-color:var(--brand);}
+.map-card{border:1px solid var(--line);border-radius:24px;padding:20px;background:var(--surface);}
+.map-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.map-head b{font-size:16px;}
+.map-head small{font-size:12px;color:var(--muted);}
+.stage-lbl{text-align:center;font-size:11px;font-weight:600;letter-spacing:.16em;color:var(--muted);border-bottom:3px solid var(--line-2);border-radius:0 0 50% 50%/0 0 12px 12px;padding-bottom:6px;margin:0 14% 12px;}
+.seatmap{display:grid;grid-template-columns:22px repeat(14,1fr);gap:5px;align-items:center;max-height:340px;overflow:auto;}
+.seatmap .rl,.seatmap .cn{font-size:10px;font-weight:600;color:var(--muted);text-align:center;}
+.seat{aspect-ratio:1;max-width:100%;min-width:0;border-radius:6px;border:1.5px solid var(--seat-line);background:var(--surface);padding:0;display:grid;place-items:center;}
+.seat:hover:not(:disabled){border-color:var(--brand);}
+.seat[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff;}
+.seat svg{width:70%;height:70%;}
+.seat:disabled{background:repeating-linear-gradient(45deg,var(--hatch) 0 2px,transparent 2px 5px);border-color:var(--hatch);cursor:not-allowed;}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border-top:1px dashed var(--line-2);padding-top:16px;margin-top:16px;}
+.trio small{display:block;font-size:12px;color:var(--muted);}
+.trio b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.trio div:last-child{text-align:right;}
+.picked{display:flex;flex-wrap:wrap;gap:6px;}
+.picked button{border:1px solid var(--line-2);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;min-height:34px;}
+.picked button[aria-current="true"]{border-color:var(--brand);color:var(--link);background:var(--brand-soft);}
+.footbar{position:sticky;bottom:0;margin-top:auto;background:var(--surface);border-top:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;gap:14px;z-index:3;}
+.footbar .sum small{display:block;font-size:12px;color:var(--muted);}
+.footbar .sum b{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.pill-cta{margin-left:auto;display:flex;align-items:center;gap:14px;height:56px;padding:0 6px 0 22px;border-radius:999px;border:0;background:var(--pill);color:var(--pill-ink);font-weight:600;font-size:15px;white-space:nowrap;}
+.pill-cta .ic{width:44px;height:44px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;}
+.pill-cta:hover:not(:disabled) .ic{background:var(--brand-hover);}
+.pill-cta:disabled{opacity:.45;cursor:not-allowed;}
+.fine{margin:0;font-size:12px;color:var(--muted);text-align:center;}
+.tot{margin:0;display:grid;gap:6px;font-size:14px;font-variant-numeric:tabular-nums;}
+.tot div{display:flex;justify-content:space-between;}
+.tot dt{color:var(--muted);}
+.tot dd{margin:0;}
+/* payment */
+.pay-ticket{background:var(--dark-card);color:var(--dark-ink);border-radius:24px;padding:22px;display:grid;gap:10px;}
+.pay-ticket .row{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--dark-muted);}
+.pay-ticket .row strong{color:var(--dark-ink);font-variant-numeric:tabular-nums;}
+.pay-ticket .big{font-size:17px;font-weight:600;}
+.pay-ticket hr{border:0;border-top:1px dashed var(--dark-line);margin:4px 0;width:100%;}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.fld label{font-size:12.5px;font-weight:600;color:var(--muted);}
+.in{height:50px;padding:0 14px;font-size:15px;width:100%;border-radius:14px;border:1px solid transparent;background:var(--surface-2);color:var(--ink);}
+.in:focus{border-color:var(--brand);outline:none;background:var(--surface);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 18%,transparent);}
+.in[aria-invalid="true"]{border-color:var(--danger);}
+.err{font-size:12.5px;color:var(--danger);}
+.phone{display:flex;gap:6px;}
+.phone span{display:grid;place-items:center;padding:0 12px;border-radius:14px;background:var(--surface-2);font-weight:600;color:var(--ink-2);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.methods{display:grid;gap:10px;}
+.method{display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;border:1px solid var(--line);border-radius:18px;padding:14px 16px;cursor:pointer;background:var(--surface);}
+.method .ic{width:40px;height:40px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-2);}
+.method:has(input:checked){border-color:var(--brand);box-shadow:0 0 0 1px var(--brand) inset;}
+.method:has(input:checked) .ic{background:var(--brand-soft);color:var(--link);}
+.method input{position:absolute;opacity:0;pointer-events:none;}
+.method:has(input:focus-visible){outline:3px solid color-mix(in srgb,var(--brand) 55%,transparent);outline-offset:2px;}
+.method b{display:block;font-size:14.5px;}
+.method small{color:var(--muted);font-size:12.5px;}
+.radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-2);}
+.method:has(input:checked) .radio{border:6px solid var(--brand);}
+.brands{display:flex;gap:4px;margin-top:4px;}
+.brands span{font:600 9.5px var(--sans);letter-spacing:.04em;border:1px solid var(--line-2);border-radius:4px;padding:1px 5px;color:var(--ink-2);}
+.card-scene{perspective:1100px;display:flex;justify-content:center;padding:4px 0;}
+.card3d{position:relative;width:min(340px,100%);aspect-ratio:1.586;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.3,.8,.3,1);}
+.card3d.flip{transform:rotateY(180deg)!important;}
+.face{position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;color:#F4F6FA;box-shadow:0 18px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.18);}
+.face.front{background:var(--cardbg,linear-gradient(135deg,#3a0d12,#150507 60%,#2a0a0e));padding:18px 20px;display:flex;flex-direction:column;}
+.face.front::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at var(--gx,30%) var(--gy,0%),rgba(255,255,255,.22),transparent 55%);pointer-events:none;}
+.face.back{transform:rotateY(180deg);background:var(--cardbg,linear-gradient(135deg,#3a0d12,#150507 60%,#2a0a0e));}
+.chipc{width:42px;height:32px;border-radius:6px;background:linear-gradient(135deg,#d9c07a,#a8894a 60%,#e6d49b);position:relative;margin-top:14px;}
+.chipc::before{content:"";position:absolute;inset:6px 8px;border:1px solid rgba(0,0,0,.25);border-radius:3px;}
+.cnum{font:500 clamp(15px,4.6vw,19px) var(--mono);letter-spacing:.1em;font-variant-numeric:tabular-nums;margin-top:auto;text-shadow:0 1px 1px rgba(0,0,0,.4);white-space:nowrap;}
+.crow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px;gap:10px;}
+.crow small{display:block;font:500 9px var(--mono);letter-spacing:.14em;opacity:.7;}
+.crow b{font:600 13px var(--mono);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:190px;}
+.cbrand{position:absolute;top:18px;right:20px;font:600 italic 20px var(--sans);}
+.cbank{font:600 12px var(--sans);letter-spacing:.08em;opacity:.8;}
+.stripe{height:40px;background:#0b0c10;margin-top:22px;}
+.cvvbox{margin:16px 20px 0;display:flex;align-items:center;gap:10px;}
+.cvvbox div{flex:1;height:34px;background:repeating-linear-gradient(90deg,#e9e6dc 0 6px,#ddd8ca 6px 12px);border-radius:4px;}
+.cvvbox b{background:#fff;color:#111;font:600 14px var(--mono);padding:6px 10px;border-radius:4px;min-width:52px;text-align:center;}
+.note{font-size:12.5px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;margin:0;}
+.note svg{flex:none;width:16px;height:16px;margin-top:2px;color:var(--success);}
+.demo-note{font-size:12.5px;color:var(--warn);background:var(--warn-bg);border-radius:12px;padding:10px 12px;margin:0;}
+.linkbtn{border:0;background:none;color:var(--link);font-weight:600;padding:0;font-size:13px;align-self:flex-start;}
+.linkbtn:hover{text-decoration:underline;}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);}
+.chk input{width:18px;height:18px;accent-color:var(--brand);margin:2px 0 0;}
+
+/* map */
+.mp{grid-area:mp;position:relative;overflow:hidden;background:#0d1628;min-height:0;}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;}
+#scene.pointing{cursor:pointer;}
+#scene:active{cursor:grabbing;}
+.card-ui{background:var(--overlay);color:var(--ink);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);}
+.legend{position:absolute;left:20px;top:20px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:13px;z-index:5;}
+.legend b{font-size:12px;color:var(--muted);font-weight:600;}
+.legend div{display:flex;align-items:center;gap:8px;}
+.legend i{width:10px;height:10px;border-radius:50%;}
+.legend .heat{height:8px;width:150px;border-radius:4px;background:linear-gradient(90deg,#2F80ED,#27AE60,#F2C94C,#EB5757);}
+.legend .hs{display:flex;justify-content:space-between;width:150px;font-size:11.5px;color:var(--muted);}
+.ctrls{position:absolute;right:20px;bottom:20px;display:flex;flex-direction:column;gap:10px;z-index:5;align-items:flex-end;}
+.ctrls .round{box-shadow:var(--shadow);background:var(--overlay);}
+.toggle{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;font-size:13px;font-weight:600;border-radius:999px;}
+.toggle .sw{width:34px;height:20px;border-radius:999px;background:var(--line-2);position:relative;transition:background .2s;}
+.toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 2px rgba(0,0,0,.25);}
+.toggle[aria-pressed="true"] .sw{background:var(--brand);}
+.toggle[aria-pressed="true"] .sw::after{transform:translateX(14px);}
+.hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);padding:10px 16px;font-size:13px;color:var(--ink-2);white-space:nowrap;z-index:4;border-radius:999px;}
+.pov{position:absolute;left:16px;top:16px;padding:12px 16px;z-index:5;max-width:calc(100% - 32px);}
+.pov b{display:block;font-size:15px;}
+.pov span{font-size:13px;color:var(--muted);}
+.loader{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:#0d1628;color:#C9D2E3;font-size:14px;transition:opacity .6s;}
+.loader.gone{opacity:0;pointer-events:none;}
+
+/* hover ticket */
+#passWrap{position:absolute;left:0;top:0;z-index:10;pointer-events:none;opacity:0;transition:opacity .15s;filter:drop-shadow(0 16px 30px rgba(5,12,28,.4));perspective:1000px;}
+#passWrap.visible{opacity:1;}
+.tk{width:340px;max-width:calc(100vw - 32px);background:var(--surface);color:var(--ink);border-radius:22px;overflow:hidden;border:1px solid var(--line);transform-origin:50% 0;}
+.tk.unfold{animation:unfold .42s cubic-bezier(.2,.9,.25,1.1);}
+@keyframes unfold{from{transform:rotateX(-75deg);opacity:0}to{transform:none;opacity:1}}
+.tk-body{padding:16px 18px 14px;display:flex;flex-direction:column;gap:12px;position:relative;}
+.tk-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);font-weight:600;}
+.tk-head .cls{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);font-weight:600;}
+.tk-head .cls i{width:8px;height:8px;border-radius:50%;}
+.tk-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 10px;margin:0;}
+.tk-fields dt{font-size:11.5px;color:var(--muted);}
+.tk-fields dd{margin:0;font-size:14px;font-weight:600;white-space:nowrap;}
+.tk-fields div:nth-child(3n){text-align:right;}
+.tk-tear{height:0;border-top:2px dashed var(--line-2);margin:0 18px;}
+.tk-foot{padding:12px 18px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.tk-foot small{display:block;font-size:11.5px;color:var(--muted);}
+.tk-foot b{font-size:19px;font-weight:600;}
+.tk-foot b.strike{text-decoration:line-through;color:var(--muted);}
+.tk-note{font-size:12.5px;color:var(--muted);}
+.tk-note.fast{color:var(--warn);font-weight:600;}
+.tk-note.cx{color:var(--danger);font-weight:600;}
+.pass-cta{display:none;background:var(--brand);color:#fff;border:0;border-radius:999px;padding:0 16px;font-weight:600;font-size:13px;height:40px;}
+.barcode{display:flex;height:30px;gap:1.5px;}
+.barcode span{background:var(--ink);}
+.stamp{position:absolute;left:50%;top:50%;translate:-50% -50%;border:3px solid var(--danger);color:var(--danger);padding:4px 14px;border-radius:8px;font:600 22px var(--sans);letter-spacing:.1em;rotate:-12deg;opacity:0;pointer-events:none;white-space:nowrap;background:color-mix(in srgb,var(--surface) 70%,transparent);}
+.stamp.cx{opacity:.85;}
+.stamp.ok{border-color:var(--success);color:var(--success);}
+.stamp.show{animation:stampIn .38s cubic-bezier(.2,1.6,.4,1) forwards;}
+@keyframes stampIn{from{opacity:0;scale:2.4}to{opacity:.92;scale:1}}
+
+/* modals */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(8,10,14,.62);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;}
+.modal-card{width:min(440px,100%);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:26px;padding:22px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow-lg);}
+.modal-card.trip{background:var(--dark-card);color:var(--dark-ink);border-color:var(--dark-card);width:min(460px,100%);}
+.modal-card.shake{animation:shake .35s;}
+@keyframes shake{25%{transform:translate(-4px,2px)}50%{transform:translate(3px,-2px)}75%{transform:translate(-2px,1px)}}
+.modal-top{display:flex;align-items:flex-start;gap:14px;}
+.lock-ic{flex:none;width:44px;height:44px;border-radius:50%;background:var(--brand-soft);color:var(--link);display:grid;place-items:center;}
+.lock-ic svg{width:20px;height:20px;}
+.modal-top h2{margin:0;font-size:20px;}
+.modal-top p{margin:2px 0 0;color:var(--muted);font-size:14px;}
+.kv{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14px;border-radius:16px;padding:12px 14px;background:var(--surface-2);}
+.kv dt{color:var(--muted);}
+.kv dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;}
+.otp{display:flex;gap:8px;justify-content:center;}
+.otp input{width:46px;height:56px;text-align:center;font:600 22px var(--sans);border:1px solid var(--line-2);border-radius:14px;background:var(--surface);color:var(--ink);}
+.otp input:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 22%,transparent);}
+.otp.bad input{border-color:var(--danger);}
+.spinner{width:40px;height:40px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--brand);animation:spin .9s linear infinite;margin:6px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.center{text-align:center;color:var(--muted);font-size:14px;margin:0;}
+.modal-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.btn2{border:1px solid var(--line-2);background:transparent;border-radius:999px;height:48px;padding:0 20px;font-weight:600;}
+.btn2:hover{background:var(--surface-2);}
+.btn-brand{border:0;border-radius:999px;height:48px;padding:0 24px;background:var(--brand);color:#fff;font-weight:600;}
+.btn-brand:hover{background:var(--brand-hover);}
+.trip .btn2{border-color:var(--dark-line);color:var(--dark-ink);}
+.trip .btn2:hover{background:var(--dark-2);}
+.trip-head small{display:block;font-size:13px;color:var(--dark-muted);}
+.trip-head h2{margin:2px 0 0;font-family:var(--serif);font-weight:600;font-size:26px;}
+.trip-head p{margin:6px 0 0;font-size:13px;color:var(--dark-muted);}
+.ticket-clip{overflow:hidden;padding-bottom:6px;border-radius:0 0 22px 22px;}
+.ticket-clip.done{overflow:visible;}
+.pt{--notch:var(--dark-card);position:relative;background:#fff;color:#111318;border-radius:22px;animation:print 2.1s cubic-bezier(.3,.1,.3,1) both;}
+@keyframes print{0%{transform:translateY(-102%)}20%{transform:translateY(-78%)}26%{transform:translateY(-78%)}48%{transform:translateY(-50%)}54%{transform:translateY(-50%)}78%{transform:translateY(-20%)}84%{transform:translateY(-20%)}100%{transform:translateY(0)}}
+.pt-main{padding:18px 20px 16px;display:flex;flex-direction:column;gap:14px;position:relative;}
+.pt small{display:block;font-size:12px;color:#6B7280;}
+.pt .who{font-size:21px;font-weight:600;letter-spacing:-.01em;}
+.pt-times{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:13px;font-weight:600;}
+.pt-line{display:flex;align-items:center;gap:6px;color:#111318;}
+.pt-line i{flex:1;border-top:2px dotted #C3C8D0;}
+.pt-line .dot{width:10px;height:10px;border-radius:50%;border:2px solid #111318;}
+.pt-line .dot.f{background:#111318;}
+.pt-route{display:flex;justify-content:space-between;}
+.pt-route b{display:block;font-size:17px;}
+.pt-route div:last-child{text-align:right;}
+.pt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.pt-grid b{display:block;font-size:17px;}
+.pt-grid div:nth-child(2){text-align:center;}
+.pt-grid div:nth-child(3){text-align:right;}
+.pt-ref b{font-size:18px;letter-spacing:.02em;}
+.pt-stub{position:relative;border-top:2px dashed #D5D9DF;padding:14px 20px 18px;display:flex;align-items:center;gap:14px;cursor:grab;touch-action:none;user-select:none;transition:transform .2s;background:#fff;border-radius:0 0 22px 22px;}
+.pt-stub::before,.pt-stub::after{content:"";position:absolute;top:-13px;width:24px;height:24px;border-radius:50%;background:var(--notch);}
+.pt-stub::before{left:-12px;} .pt-stub::after{right:-12px;}
+.pt-stub.dragging{transition:none;cursor:grabbing;}
+.pt-stub.torn{transition:transform .7s cubic-bezier(.4,0,.8,.4),opacity .7s;opacity:0;}
+.pt-stub .barcode{flex:1;height:44px;}
+.pt-stub .barcode span{background:#111318;}
+.pt-stub canvas{width:64px;height:64px;image-rendering:pixelated;border-radius:6px;}
+.pt .stamp{background:rgba(255,255,255,.7);}
+.trip-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.trip-foot p{margin:0;font-size:13px;color:var(--dark-muted);}
+
+@media (max-width: 860px){
+  #app{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:60px minmax(300px,44%) minmax(0,1fr);grid-template-areas:"hd" "mp" "pn";}
+  .splitter{display:none;}
+  .hd{padding:0 14px;}
+  .hd-right .note{display:none;}
+  .wallet-btn .lbl{display:none;}
+  .pn{border-right:0;border-top:1px solid var(--line);}
+  .pad{padding:18px 16px 0;}
+  .dates{margin:0 -16px;padding:4px 16px 8px;}
+  .footbar{padding:12px 16px;}
+  .display{font-size:30px;}
+  .legend{display:none!important;}
+  .pov{top:12px;left:12px;padding:8px 12px;}
+  .hint{display:none;}
+  .ctrls{right:12px;bottom:12px;}
+  .toggle{height:40px;font-size:12px;}
+  #passWrap{left:12px!important;right:12px;top:auto!important;bottom:12px;transform:none!important;}
+  #passWrap.visible{pointer-events:auto;}
+  .tk{width:100%;}
+  .pass-cta{display:inline-block;}
+  body.card-open .ctrls{visibility:hidden;}
+  .otp input{width:40px;height:50px;}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
+}
+
+.poster{position:absolute;width:300px;aspect-ratio:3/4;border-radius:24px;box-shadow:var(--shadow-lg);}
+.poster svg.deco{position:absolute;inset:0;width:100%;height:100%;z-index:-1;}
+.pp-0{--pbg:linear-gradient(170deg,#12324a 0%,#2c5a7a 38%,#e38a5c 72%,#f3c07a 100%);}
+.pp-1{--pbg:linear-gradient(160deg,#2a0a2e 0%,#7a1545 45%,#d9493a 80%,#f2a33a 100%);}
+.pp-2{--pbg:linear-gradient(175deg,#1f3b4d 0%,#3d6b58 45%,#8aa760 75%,#e7c982 100%);}
+.pp-3{--pbg:linear-gradient(170deg,#082a3f 0%,#0f5b76 45%,#2ea3a8 70%,#f08c73 100%);}
+.pp-4{--pbg:linear-gradient(165deg,#2b1330 0%,#6e2447 40%,#c8517a 72%,#f4b8c6 100%);}
+.pp-5{--pbg:linear-gradient(170deg,#07080f 0%,#1c1430 45%,#5a1f34 80%,#b0503f 100%);}
+.pp-6{--pbg:linear-gradient(175deg,#0a1a33 0%,#16335e 45%,#2c6a45 80%,#58a04a 100%);}
+
+
+
+.hd{position:relative;}
+.evsel{display:flex;align-items:center;gap:12px;min-width:0;max-width:440px;height:52px;padding:4px 14px 4px 4px;border-radius:16px;border:1px solid var(--line);background:var(--surface-2);text-align:left;}
+.evsel:hover,.evsel[aria-expanded="true"]{border-color:var(--brand);}
+.evsel .t{display:flex;flex-direction:column;min-width:0;line-height:1.25;}
+.evsel .t b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evsel .t small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evsel .chev{margin-left:auto;color:var(--muted);flex:none;transition:transform .2s;}
+.evsel[aria-expanded="true"] .chev{transform:rotate(180deg);color:var(--link);}
+.mini{position:relative;flex:none;width:40px;height:44px;border-radius:11px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;background:var(--pbg);isolation:isolate;line-height:1;}
+.mini svg.deco{position:absolute;inset:0;width:100%;height:100%;z-index:-1;}
+.mini b{font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,.4);}
+.mini small{font-size:8.5px;font-weight:600;letter-spacing:.08em;margin-top:2px;text-shadow:0 1px 4px rgba(0,0,0,.4);}
+.mini.big{width:62px;height:76px;border-radius:14px;}
+.mini.big b{font-size:21px;}
+.mini.big small{font-size:10px;}
+.evpop{position:absolute;top:60px;left:200px;width:min(560px,calc(100vw - 24px));background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-lg);z-index:50;overflow:hidden;}
+@keyframes popIn{from{opacity:0;transform:translateY(-6px)}}
+.evpop-head{padding:12px;border-bottom:1px solid var(--line);}
+.evq{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border-radius:14px;background:var(--surface-2);color:var(--muted);}
+.evq input{border:0;background:transparent;outline:none;width:100%;font-size:14px;color:var(--ink);}
+.evq:focus-within{box-shadow:0 0 0 2px var(--brand) inset;}
+.evlist{list-style:none;margin:0;padding:8px;max-height:min(460px,65vh);overflow:auto;display:grid;gap:4px;scrollbar-width:none;}
+.evlist::-webkit-scrollbar{display:none;}
+.evrow{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;border:1px solid transparent;background:transparent;border-radius:16px;padding:8px 12px 8px 8px;text-align:left;}
+.evrow:hover,.evrow:focus-visible{background:var(--surface-2);}
+.evrow[aria-selected="true"]{border-color:var(--brand);background:var(--brand-soft);}
+.evrow .d{display:flex;flex-direction:column;gap:1px;min-width:0;}
+.evrow .g{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--link);}
+.evrow .d b{font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evrow .d small{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evrow .p{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.evrow .p small{font-size:11px;color:var(--muted);margin-top:4px;}
+.evrow .p b{font-size:14.5px;white-space:nowrap;}
+.evempty{padding:22px;text-align:center;color:var(--muted);}
+.evpop-foot{padding:10px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);}
+@media (max-width:860px){ .evsel{flex:1;max-width:none;height:48px;} .evsel .t small{display:none;} .evpop{left:12px;top:56px;} .evrow .p small,.evrow .d small:last-child{display:none;} }
+@media (max-width:480px){ .evrow{grid-template-columns:auto minmax(0,1fr);} .evrow .p{display:none;} }
+.tk-x{display:none;position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface-2);font-size:18px;line-height:1;color:var(--ink);z-index:2;}
+@media (max-width:860px){
+  .tk-x{display:grid;place-items:center;}
+  .tk-head{padding-right:40px;}
+  .tk-foot{flex-wrap:wrap;}
+  .tk-foot .barcode{display:none;}
+  .pass-cta{display:inline-flex!important;align-items:center;justify-content:center;gap:8px;flex:1;height:48px!important;font-size:15px!important;min-width:150px;}
+}
+.evsel{display:flex;align-items:center;gap:12px;min-width:0;max-width:470px;height:54px;padding:5px 6px 5px 5px;border-radius:18px;border:1px solid var(--line);background:var(--surface);text-align:left;transition:border-color .15s,box-shadow .15s,background .15s;}
+.evsel:hover{background:var(--surface-2);}
+.evsel[aria-expanded="true"]{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 16%,transparent);}
+.evsel .cal{flex:none;width:42px;height:44px;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;align-items:center;background:var(--surface-2);border:1px solid var(--line);line-height:1;}
+.evsel .cal small{width:100%;text-align:center;background:var(--brand);color:#fff;font-size:9.5px;font-weight:600;letter-spacing:.1em;padding:3px 0 2px;}
+.evsel .cal b{font-size:18px;font-weight:600;margin:auto 0;color:var(--ink);}
+.evsel .t{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;}
+.evsel .top{display:flex;align-items:center;gap:8px;min-width:0;}
+.evsel .top b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evsel .dot{flex:none;width:7px;height:7px;border-radius:50%;background:var(--success);padding:0;}
+.evsel .dot.b-warn{background:var(--warn);} .evsel .dot.b-danger{background:var(--danger);} .evsel .dot.b-ok{background:var(--success);}
+.evsel .t small{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;}
+.evsel .m{display:inline-flex;align-items:center;gap:4px;}
+.evsel .sep{width:3px;height:3px;border-radius:50%;background:var(--line-2);flex:none;}
+.evsel .chevb{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--surface-2);color:var(--muted);transition:transform .2s,color .15s;}
+.evsel[aria-expanded="true"] .chevb{transform:rotate(180deg);color:var(--link);}
+@media (max-width:860px){ .hd-div,.logo .word small{display:none;} .logo .word{font-size:16px;} .evsel{height:48px;} .evsel .t small .m:not(:first-child),.evsel .t small .sep{display:none;} }
+@media (max-width:480px){ .logo .word{display:none;} .evsel .chevb{display:none;} .evsel{padding-right:12px;} }
+/* hide scrollbars, keep scrolling */
+.pn,#landing,.seatmap,.w-list,.modal,.seg,.pills,.dates{scrollbar-width:none;-ms-overflow-style:none;}
+.pn::-webkit-scrollbar,#landing::-webkit-scrollbar,.seatmap::-webkit-scrollbar,.w-list::-webkit-scrollbar,.modal::-webkit-scrollbar,.seg::-webkit-scrollbar,.pills::-webkit-scrollbar{display:none;width:0;height:0;}
+.pn{overscroll-behavior:contain;}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="hd">
+    <a class="logo" href="#top" aria-label="SkyPass home">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 8.5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1.6a2 2 0 0 0 0 3.8v1.6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1.6a2 2 0 0 0 0-3.8z" fill="#fff"/><path d="M15 7v10" stroke="var(--brand)" stroke-width="1.4" stroke-dasharray="1.6 1.6"/><path d="M7.2 13.6l5-2.9.8.5-2.2 1.8 1.3 1.4-.6.4-1.7-1-1.4.8z" fill="var(--brand)"/></svg></span>
+      <span class="word">SkyPass<small>Live seats</small></span>
+    </a>
+    <span class="hd-div" aria-hidden="true"></span>
+    <button class="evsel" id="evsel" aria-haspopup="listbox" aria-expanded="false" aria-controls="evpop"></button>
+    <div class="evpop" id="evpop" hidden><div class="evpop-head"><label class="evq"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span class="sr">Search shows</span><input id="evq" type="search" placeholder="Search shows, venues, cities" autocomplete="off"></label></div><ul class="evlist" id="evlist" role="listbox" aria-label="Choose an event"></ul><div class="evpop-foot">Every show has reserved seating you can preview in 3D.</div></div>
+    <div class="hd-right"><span class="note">Prices in LKR, incl. taxes</span><button class="wallet-btn" id="walletBtn" aria-haspopup="dialog"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg><span class="lbl">My tickets</span><span class="n" id="walletCount" data-zero="true">0</span></button>
+      <button class="round" id="themeBtn" aria-label="Switch to dark mode"><svg id="themeIc" class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"></svg></button>
+    </div>
+  </header>
+
+  <aside class="pn" id="panel" aria-label="Ticket booking">
+    <!-- STEP 1 -->
+    <div class="view" id="viewFind">
+      <div class="pad">
+        <div><p class="eyebrow">Where to tonight?</p><h1 class="display">Book Tickets</h1></div>
+        <div class="dates" id="dateStrip" role="tablist" aria-label="Event dates"></div>
+        <div class="ev-card" id="evCard"></div>
+        <div class="tiles">
+          <div class="tile">
+            <div style="min-width:0"><small>Tickets</small><b id="qtyLbl" style="font-size:15px">Guests</b></div>
+            <div class="mini-step" role="group" aria-labelledby="qtyLbl"><button id="qMinus" aria-label="Remove a ticket">−</button><output id="qOut" aria-live="polite">2</output><button id="qPlus" aria-label="Add a ticket">+</button></div></div>
+          <div class="tile"><span class="ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span>
+            <div style="min-width:0"><small>Doors open</small><b id="doorsTile">18:30</b></div></div>
+          <div class="tile full"><div class="row-between"><label for="maxPrice" style="font-size:12px;color:var(--muted)">Max price per ticket</label><b id="maxPriceOut" style="font-size:14px"></b></div><input type="range" id="maxPrice" min="0" max="100" step="100"></div>
+        </div>
+        <div class="seg" id="classChips" role="group" aria-label="Ticket class"></div>
+        <div class="row-between"><h2 class="h2">Best sections</h2></div>
+        <div class="pills" id="sortPills" role="group" aria-label="Sort sections">
+          <button data-s="price" aria-pressed="true">Lowest price</button><button data-s="dist" aria-pressed="false">Closest to stage</button><button data-s="avail" aria-pressed="false">Most seats</button>
+        </div>
+        <p class="count" id="secCount"></p>
+        <ul class="secs" id="secList"></ul>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="view" id="viewSeats" hidden>
+      <div class="pad" style="padding-bottom:22px">
+        <div class="topbar"><button class="round" id="backBtn" aria-label="Back to all sections"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><h2>Select Seats</h2><span></span></div>
+        <ol class="progress" aria-label="Booking progress"><li class="done">Section</li><li class="cur" aria-current="step">Seats</li><li>Payment</li><li>Ticket</li></ol>
+        <div><p class="eyebrow" id="bkSub"></p><h1 class="display" id="bkTitle" style="font-size:32px">Section 104</h1></div>
+        <div class="split">
+          <div class="main">
+            <div class="legend-row"><span><i class="lg"></i>Available</span><span><i class="lg t"></i>Taken</span><span><i class="lg s"></i>Selected</span></div>
+            <div class="map-card" id="smWrap">
+              <div class="map-head"><div><b id="smHead">Seat map</b><br><small>Centre seats shown · stage at the top</small></div><button class="best" id="bestBtn" type="button"><svg class="i" style="width:14px;height:14px" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>Best available</button></div>
+              <div class="stage-lbl">STAGE</div>
+              <div class="seatmap" id="seatmap"></div>
+              <div class="trio"><div><small>Class</small><b id="trioCls">Business</b></div><div><small>Tickets</small><b><span class="mini-step" style="margin:0;display:inline-flex" role="group" aria-label="Tickets"><button id="q2Minus" aria-label="Remove a ticket">−</button><output id="q2Out">2</output><button id="q2Plus" aria-label="Add a ticket">+</button></span></b></div><div><small>Seats</small><b id="trioSeats">—</b></div></div>
+            </div>
+          </div>
+          <div class="side">
+            <div class="cls-cards">
+              <div class="cls-card on" id="bkClassCard"></div>
+              <button class="cls-card alt" id="bkChange" type="button"><b>Change section</b><small>Back to the venue map</small></button>
+            </div>
+            <div class="facts" id="bkFacts"></div>
+            <div class="side-card">
+              <div><small style="font-size:12px;color:var(--muted)">Your seats · tap one to see its view</small><div class="picked" id="picked" style="margin-top:8px"></div></div>
+              <dl class="tot"><div><dt id="tFareLbl">Tickets × 2</dt><dd id="tFare">—</dd></div><div><dt>Service fee (5%)</dt><dd id="tFee">—</dd></div></dl>
+              <div class="side-cta"><div class="sum"><small style="display:block;font-size:12px;color:var(--muted)">Total</small><b id="tTotal2" style="font-size:20px;font-weight:600">—</b></div><button class="pill-cta" id="toPayBtn2" type="button"><span class="lbl">Continue to pay</span><span class="ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footbar"><div class="sum"><small>Total</small><b id="tTotal">—</b></div><button class="pill-cta" id="toPayBtn"><span class="lbl">Continue</span><span class="ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button></div>
+    </div>
+
+    <!-- STEP 3 -->
+    <form class="view" id="viewPay" hidden novalidate>
+      <div class="pad" style="padding-bottom:18px">
+        <div class="topbar"><button class="round" type="button" id="payBack" aria-label="Back to seats"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><h2>Payment</h2><span></span></div>
+        <ol class="progress" aria-label="Booking progress"><li class="done">Section</li><li class="done">Seats</li><li class="cur" aria-current="step">Payment</li><li>Ticket</li></ol>
+        <div class="split"><div class="main">
+        
+        <h2 class="h2">Contact details</h2>
+        <div class="fld"><label for="fName">Full name</label><input class="in" id="fName" autocomplete="name" aria-describedby="eName"><div class="err" id="eName"></div></div>
+        <div class="fld"><label for="fEmail">Email · tickets are sent here</label><input class="in" id="fEmail" type="email" autocomplete="email" aria-describedby="eEmail"><div class="err" id="eEmail"></div></div>
+        <div class="fld"><label for="fPhone">Mobile number</label><div class="phone"><span>+94</span><input class="in" id="fPhone" inputmode="numeric" autocomplete="tel-national" placeholder="77 123 4567" aria-describedby="ePhone"></div><div class="err" id="ePhone"></div></div>
+        <h2 class="h2" id="pmLbl">Payment method</h2>
+        <div class="methods" role="radiogroup" aria-labelledby="pmLbl">
+          <label class="method"><span class="ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></span><span><b>Credit or debit card</b><small>Secured with 3-D Secure</small><span class="brands"><span>VISA</span><span>MC</span><span>AMEX</span></span></span><input type="radio" name="pm" value="card" checked><span class="radio" aria-hidden="true"></span></label>
+          <label class="method"><span class="ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span><span><b>Mobile wallet</b><small>Approve the request on your phone</small></span><input type="radio" name="pm" value="wallet"><span class="radio" aria-hidden="true"></span></label>
+          <label class="method"><span class="ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M19 10v8M9 10v8M15 10v8M3 20h18"/></svg></span><span><b>Online banking</b><small>Pay from your bank account</small></span><input type="radio" name="pm" value="bank"><span class="radio" aria-hidden="true"></span></label>
+        </div>
+        <div id="pmCard" style="display:flex;flex-direction:column;gap:12px">
+          
+          <p class="demo-note">Demo checkout. Don't enter a real card. Nothing is charged or sent anywhere.</p>
+          <button type="button" class="linkbtn" id="demoCard">Fill in a test card</button>
+          <div class="fld"><label for="fCard">Card number</label><input class="in mono" id="fCard" inputmode="numeric" autocomplete="off" placeholder="1234 5678 9012 3456" aria-describedby="eCard"><div class="err" id="eCard"></div></div>
+          <div class="fld"><label for="fCName">Name on card</label><input class="in" id="fCName" autocomplete="off" aria-describedby="eCName"><div class="err" id="eCName"></div></div>
+          <div class="grid2">
+            <div class="fld"><label for="fExp">Expiry</label><input class="in mono" id="fExp" inputmode="numeric" placeholder="MM/YY" autocomplete="off" aria-describedby="eExp"><div class="err" id="eExp"></div></div>
+            <div class="fld"><label for="fCvv">Security code</label><input class="in mono" id="fCvv" inputmode="numeric" placeholder="CVV" autocomplete="off" aria-describedby="eCvv"><div class="err" id="eCvv"></div></div>
+          </div>
+          <p class="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Your bank will ask you to confirm this payment with a one-time code (3-D Secure).</p>
+        </div>
+        <div id="pmWallet" style="display:flex;flex-direction:column;gap:8px" hidden>
+          <div class="fld"><label for="fWallet">Wallet mobile number</label><div class="phone"><span>+94</span><input class="in" id="fWallet" inputmode="numeric" placeholder="77 123 4567" aria-describedby="eWallet"></div><div class="err" id="eWallet"></div></div>
+          <p class="note">We'll send a payment request to this number. Approve it in your wallet app within 5 minutes.</p>
+        </div>
+        <div id="pmBank" hidden><p class="note">You'll confirm the payment on your bank's secure page, then return here.</p></div>
+        <label class="chk"><input type="checkbox" id="fAgree"><span>I agree to the event terms and understand tickets are non-refundable.</span></label>
+        <div class="err" id="eAgree" style="margin-top:-10px"></div>
+        </div>
+        <div class="side"><div class="pay-ticket" id="paySummary"></div>
+          <div id="cardSide"><div class="card-scene" id="cardScene" aria-hidden="true">
+            <div class="card3d" id="card3d">
+              <div class="face front"><div class="cbank">SKYPASS PAY</div><div class="cbrand" id="cBrand"></div><div class="chipc"></div>
+                <div class="cnum" id="cNum">•••• •••• •••• ••••</div>
+                <div class="crow"><div><small>CARDHOLDER</small><b id="cName">YOUR NAME</b></div><div style="text-align:right"><small>EXPIRES</small><b id="cExp">MM/YY</b></div></div>
+              </div>
+              <div class="face back"><div class="stripe"></div><div class="cvvbox"><div></div><b id="cCvv">•••</b></div></div>
+            </div>
+          </div></div>
+                    <div class="side-card pay-side"><div class="side-cta" style="display:flex;flex-direction:column;align-items:stretch;gap:12px"><div class="sum"><small style="display:block;font-size:12px;color:var(--muted)">You pay · <span class="hold" id="payHold2">seats held 10:00</span></small><b id="payTotal2" style="font-size:20px;font-weight:600">—</b></div><button class="pill-cta" type="submit" id="payBtn2"><span class="lbl">Pay now</span><span class="ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button></div><p class="fine">Demo checkout. No payment is taken.</p></div>
+        </div></div>
+      </div>
+      <div class="footbar"><div class="sum"><small>You pay · <span class="hold" id="payHold" aria-live="off">seats held 10:00</span></small><b id="payTotal">—</b></div><button class="pill-cta" type="submit" id="payBtn"><span class="lbl">Pay now</span><span class="ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button></div>
+    </form>
+  </aside>
+
+  <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" aria-controls="panel" aria-label="Resize booking panel and stage view" tabindex="0" aria-valuemin="20" aria-valuemax="80" aria-valuenow="35"><span class="grip" aria-hidden="true"></span><span class="tip" aria-hidden="true">Drag to resize · double-click to reset</span></div>
+  <main class="mp" id="map" aria-label="3D venue map">
+    <canvas id="scene" aria-label="3D venue. Hover or tap a section to see its fare."></canvas>
+    <div class="loader" id="loader">Loading venue…</div>
+    <div class="legend card-ui" id="legend"></div>
+    <div class="pov card-ui" id="pov" hidden><b id="povTitle"></b><span id="povSub"></span></div>
+    <div class="ctrls">
+      <button class="toggle card-ui" id="heatBtn" aria-pressed="false"><span class="sw" aria-hidden="true"></span>Colour by price</button>
+      <button class="round" id="zIn" aria-label="Zoom in"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button class="round" id="zOut" aria-label="Zoom out"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+      <button class="round" id="zReset" aria-label="Reset view"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+    </div>
+    <div class="hint card-ui" id="hint">Drag to rotate · Scroll to zoom · Click a section to see its view</div>
+    <div id="passWrap" aria-live="polite"></div>
+  </main>
+
+  <div class="modal" id="walletModal" hidden role="dialog" aria-modal="true" aria-labelledby="wTitle">
+    <div class="modal-card trip"><div class="row-between"><div class="trip-head"><small>Saved in this browser</small><h2 id="wTitle">My tickets</h2></div><button class="btn2" id="wClose" style="height:44px">Close</button></div><ul class="w-list" id="wList"></ul></div>
+  </div>
+  <div class="modal" id="authModal" hidden role="dialog" aria-modal="true" aria-labelledby="authTitle"><div class="modal-card" id="authCard"></div></div>
+
+  <div class="modal" id="confirmModal" hidden role="dialog" aria-modal="true" aria-labelledby="cfTitle">
+    <div class="modal-card trip" id="modalCard">
+      <div class="trip-head"><small id="cfDate"></small><h2 id="cfTitle">Payment successful</h2><p id="cfSub"></p></div>
+      <div class="ticket-clip" id="ticketClip"></div>
+      <div class="trip-foot"><p id="tearHint">Printing your ticket…</p><div style="display:flex;gap:8px"><button class="btn2" id="tearBtn">Tear off stub</button><button class="btn-brand" id="doneBtn">Done</button></div></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script>
+(function(){
+const $ = s => document.querySelector(s);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const touch = matchMedia('(hover: none)').matches;
+const small = () => innerWidth <= 860;
+const mulberry = a => () => { a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; };
+const fmt = n => 'LKR ' + Math.round(n).toLocaleString('en-US');
+const deg = d => d*Math.PI/180;
+const PLANE = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>';
+const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+if(touch) $('#hint').textContent='Drag to rotate · Tap a section for its fare';
+
+/* ================= theme ================= */
+const root=document.documentElement, mqDark=matchMedia('(prefers-color-scheme: dark)');
+const isDark=()=> root.dataset.theme ? root.dataset.theme==='dark' : mqDark.matches;
+try{ const t=localStorage.getItem('skypass-theme'); if(t==='dark'||t==='light') root.dataset.theme=t; }catch(e){}
+const SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+const MOON='<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+function syncThemeBtn(){ const d=isDark(); $('#themeIc').innerHTML=d?SUN:MOON; $('#themeBtn').setAttribute('aria-label', d?'Switch to light mode':'Switch to dark mode'); }
+$('#themeBtn').addEventListener('click',()=>{ const next=isDark()?'light':'dark'; root.dataset.theme=next; try{ localStorage.setItem('skypass-theme',next); }catch(e){} onTheme(); });
+function onTheme(){ syncThemeBtn(); if(window.__applyScene) window.__applyScene(isDark()); }
+mqDark.addEventListener && mqDark.addEventListener('change',onTheme);
+new MutationObserver(onTheme).observe(root,{attributes:true,attributeFilter:['data-theme']});
+syncThemeBtn();
+
+/* ================= data ================= */
+const CLASSES = {
+  first:{label:'FIRST', name:'First Class', css:'#B7791F', base:25000},
+  business:{label:'BUSINESS', name:'Business', css:'#3B5BDB', base:12500},
+  economy:{label:'ECONOMY', name:'Economy', css:'#0C8F6A', base:5500},
+};
+const VTYPES = {
+  ground:{label:'Open-air ground', tiers:{first:'VIP Floor', business:'Front Stand', economy:'Rear Stand'}, focus:'Main stage', code:'STG'},
+  stadium:{label:'Stadium', tiers:{first:'Pitch Floor', business:'Lower Bowl', economy:'Upper Bowl'}, focus:'Main stage', code:'STG'},
+  arena:{label:'Indoor arena', tiers:{first:'Arena Floor', business:'Lower Tier', economy:'Upper Tier'}, focus:'Main stage', code:'STG'},
+  amphi:{label:'Open-air amphitheatre', tiers:{first:'Orchestra', business:'Lower Terrace', economy:'Upper Terrace'}, focus:'Main stage', code:'STG'},
+  cinema:{label:'Cinema hall', tiers:{first:'Recliners', business:'Premium Rows', economy:'Standard Rows'}, focus:'Screen', code:'SCR', base:{first:3600,business:2400,economy:1600}},
+  cricket:{label:'Cricket ground', tiers:{first:'Pavilion', business:'Lower Stand', economy:'Upper Stand'}, focus:'Pitch', code:'PCH', base:{first:15000,business:4500,economy:1500}},
+};
+const FOC=()=>VTYPES[EV().vtype];
+const EVENTS = [
+  {code:'AT-0204', title:'Sigiri Skies', venue:'Scope Cinemas, Colombo City Centre', city:'Colombo', vtype:'cinema', date:'Fri 04 Dec 2026', d:'04', mo:'DEC', doors:'19:00', show:'19:30', fare:'Premiere', mult:1, status:'Selling fast', sold:['C3'], seed:71, fill:.55, art:5},
+  {code:'AT-0214', title:'Monsoon Frequencies', venue:'Galle Face Green', city:'Colombo', vtype:'ground', date:'Sat 12 Dec 2026', d:'12', mo:'DEC', doors:'18:30', show:'20:00', fare:'Early bird', mult:.85, status:'On sale', sold:[], seed:11, fill:.45, art:0},
+  {code:'AT-0219', title:'Last Train to Ella', venue:'Liberty by Scope Cinemas', city:'Colombo', vtype:'cinema', date:'Sat 19 Dec 2026', d:'19', mo:'DEC', doors:'20:30', show:'21:00', fare:'Standard', mult:.9, status:'On sale', sold:[], seed:83, fill:.35, art:5},
+  {code:'AT-0220', title:'Mariners vs Hawks', venue:'R. Premadasa Stadium', city:'Colombo', vtype:'cricket', date:'Sun 20 Dec 2026', d:'20', mo:'DEC', doors:'17:00', show:'19:00', fare:'Standard', mult:1, status:'Selling fast', sold:['103'], seed:91, fill:.6, art:6, home:'COLOMBO MARINERS', away:'HILL COUNTRY HAWKS'},
+  {code:'AT-0307', title:'Neon Perahera', venue:'Sugathadasa Indoor Stadium', city:'Colombo', vtype:'arena', date:'Sun 27 Dec 2026', d:'27', mo:'DEC', doors:'19:00', show:'20:30', fare:'Standard', mult:1, status:'Selling fast', sold:['B','203','207'], seed:23, fill:.6, art:1},
+  {code:'AT-0412', title:'Hill Country Sessions', venue:'Pallekele International Stadium', city:'Kandy', vtype:'stadium', date:'Sat 09 Jan 2027', d:'09', mo:'JAN', doors:'17:30', show:'19:00', fare:'Standard', mult:.9, status:'On sale', sold:[], seed:37, fill:.35, art:2},
+  {code:'AT-0417', title:'Stags vs Lions', venue:'Galle International Stadium', city:'Galle', vtype:'cricket', date:'Sun 17 Jan 2027', d:'17', mo:'JAN', doors:'09:00', show:'10:00', fare:'Early bird', mult:.8, status:'On sale', sold:[], seed:97, fill:.3, art:6, home:'SOUTHERN STAGS', away:'CAPITAL LIONS'},
+  {code:'AT-0519', title:'Tidewave Live', venue:'Galle Fort Esplanade', city:'Galle', vtype:'ground', date:'Sat 30 Jan 2027', d:'30', mo:'JAN', doors:'18:00', show:'19:30', fare:'Last minute', mult:1.25, status:'Few left', sold:['A','C','102','104'], seed:41, fill:.82, art:3},
+  {code:'AT-0633', title:'Lotus Pond Orchestra', venue:'Nelum Pokuna Open-Air Theatre', city:'Colombo', vtype:'amphi', date:'Sat 13 Feb 2027', d:'13', mo:'FEB', doors:'18:45', show:'19:30', fare:'Early bird', mult:1.1, status:'On sale', sold:[], seed:59, fill:.3, art:4},
+];
+const statusBadge = s => s==='Few left'?'b-danger':s==='Selling fast'?'b-warn':'b-ok';
+let evIdx=0; const EV=()=>EVENTS[evIdx];
+const tierName = cls => VTYPES[EV().vtype].tiers[cls];
+const GRID_COLS=14, GRID_MAX_ROWS=16;
+const filt={qty:2, cls:'all', max:Infinity, sort:'price'};
+
+/* ================= renderer ================= */
+const mapEl=$('#map'), canvas=$('#scene');
+const renderer=new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
+const PR=Math.min(devicePixelRatio, small()?1.5:2); renderer.setPixelRatio(PR);
+const HAS_POST=!!(THREE.EffectComposer && THREE.UnrealBloomPass && THREE.RenderPass && THREE.ShaderPass);
+if(HAS_POST){ renderer.toneMapping=THREE.NoToneMapping; renderer.outputEncoding=THREE.LinearEncoding; }
+else { renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1; renderer.outputEncoding=THREE.sRGBEncoding; }
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x2a3a5c, 0.0016);
+const camera=new THREE.PerspectiveCamera(40,1,.1,3000);
+const DECK_H=2.0, STAGE_LOOK=new THREE.Vector3(0,7,-8), ARC_START=new THREE.Vector3(0,17,-4);
+
+/* ---------- textures ---------- */
+function canvasTex(w,h,draw,repeat){ const c=document.createElement('canvas'); c.width=w; c.height=h; draw(c.getContext('2d'),w,h); const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; t.wrapS=t.wrapT=THREE.RepeatWrapping; if(repeat) t.repeat.set(...repeat); t.anisotropy=8; return t; }
+const GLOW=(()=>{ const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d'); const r=g.createRadialGradient(64,64,0,64,64,64); r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(.25,'rgba(255,255,255,.45)'); r.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=r; g.fillRect(0,0,128,128); return new THREE.CanvasTexture(c); })();
+const grassTex=canvasTex(512,512,(g,w,h)=>{ const r=mulberry(9); g.fillStyle='#3b5f2e'; g.fillRect(0,0,w,h); for(let i=0;i<14000;i++){ const l=28+r()*22|0; g.fillStyle=`hsla(${88+r()*22},${35+r()*20}%,${l}%,.35)`; g.fillRect(r()*w,r()*h,1+r()*1.5,2+r()*3); } for(let i=0;i<40;i++){ g.fillStyle=`rgba(${80+r()*40|0},${70+r()*30|0},40,.12)`; g.beginPath(); g.arc(r()*w,r()*h,10+r()*40,0,7); g.fill(); } },[160,160]);
+const asphaltTex=canvasTex(256,256,(g,w,h)=>{ const r=mulberry(12); g.fillStyle='#34373d'; g.fillRect(0,0,w,h); for(let i=0;i<5000;i++){ const v=40+r()*40|0; g.fillStyle=`rgba(${v},${v},${v+3},.4)`; g.fillRect(r()*w,r()*h,1.5,1.5);} },[200,200]);
+const pavingTex=canvasTex(256,256,(g,w,h)=>{ const r=mulberry(4); g.fillStyle='#8f877b'; g.fillRect(0,0,w,h); for(let y=0;y<h;y+=32) for(let x=0;x<w;x+=32){ const v=125+r()*25|0; g.fillStyle=`rgb(${v},${v-5},${v-13})`; g.fillRect(x+1,y+1,30,30);} },[180,180]);
+const deckTex=canvasTex(256,256,(g,w,h)=>{ const r=mulberry(21); g.fillStyle='#7d8189'; g.fillRect(0,0,w,h); for(let y=0;y<h;y+=16){ g.fillStyle='rgba(0,0,0,.18)'; g.fillRect(0,y,w,1.5); } for(let i=0;i<1600;i++){ const v=100+r()*60|0; g.fillStyle=`rgba(${v},${v},${v+4},.15)`; g.fillRect(r()*w,r()*h,2,1); } },[30,4]);
+const concreteTex=canvasTex(256,256,(g,w,h)=>{ const r=mulberry(22); g.fillStyle='#8d9098'; g.fillRect(0,0,w,h); for(let i=0;i<2600;i++){ const v=110+r()*60|0; g.fillStyle=`rgba(${v},${v},${v+4},${.12+r()*.18})`; g.fillRect(r()*w,r()*h,1+r()*2,1+r()*2); } },[30,5]);
+const stoneTex=canvasTex(256,256,(g,w,h)=>{ const r=mulberry(23); g.fillStyle='#b4ab9d'; g.fillRect(0,0,w,h); for(let x=0;x<w;x+=64){ g.fillStyle='rgba(60,50,40,.35)'; g.fillRect(x,0,1.5,h);} for(let i=0;i<3000;i++){ const v=150+r()*50|0; g.fillStyle=`rgba(${v},${v-6},${v-16},.25)`; g.fillRect(r()*w,r()*h,2,2);} },[30,5]);
+const floorTex=canvasTex(512,512,(g,w,h)=>{ const r=mulberry(3); g.fillStyle='#4b5059'; g.fillRect(0,0,w,h); for(let y=0;y<h;y+=64) for(let x=0;x<w;x+=64){ const v=66+r()*14|0; g.fillStyle=`rgb(${v},${v+3},${v+9})`; g.fillRect(x+1,y+1,62,62); } },[10,10]);
+const pitchTex=canvasTex(256,256,(g,w,h)=>{ for(let x=0;x<w;x+=32){ g.fillStyle=(x/32)%2?'#2f5a2c':'#356532'; g.fillRect(x,0,32,h);} },[6,1]);
+const scrimTex=canvasTex(1024,128,(g,w,h)=>{ g.fillStyle='#161a22'; g.fillRect(0,0,w,h); g.font='800 56px Poppins, sans-serif'; g.textBaseline='middle'; g.fillStyle='#e9ecf2'; for(let x=20;x<w;x+=512){ g.fillText('SKYPASS LIVE',x,66); } });
+
+/* ---------- sky, ground, lights (shared) ---------- */
+const skyU={top:{value:new THREE.Color()}, mid:{value:new THREE.Color()}, hor:{value:new THREE.Color()}, sunCol:{value:new THREE.Color()}, sunK:{value:1}};
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(1800,32,16), new THREE.ShaderMaterial({side:THREE.BackSide, depthWrite:false, fog:false, uniforms:skyU,
+  vertexShader:'varying vec3 vP; void main(){ vP=normalize(position); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);} ',
+  fragmentShader:`uniform vec3 top; uniform vec3 mid; uniform vec3 hor; uniform vec3 sunCol; uniform float sunK; varying vec3 vP;
+    void main(){ float h=vP.y; vec3 c = h>0.0 ? mix(mix(hor,mid,smoothstep(0.,.2,h)), top, smoothstep(.18,.9,h)) : hor*.35;
+      vec3 sd=normalize(vec3(-1.0,.04,-.25)); float s=max(dot(normalize(vP),sd),0.); c += sunCol*(pow(s,40.)*1.2 + pow(s,4.)*.35)*sunK; gl_FragColor=vec4(c,1.0);} `})));
+const starGeo=new THREE.BufferGeometry(); { const n=900,pos=new Float32Array(n*3); for(let i=0;i<n;i++){ const y=.2+Math.random()*.8, t=Math.random()*Math.PI*2, r=Math.sqrt(1-y*y); pos.set([Math.cos(t)*r*1500,y*1500,Math.sin(t)*r*1500],i*3);} starGeo.setAttribute('position',new THREE.BufferAttribute(pos,3)); }
+const stars=new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xdfe6ff,size:1.2,sizeAttenuation:false,transparent:true,opacity:.7,fog:false,depthWrite:false})); scene.add(stars);
+const moon=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xfff4e0,fog:false,depthWrite:false})); moon.scale.set(60,60,1); moon.position.set(500,560,-900); scene.add(moon);
+const groundMat=new THREE.MeshStandardMaterial({map:grassTex, roughness:1});
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(1600,1600), groundMat); ground.rotation.x=-Math.PI/2; ground.position.set(0,-.02,20); scene.add(ground);
+const hemi=new THREE.HemisphereLight(0x8fa6d8, 0x2a2618, .4); scene.add(hemi);
+const sunLight=new THREE.DirectionalLight(0xffb27a, .8); sunLight.position.set(-200,40,-40); scene.add(sunLight);
+const moonLight=new THREE.DirectionalLight(0xaab8ff, .25); moonLight.position.set(120,160,-160); scene.add(moonLight);
+const houseLight=new THREE.DirectionalLight(0xfff3e0, .45); houseLight.position.set(0,80,60); scene.add(houseLight);
+const stageKey=new THREE.PointLight(0xffe2b8, 1.4, 70, 1.3); stageKey.position.set(0,12,6); scene.add(stageKey);
+{ const pm=new THREE.PMREMGenerator(renderer), es=new THREE.Scene();
+  es.add(new THREE.Mesh(new THREE.SphereGeometry(50,16,8), new THREE.MeshBasicMaterial({color:0x2a3558, side:THREE.BackSide})));
+  [[-40,4,0,0xffa060,2.2],[0,40,0,0xdfe6ff,1.4],[0,10,-30,0xffd8a8,1.2]].forEach(([x,y,z,c,k])=>{ const b=new THREE.Mesh(new THREE.BoxGeometry(24,6,4), new THREE.MeshBasicMaterial({color:new THREE.Color(c).multiplyScalar(k)})); b.position.set(x,y,z); b.lookAt(0,0,0); es.add(b); });
+  scene.environment=pm.fromScene(es,.03).texture; }
+
+/* ================= shared geometry helpers ================= */
+function sweep(pt, profile, th0, th1, segs, colorFn, uvMode){
+  const pos=[], col=[], uv=[], idx=[]; let v=0, acc=0;
+  for(let p=0;p<profile.length-1;p++){
+    const [d0,y0]=profile[p], [d1,y1]=profile[p+1], c=colorFn?colorFn(p,d0,y0,d1,y1):[1,1,1], segLen=Math.hypot(d1-d0,y1-y0);
+    for(let s=0;s<=segs;s++){ const th=th0+(th1-th0)*s/segs, [x0,z0]=pt(th,d0), [x1,z1]=pt(th,d1);
+      pos.push(x0,y0,z0,x1,y1,z1); col.push(...c,...c);
+      if(uvMode==='strip') uv.push(1-s/segs,0,1-s/segs,1); else uv.push(s/segs*Math.abs(th1-th0)*Math.max(d0,20)/6,acc/6,s/segs*Math.abs(th1-th0)*Math.max(d0,20)/6,(acc+segLen)/6); }
+    for(let s=0;s<segs;s++){ const a=v+s*2; idx.push(a,a+2,a+1,a+1,a+2,a+3); }
+    v+=(segs+1)*2; acc+=segLen;
+  }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setAttribute('color',new THREE.Float32BufferAttribute(col,3)); g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+function stepProfile(t, front, back){ // t: {d0,run,rise,y0,rows}; front: points before first tread; back: points after last
+  const P=[...front, [t.d0,t.y0]];
+  for(let k=0;k<t.rows;k++){ const d=t.d0+k*t.run, y=t.y0+k*t.rise; P.push([d+t.run,y]); if(k<t.rows-1) P.push([d+t.run,y+t.rise]); }
+  const endD=t.d0+t.rows*t.run, endY=t.y0+(t.rows-1)*t.rise; return {P:[...P,...back(endD,endY)], endD, endY};
+}
+const treadRiser=(lt,dk)=>(p,d0,y0,d1,y1)=>Math.abs(y1-y0)<.01?lt:dk;
+function mergeParts(parts){ parts=parts.map(g=>g.toNonIndexed()); const g=new THREE.BufferGeometry(); ['position','normal'].forEach(k=>{ const a=[]; parts.forEach(p=>a.push(...p.attributes[k].array)); g.setAttribute(k,new THREE.Float32BufferAttribute(a,3)); }); return g; }
+
+/* ---------- shared seat / crowd materials (with section highlight) ---------- */
+const U={hover:{value:-1}, sel:{value:-1}, dim:{value:0}, time:{value:0}};
+function injectHighlight(mat, glow){
+  mat.onBeforeCompile=sh=>{
+    Object.assign(sh.uniforms,{uHover:U.hover,uSel:U.sel,uDim:U.dim,uTime:U.time});
+    sh.vertexShader='attribute float aSec;\nuniform float uHover;\nuniform float uSel;\nvarying float vHl;\nvarying float vAct;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vHl=abs(aSec-uHover)<.5?1.0:0.0; vAct=max(vHl, abs(aSec-uSel)<.5?1.0:0.0);');
+    sh.fragmentShader='uniform float uDim;\nuniform float uTime;\nvarying float vHl;\nvarying float vAct;\n'+sh.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
+      diffuseColor.rgb *= mix(1.0-uDim*.55, 1.0, vAct);
+      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0,.93,.7), vHl*${glow.toFixed(2)});
+      totalEmissiveRadiance += vec3(1.0,.9,.6) * vHl * ${(glow*.35).toFixed(2)};`);
+  };
+}
+const seatMat=new THREE.MeshStandardMaterial({color:0xffffff, roughness:.45, metalness:0, envMapIntensity:.6}); injectHighlight(seatMat,.45);
+const bodyMat=new THREE.MeshStandardMaterial({color:0xffffff, roughness:.95, envMapIntensity:.3}); injectHighlight(bodyMat,.08);
+const headMat=new THREE.MeshStandardMaterial({color:0xffffff, roughness:.7, envMapIntensity:.3}); injectHighlight(headMat,.05);
+const SEAT_PARTS=()=>mergeParts([new THREE.BoxGeometry(.46,.07,.4).translate(0,.44,.03), new THREE.BoxGeometry(.46,.46,.05).rotateX(-.12).translate(0,.7,-.17), new THREE.BoxGeometry(.05,.42,.3).translate(-.23,.22,0), new THREE.BoxGeometry(.05,.42,.3).translate(.23,.22,0)]);
+const BODY_PARTS=()=>mergeParts([new THREE.CapsuleGeometry(.17,.32,3,8).scale(1,1,.75), new THREE.BoxGeometry(.3,.12,.36).translate(0,-.28,.14)]);
+const CLOTH=['#1f2430','#2d3446','#3b3f47','#5a5f69','#e8e6e1','#8a1f2a','#23466e','#2f5d3a','#6b4e2e','#c9c2b0','#111318','#48305c','#d8d2c4','#b33a2c','#d9a441','#6f8fb8','#e7e2d6','#2e4a3a','#5b2d3c','#c7c0b8'];
+const HAIR=['#16110e','#211813','#2d2119','#0e0c0b','#3d2c20','#1c1a19'], HATS=['#f2c230','#d9342b','#e86aa8','#f08a24','#f4f4f2','#2b2b2b','#3b6fb6','#7a3fa0','#e24b3b','#f7d9a6'];
+let hairs=null, hatFlag=null;
+const SKIN=['#f1c7a5','#e0ac85','#c68c63','#a86f48','#8d5a3b','#6b4128','#4e2f1d'];
+
+/* ---------- LED/ribbon textures ---------- */
+const scr=document.createElement('canvas'); scr.width=1024; scr.height=470; const sctx=scr.getContext('2d');
+const scrTex=new THREE.CanvasTexture(scr); scrTex.encoding=THREE.sRGBEncoding;
+const ribbonCanvas=document.createElement('canvas'); ribbonCanvas.width=2048; ribbonCanvas.height=64;
+const ribbonTex=new THREE.CanvasTexture(ribbonCanvas); ribbonTex.encoding=THREE.sRGBEncoding; ribbonTex.wrapS=THREE.RepeatWrapping; ribbonTex.repeat.set(3,1);
+function drawRibbon(){ const g=ribbonCanvas.getContext('2d'), ev=EV(); g.fillStyle='#0b1222'; g.fillRect(0,0,2048,64); g.font='800 36px Poppins, sans-serif'; g.textBaseline='middle'; let x=24;
+  [['SKYPASS','#ff8a8a'],[`  ${ev.title.toUpperCase()}  ·  ${ev.date.toUpperCase()}  ·  GATES OPEN ${ev.doors}  ·  `,'#ffffff'],['WELCOME TO '+ev.venue.toUpperCase()+'  ·  ','#ffd27a']].forEach(([t,c])=>{ g.fillStyle=c; g.fillText(t,x,34); x+=g.measureText(t).width; }); ribbonTex.needsUpdate=true; }
+function drawScreen(t){
+  const W=1024,H=470,g=sctx,ev=EV();
+  if(ev.vtype==='cricket'){ g.fillStyle='#07101f'; g.fillRect(0,0,W,H); g.fillStyle='#0f2a55'; g.fillRect(0,0,W,86);
+    g.textAlign='left'; g.fillStyle='#fff'; g.font='600 40px Poppins, sans-serif'; g.fillText(ev.home,40,58); g.textAlign='right'; g.fillStyle='#ffd24a'; g.fillText('T20 · LIVE',W-40,58);
+    const ov=(12+Math.floor(t/6)%8), bl=Math.floor(t)%6, runs=98+Math.floor(t/2)%40;
+    g.textAlign='left'; g.fillStyle='#fff'; g.font='600 150px Poppins, sans-serif'; g.fillText(`${runs}/3`,40,260); g.font='500 44px Poppins, sans-serif'; g.fillStyle='#9fb8e0'; g.fillText(`${ov}.${bl} overs  ·  RR ${(runs/(ov+bl/6)).toFixed(2)}`,44,330);
+    g.fillStyle='rgba(255,255,255,.1)'; g.fillRect(40,360,W-80,1); g.fillStyle='#fff'; g.font='500 34px Poppins, sans-serif'; g.fillText('vs '+ev.away,44,415); g.textAlign='right'; g.fillStyle='#ffd24a'; g.fillText(ev.show+' START',W-40,415);
+    scrTex.needsUpdate=true; return; }
+  if(ev.vtype==='cinema'){ const gr=g.createLinearGradient(0,0,W,H); gr.addColorStop(0,'#0b1020'); gr.addColorStop(.6,'#2a1630'); gr.addColorStop(1,'#6a2a2a'); g.fillStyle=gr; g.fillRect(0,0,W,H);
+    const s=g.createRadialGradient(W*.72,H*.35,10,W*.72,H*.35,260); s.addColorStop(0,'rgba(255,200,140,.8)'); s.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=s; g.fillRect(0,0,W,H);
+    g.fillStyle='rgba(5,6,12,.92)'; g.beginPath(); g.moveTo(0,H); g.lineTo(0,330); g.lineTo(180,300); g.lineTo(300,190); g.lineTo(360,210); g.lineTo(420,120); g.lineTo(520,230); g.lineTo(700,320); g.lineTo(W,300); g.lineTo(W,H); g.fill();
+    g.fillStyle='#000'; g.fillRect(0,0,W,40); g.fillRect(0,H-40,W,40);
+    g.textAlign='center'; g.fillStyle='#fff'; g.font='600 72px Poppins, sans-serif'; g.fillText(ev.title.toUpperCase(),W/2,H-120); g.font='400 26px Poppins, sans-serif'; g.fillStyle='rgba(255,255,255,.75)'; g.fillText('NOW SHOWING  ·  '+ev.show,W/2,H-76);
+    scrTex.needsUpdate=true; return; }
+  const bg=g.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#101a2e'); bg.addColorStop(1,'#2a1d2a'); g.fillStyle=bg; g.fillRect(0,0,W,H);
+  const sun=g.createRadialGradient(W/2,H*.95,20,W/2,H*.95,W*.55); sun.addColorStop(0,'rgba(255,190,120,.85)'); sun.addColorStop(.4,'rgba(230,120,90,.35)'); sun.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=sun; g.fillRect(0,0,W,H);
+  g.fillStyle='rgba(8,10,16,.9)'; g.beginPath(); g.moveTo(0,H); for(let x=0;x<=W;x+=16){ g.lineTo(x, H-40-Math.abs(Math.sin(x*.012+t*.2))*38-Math.abs(Math.sin(x*.004))*50); } g.lineTo(W,H); g.fill();
+  g.textAlign='center'; g.fillStyle='#fff'; let fs=80; g.font=`800 ${fs}px Poppins, sans-serif`; const w=g.measureText(ev.title.toUpperCase()).width; if(w>900){ fs=Math.floor(fs*900/w); g.font=`800 ${fs}px Poppins, sans-serif`; }
+  g.fillText(ev.title.toUpperCase(),W/2,165); g.font='600 28px Poppins, sans-serif'; g.fillStyle='rgba(255,255,255,.8)'; g.fillText(`${ev.date.toUpperCase()}  ·  SHOW ${ev.show}`,W/2,215);
+  scrTex.needsUpdate=true;
+}
+function labelSprite(text){
+  const c=document.createElement('canvas'); c.width=160; c.height=80; const g=c.getContext('2d');
+  g.fillStyle='#f4f5f7'; g.beginPath(); if(g.roundRect) g.roundRect(4,4,152,72,10); else g.rect(4,4,152,72); g.fill(); g.fillStyle='#13203A'; g.font='800 46px Poppins, sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(text,80,44);
+  const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthWrite:false})); s.scale.set(3.2,1.6,1); return s;
+}
+
+/* ================= venue state (rebuilt per venue type) ================= */
+let V=null;               // current venue
+let SECTIONS=[], SEATS=[], hitMeshes=[], labels=[], beams=[], seatMesh=null, bodies=null, heads=null;
+function addSeat(sec,x,y,z,ry,row,num){ const s={x,y,z,ry,row,num,sec:sec.idx,gi:SEATS.length,li:sec.seats.length}; SEATS.push(s); sec.seats.push(s); (sec.rows[row] ||= []).push(s); }
+function newSec(o){ const sec=Object.assign({idx:SECTIONS.length, seats:[], rows:[]},o); SECTIONS.push(sec); return sec; }
+function seatsAlong(sec, pt, face, a0, a1, d, y, row){ let len=0, prev=pt(a0,d); for(let q=1;q<=40;q++){ const c=pt(a0+(a1-a0)*q/40,d); len+=Math.hypot(c[0]-prev[0],c[1]-prev[1]); prev=c; }
+  const n=Math.floor(len/.56); for(let j=0;j<n;j++){ const th=a0+(a1-a0)*(j+.5)/n, [x,z]=pt(th,d); addSeat(sec,x,y,z,face(th),row,j+1); } }
+function hitFor(g, sec, mesh){ mesh.userData.sec=sec; sec.mesh=mesh; hitMeshes.push(mesh); }
+function M(o){ return new THREE.MeshStandardMaterial(o); }
+
+/* ---------- stage (shared, three roof styles) ---------- */
+function buildStage(g, style, barricadeZ, poles){
+  poles = poles || [];
+  const black=M({color:0x18191c,roughness:.75,metalness:.25}), steel=M({color:0x8e939a,roughness:.35,metalness:.85,envMapIntensity:.8});
+  const pipe=M({color:0xb4b8be,roughness:.3,metalness:.9,envMapIntensity:.9});
+  const add=(geo,mat,x,y,z)=>{ const m=new THREE.Mesh(geo,mat); m.position.set(x,y,z); g.add(m); return m; };
+  const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
+  const beam=(mat,a,b,t)=>{ const d=new THREE.Vector3().subVectors(b,a), L=d.length(); const m=new THREE.Mesh(new THREE.BoxGeometry(t,t,L),mat); m.position.copy(a).addScaledVector(d,.5); m.lookAt(b); g.add(m); return m; };
+  const quad=(mat,a,b,c,d)=>{ const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.Float32BufferAttribute([...a.toArray(),...b.toArray(),...c.toArray(),...d.toArray()],3)); geo.setIndex([0,1,2,0,2,3]); geo.computeVertexNormals(); const m=new THREE.Mesh(geo,mat); g.add(m); return m; };
+  const bulbs=[], wires=[];
+  const string=(a,b,sag,sp=1.05,skip=0)=>{ const L=a.distanceTo(b), n=Math.max(2,Math.round(L/sp)); let prev=null;
+    for(let k=0;k<=n;k++){ const t=k/n, p=new THREE.Vector3().lerpVectors(a,b,t); p.y-=sag*4*t*(1-t); if(prev) wires.push(...prev.toArray(),...p.toArray()); prev=p; if(k>=skip&&k<=n-skip) bulbs.push(p.x,p.y-.14,p.z); } };
+
+  /* --- stage deck on scaffolding --- */
+  const W=26, D=12, ZF=0, ZB=-12;
+  add(new THREE.BoxGeometry(W,.28,D),M({color:0x2c2d31,roughness:.85}),0,DECK_H-.14,-6);
+  add(new THREE.BoxGeometry(W,.06,.08),M({color:0x9a9ea5,metalness:.8,roughness:.3}),0,DECK_H-.02,ZF+.02);
+  { const pg=new THREE.CylinderGeometry(.045,.045,DECK_H-.28,6); pg.translate(0,(DECK_H-.28)/2,0);
+    const pts=[]; for(let x=-W/2+.3;x<=W/2-.2;x+=2.6) for(let z=ZF-.25;z>=ZB+.2;z-=2.9) pts.push([x,z]);
+    const im=new THREE.InstancedMesh(pg,pipe,pts.length), m=new THREE.Matrix4(); pts.forEach(([x,z],i)=>{ m.makeTranslation(x,0,z); im.setMatrixAt(i,m); }); g.add(im);
+    const zf=ZF-.25; for(let x=-W/2+.3;x<W/2-2.4;x+=2.6){ beam(pipe,V3(x,.25,zf),V3(x+2.6,DECK_H-.4,zf),.05); beam(pipe,V3(x,DECK_H-.4,zf),V3(x+2.6,.25,zf),.05); }
+    [.25,DECK_H-.4].forEach(y=>beam(pipe,V3(-W/2+.3,y,zf),V3(W/2-.3,y,zf),.05)); }
+  [-1,1].forEach(s=>{ for(let k=0;k<5;k++) add(new THREE.BoxGeometry(2.2,.4*(k+1),.45),M({color:0x3a3b40,roughness:.8}),s*(W/2-2.5),.2*(k+1),ZF+2.2-k*.45); });
+  // LED wash bars along the stage lip
+  { const bar=new THREE.BoxGeometry(1.1,.22,.3), mat=new THREE.MeshBasicMaterial({color:new THREE.Color(1.5,1.5,1.55)}); for(let x=-11.5;x<=11.6;x+=2.1){ add(bar,mat,x,DECK_H+.11,ZF-.35); add(new THREE.BoxGeometry(1.2,.3,.34),black,x,DECK_H+.07,ZF-.4); } }
+
+  /* --- backline: drums, amps, keys, stools, mics, wedges --- */
+  const Y=DECK_H;
+  add(new THREE.BoxGeometry(5.5,.55,3.6),black,0,Y+.275,-8.2);
+  const red=M({color:0xb3261e,roughness:.35,metalness:.2}), chrome=M({color:0xd8dadd,roughness:.2,metalness:1}), brass=M({color:0xc9a44a,roughness:.3,metalness:.9});
+  const drum=(r,h,x,y,z,rx)=>{ const d=add(new THREE.CylinderGeometry(r,r,h,20),red,x,y,z); if(rx) d.rotation.x=Math.PI/2; return d; };
+  drum(.42,.45,0,Y+.55+.42,-7.6,true); drum(.24,.3,-.45,Y+1.45,-7.8); drum(.24,.3,.45,Y+1.45,-7.8); drum(.3,.4,.95,Y+.55+.3,-7.3); drum(.26,.2,-.95,Y+.55+.55,-7.2);
+  [[-1.3,1.9],[1.4,2.1],[.2,2.3]].forEach(([x,h])=>{ add(new THREE.CylinderGeometry(.02,.02,h,5),chrome,x,Y+.55+h/2,-7.4); add(new THREE.CylinderGeometry(.42,.42,.02,24),brass,x,Y+.55+h,-7.4); });
+  [-7.2,7.2].forEach(x=>{ add(new THREE.BoxGeometry(1.4,1.2,.7),black,x,Y+.6,-9.6); add(new THREE.BoxGeometry(1.4,.9,.7),black,x,Y+1.65,-9.6); add(new THREE.PlaneGeometry(1.2,1.9),M({color:0x2c2c30,roughness:1}),x,Y+1.05,-9.24); });
+  add(new THREE.BoxGeometry(1.5,.08,.4),black,-4.2,Y+1.0,-5.2); add(new THREE.CylinderGeometry(.03,.03,.95,5),chrome,-4.2,Y+.5,-5.2);
+  const stoolTop=M({color:0xd9322b,roughness:.5}), stoolLeg=M({color:0xe8e8e8,roughness:.4,metalness:.3});
+  [-8.4,-5.8,-2.6,2.6,5.8,8.4].forEach((x,i)=>{ const z=-4.4+(i%2)*.5; add(new THREE.CylinderGeometry(.24,.24,.07,16),i%3?stoolTop:stoolLeg,x,Y+.8,z); add(new THREE.CylinderGeometry(.03,.05,.78,5),stoolLeg,x,Y+.39,z); });
+  [-6.8,-2.4,2.4,6.8].forEach(x=>{ add(new THREE.CylinderGeometry(.015,.015,1.55,5),chrome,x,Y+.78,-1.6); add(new THREE.SphereGeometry(.05,8,6),black,x,Y+1.58,-1.55); const w=add(new THREE.BoxGeometry(.9,.42,.6),black,x,Y+.21,-.95); w.rotation.x=-.45; });
+
+  /* --- round warm blinders on stands --- */
+  const bTex=canvasTex(128,128,(c,w,h)=>{ const gr=c.createRadialGradient(64,64,4,64,64,62); gr.addColorStop(0,'#fff7e0'); gr.addColorStop(.35,'#ffc15a'); gr.addColorStop(.8,'#e0701c'); gr.addColorStop(1,'#3a1a08'); c.fillStyle=gr; c.beginPath(); c.arc(64,64,62,0,7); c.fill(); c.strokeStyle='rgba(60,25,5,.45)'; c.lineWidth=3; [20,36,50].forEach(r=>{ c.beginPath(); c.arc(64,64,r,0,7); c.stroke(); }); });
+  const bMat=new THREE.MeshBasicMaterial({map:bTex,color:new THREE.Color(1.45,1.3,1.15),transparent:true});
+  const blinder=(x,y,z,r=.62)=>{ add(new THREE.CylinderGeometry(r+.08,r+.08,.3,24),black,x,y,z-.18).rotation.x=Math.PI/2; add(new THREE.CircleGeometry(r,32),bMat,x,y,z-.02);
+    const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:new THREE.Color(1.1,.6,.25),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.7})); gl.scale.set(r*5,r*5,1); gl.position.set(x,y,z+.1); g.add(gl); };
+  [[-10.8,Y+3.1,-2.2],[10.8,Y+3.1,-2.2],[-6.2,Y+4.3,-9.9],[6.2,Y+4.3,-9.9],[-3.3,Y+2.6,-9.9],[3.3,Y+2.6,-9.9]].forEach(([x,y,z])=>{ add(new THREE.CylinderGeometry(.035,.035,y-Y,5),chrome,x,Y+(y-Y)/2,z-.3); blinder(x,y,z); });
+  // vertical truss light towers at the stage corners
+  [-12.4,12.4].forEach(x=>{ const z=-.6, H=9.5; [[-.22,-.22],[.22,-.22],[-.22,.22],[.22,.22]].forEach(([dx,dz])=>add(new THREE.CylinderGeometry(.035,.035,H,5),pipe,x+dx,Y+H/2,z+dz));
+    for(let k=0;k<12;k++){ const y=Y+.4+k*.78; beam(pipe,V3(x-.22,y,z-.22),V3(x+.22,y+.39,z-.22),.03); beam(pipe,V3(x+.22,y+.39,z-.22),V3(x-.22,y+.78,z-.22),.03); }
+    for(let k=0;k<4;k++){ add(new THREE.BoxGeometry(.4,.3,.35),black,x,Y+2+k*1.9,z+.4); const l=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:new THREE.Color(1.3,1.2,1.05),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true})); l.scale.set(.9,.9,1); l.position.set(x,Y+2+k*1.9,z+.6); g.add(l); } });
+
+  /* --- video wall --- */
+  const led=new THREE.MeshBasicMaterial({map:scrTex, color:new THREE.Color(1.05,1.05,1.05)});
+  let front=[], by=16.3, bz=-.3;
+  if(style==='marquee'){
+    add(new THREE.PlaneGeometry(15,5.8),led,0,Y+4.9,-11.7); add(new THREE.BoxGeometry(15.6,6.4,.3),black,0,Y+4.9,-11.9);
+    // ground-stacked PA
+    [-1,1].forEach(s=>{ for(let k=0;k<3;k++) add(new THREE.BoxGeometry(1.5,.9,1.1),black,s*11.6,Y+.45+k*.92,-3.2); add(new THREE.BoxGeometry(1.2,1.6,.9),black,s*11.6,Y+3.6,-3.2); });
+    /* transparent gable marquee like a festival tent */
+    const glass=new THREE.MeshStandardMaterial({color:0xe6edf5,transparent:true,opacity:.26,roughness:.12,metalness:.05,side:THREE.DoubleSide,depthWrite:false,envMapIntensity:1.2});
+    const frames=[1.2,-2.4,-6,-9.6,-13.2];
+    const gable=(cx,hw,eave,ridge,cols)=>{ const zf=frames[0], zb=frames[frames.length-1];
+      frames.forEach((z,fi)=>{ beam(steel,V3(cx-hw,eave,z),V3(cx,ridge,z),.24); beam(steel,V3(cx,ridge,z),V3(cx+hw,eave,z),.24);
+        cols.forEach(x=>{ if(fi===0||fi===frames.length-1||fi===2) add(new THREE.BoxGeometry(.3,eave,.3),steel,cx+x,eave/2,z); });
+        string(V3(cx-hw,eave-.3,z),V3(cx,ridge-.3,z),.25); string(V3(cx,ridge-.3,z),V3(cx+hw,eave-.3,z),.25); });
+      [[cx-hw,eave],[cx,ridge],[cx+hw,eave]].forEach(([x,y])=>beam(steel,V3(x,y,zf),V3(x,y,zb),.2));
+      quad(glass,V3(cx-hw,eave,zf),V3(cx,ridge,zf),V3(cx,ridge,zb),V3(cx-hw,eave,zb)); quad(glass,V3(cx,ridge,zf),V3(cx+hw,eave,zf),V3(cx+hw,eave,zb),V3(cx,ridge,zb));
+      string(V3(cx,ridge-.4,zf),V3(cx,ridge-.4,zb),.3); string(V3(cx-hw,eave-.35,zf),V3(cx+hw,eave-.35,zf),1.6,1.05,1);
+      front.push(V3(cx-hw,eave,zf),V3(cx,ridge,zf),V3(cx+hw,eave,zf)); };
+    gable(0,13.6,12.4,17.2,[-13.6,13.6]); gable(-19.5,5.9,9.2,11.4,[-5.9]); gable(19.5,5.9,9.2,11.4,[5.9]);
+    front=front.filter((p,i,a)=>a.findIndex(q=>q.distanceTo(p)<.1)===i).sort((a,b)=>a.x-b.x);
+    by=12.1; bz=1.1;
+    const warm=new THREE.PointLight(0xffb066,1.3,55,1.4); warm.position.set(0,11,4); g.add(warm);
+  } else if(style==='truss'){
+    add(new THREE.PlaneGeometry(20,9.5),led,0,Y+5.6,-11.6);
+    [-1,1].forEach(s=>{ add(new THREE.PlaneGeometry(5.6,8.4),led,s*16.5,8.6,-6.35); add(new THREE.BoxGeometry(6,15,1.2),M({color:0x16191f,roughness:.95}),s*16.5,7.5,-7);
+      for(let k=0;k<8;k++){ const b=add(new THREE.BoxGeometry(1.3,.5,.9),black,s*11.2,15.2-k*.53,.4+k*k*.01); b.rotation.x=k*.05; } });
+    [[-13,-.3],[13,-.3],[-13,-11.8],[13,-11.8]].forEach(([x,z])=>add(new THREE.BoxGeometry(.8,18,.8),steel,x,9,z));
+    [-.3,-6,-11.8].forEach(z=>add(new THREE.BoxGeometry(27,.7,.7),steel,0,17.6,z));
+    [-13,-6.5,0,6.5,13].forEach(x=>add(new THREE.BoxGeometry(.6,.6,11.8),steel,x,17.6,-6));
+    add(new THREE.BoxGeometry(28,.3,12.5),M({color:0x202329,roughness:.8}),0,18.2,-6);
+    for(let x=-13;x<=13;x+=6.5) front.push(V3(x,17.2,-.3));
+    [-.3,-6,-11.8].forEach(z=>string(V3(-13,17.1,z),V3(13,17.1,z),.6));
+  } else { // acoustic shell
+    add(new THREE.PlaneGeometry(15,5.8),led,0,Y+4.9,-11.7);
+    const shell=new THREE.Mesh(new THREE.CylinderGeometry(14.5,14.5,13,40,1,true,Math.PI/2,Math.PI), M({color:0xcfc6b8,roughness:.8,side:THREE.DoubleSide})); shell.position.set(0,DECK_H+6.5,-4); g.add(shell);
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(15,15,.5,40,1,false,Math.PI/2,Math.PI), M({color:0xb9b0a2,roughness:.8})); cap.position.set(0,DECK_H+13.2,-4); g.add(cap);
+    add(new THREE.BoxGeometry(28,.5,.5),steel,0,15.8,1.2);
+    for(let x=-14;x<=14;x+=7) front.push(V3(x,15.5,1.2));
+    string(V3(-14,15.4,1.2),V3(14,15.4,1.2),1.2);
+    by=15.5; bz=1.2;
+  }
+  add(new THREE.BoxGeometry(34,1.15,.25),steel,0,.58,barricadeZ);
+
+  /* --- festoon strings out over the audience --- */
+  const poleMat=M({color:0x2a2b2f,roughness:.6,metalness:.5});
+  const P=poles.map(([x,z,h])=>{ h=h||7.5; add(new THREE.CylinderGeometry(.08,.11,h,6),poleMat,x,h/2,z); return V3(x,h-.1,z); }).sort((a,b)=>a.x-b.x);
+  if(P.length && front.length){
+    P.forEach((p,i)=>{ const f=front[Math.round(i*(front.length-1)/Math.max(1,P.length-1))]; string(f.clone().setY(f.y-.3),p,1.6+f.distanceTo(p)*.04,1.05,1);
+      const c=front[Math.min(front.length-1,Math.round(front.length/2))]; if(i%2===0) string(c.clone().setY(c.y-.3),p,2.2,1.05,1); });
+    for(let i=0;i<P.length-1;i++) string(P[i],P[i+1],1.1,1.05,1);
+  }
+  if(bulbs.length){
+    const wg=new THREE.BufferGeometry(); wg.setAttribute('position',new THREE.Float32BufferAttribute(wires,3)); g.add(new THREE.LineSegments(wg,new THREE.LineBasicMaterial({color:0x1b1b1d,transparent:true,opacity:.8})));
+    const bg=new THREE.SphereGeometry(.1,8,6), bm=new THREE.MeshBasicMaterial({color:new THREE.Color(2.4,1.55,.7)}), n=bulbs.length/3, im=new THREE.InstancedMesh(bg,bm,n), m=new THREE.Matrix4();
+    for(let i=0;i<n;i++){ m.makeTranslation(bulbs[i*3],bulbs[i*3+1],bulbs[i*3+2]); im.setMatrixAt(i,m); } g.add(im);
+    const pg=new THREE.BufferGeometry(); pg.setAttribute('position',new THREE.Float32BufferAttribute(bulbs,3));
+    g.add(new THREE.Points(pg,new THREE.PointsMaterial({map:GLOW,color:new THREE.Color(1.15,.7,.32),size:1.5,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})));
+  }
+
+  /* --- follow beams --- */
+  const beamMat=c=>new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false,uniforms:{uColor:{value:new THREE.Color(c)}, uK:{value:1}},
+    vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);} ',
+    fragmentShader:'uniform vec3 uColor; uniform float uK; varying vec2 vUv; void main(){ float a=pow(vUv.y,3.0)*.08*uK; gl_FragColor=vec4(uColor, a);} '});
+  [0xfff1dc,0xffe2b0,0xfff1dc,0xfff1dc,0xffe2b0,0xfff1dc].forEach((c,i)=>{ const pivot=new THREE.Group(); pivot.position.set(-10+i*4,by,bz);
+    const cone=new THREE.Mesh(new THREE.ConeGeometry(1.6,36,24,1,true),beamMat(c)); cone.position.y=-18; pivot.add(cone);
+    const head=new THREE.Mesh(new THREE.CylinderGeometry(.22,.28,.5,10),black); pivot.add(head);
+    g.add(pivot); beams.push({pivot,i,mat:cone.material}); });
+  // low haze
+  for(let i=0;i<6;i++){ const h=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xb9b2aa,transparent:true,opacity:.07,depthWrite:false})); h.position.set(-15+i*6,3.5,-2+Math.random()*6); h.scale.set(18,6,1); g.add(h); }
+}
+function addHills(g){
+  const mat=M({color:0x22302a,roughness:1,flatShading:true}), r=mulberry(77);
+  for(let i=0;i<16;i++){ const x=-700+i*95+r()*40, z=-330-r()*260, h=70+r()*120, rad=110+r()*120;
+    const c=new THREE.Mesh(new THREE.ConeGeometry(rad,h,9,3),mat); const pa=c.geometry.attributes.position; for(let k=0;k<pa.count;k++){ if(pa.getY(k)<h/2-1){ pa.setX(k,pa.getX(k)*(.85+r()*.3)); pa.setZ(k,pa.getZ(k)*(.85+r()*.3)); } } c.geometry.computeVertexNormals();
+    c.position.set(x,h/2-6,z); g.add(c); }
+  for(let i=0;i<9;i++){ const m=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0x9aa2aa,transparent:true,opacity:.28,depthWrite:false})); m.position.set(-500+i*125,40+r()*50,-300-r()*120); m.scale.set(380,90,1); g.add(m); }
+}
+function fohTent(g,z){ const m=new THREE.Mesh(new THREE.BoxGeometry(6,2.6,4.5),M({color:0x1a1c21,roughness:.7})); m.position.set(0,1.3,z); g.add(m);
+  const t=new THREE.Mesh(new THREE.ConeGeometry(4.6,1.6,4),M({color:0xe3e5e8,roughness:.8})); t.position.set(0,3.4,z); t.rotation.y=Math.PI/4; g.add(t); }
+function floorBlocksStraight(g, z0, rows, dz, blocks){
+  const deckMat=M({color:0x2b2e35,roughness:.9});
+  blocks.forEach(b=>{ const sec=newSec({id:b.id,cls:'first',kind:'floor',x0:b.x0,x1:b.x1});
+    for(let k=0;k<rows;k++){ const z=z0+k*dz, n=Math.floor((b.x1-b.x0)/.56); for(let j=0;j<n;j++) addSeat(sec,b.x0+(j+.5)*(b.x1-b.x0)/n,.08,z,Math.PI,k,j+1); }
+    const deck=new THREE.Mesh(new THREE.BoxGeometry(b.x1-b.x0+.6,.08,rows*dz+.6),deckMat); deck.position.set((b.x0+b.x1)/2,.04,z0+(rows-1)*dz/2); g.add(deck);
+    const hit=new THREE.Mesh(new THREE.BoxGeometry(b.x1-b.x0+.6,1.6,rows*dz+.6),new THREE.MeshBasicMaterial({visible:false})); hit.position.copy(deck.position).setY(.8); g.add(hit); hitFor(g,sec,hit);
+    sec.labelPos=new THREE.Vector3((b.x0+b.x1)/2,2.2,z0-1.2); sec.am=Math.atan2((b.x0+b.x1)/2, 20); });
+}
+
+/* ---------- VENUE 1: open-air ground (half-curve stands) ---------- */
+function buildGround(g){
+  const CZ=-2, pt=(th,r)=>[r*Math.sin(th), CZ+r*Math.cos(th)], face=th=>th+Math.PI;
+  const TH0=deg(-62), TH1=deg(62);
+  const deckMat=M({color:0xffffff,map:deckTex,vertexColors:true,roughness:.7,metalness:.35,side:THREE.DoubleSide,envMapIntensity:.4});
+  const scaffM=M({color:0x7a8089,metalness:.6,roughness:.45,envMapIntensity:.5}), posts=[];
+  [['front','business',{rows:10,d0:26,run:.85,rise:.34,y0:.9},5,101],['rear','economy',{rows:14,d0:37.5,run:.8,rise:.46,y0:7.2},7,201]].forEach(([kind,cls,t,n,first])=>{
+    const span=(TH1-TH0)/n, {P,endD,endY}=stepProfile(t,[[t.d0-.6,0],[t.d0-.6,t.y0]],(eD,eY)=>[[eD,eY+.9],[eD+.4,eY+.9],[eD+.4,0]]);
+    for(let i=0;i<n;i++){ const a0=TH0+i*span+.004, a1=a0+span-.008;
+      const mesh=new THREE.Mesh(sweep(pt,P,a0,a1,24,treadRiser([1,1,1],[.45,.47,.52])),deckMat); g.add(mesh);
+      const sec=newSec({id:String(first+i),cls,kind,a0,a1,am:(a0+a1)/2}); hitFor(g,sec,mesh);
+      for(let k=0;k<t.rows;k++){ const d=t.d0+k*t.run+t.run*.5, y=t.y0+k*t.rise, gap=.7/d; seatsAlong(sec,pt,face,a0+gap,a1-gap,d,y,k); [a0,a1].forEach(a=>{ const [x,z]=pt(a,t.d0+k*t.run); posts.push([x,z,y]); }); }
+      g.add(new THREE.Mesh(sweep(pt,[[t.d0-.62,.1],[t.d0-.62,t.y0-.05]],a0,a1,20,null,'strip'),M({map:scrimTex,roughness:.9,side:THREE.DoubleSide})));
+      g.add(new THREE.Mesh(sweep(pt,[[endD+.3,endY+1.8],[endD+.3,endY+1.9]],a0,a1,20),scaffM));
+      const [lx,lz]=pt(sec.am,t.d0-.9); sec.labelPos=new THREE.Vector3(lx,t.y0+1.4,lz); }
+  });
+  { const geo=new THREE.CylinderGeometry(.05,.05,1,5); geo.translate(0,.5,0); const im=new THREE.InstancedMesh(geo,scaffM,posts.length), m=new THREE.Matrix4(), p=new THREE.Vector3(), q=new THREE.Quaternion(), s=new THREE.Vector3();
+    posts.forEach(([x,z,y],i)=>{ p.set(x,0,z); s.set(1,y,1); m.compose(p,q,s); im.setMatrixAt(i,m); }); g.add(im); }
+  g.add(new THREE.Mesh(sweep(pt,[[8,.04],[22.5,.04]],deg(-50),deg(50),40),M({map:floorTex,roughness:.85,side:THREE.DoubleSide})));
+  [{id:'A',a0:deg(-47),a1:deg(-16.5)},{id:'B',a0:deg(-15),a1:deg(15)},{id:'C',a0:deg(16.5),a1:deg(47)}].forEach(b=>{
+    const sec=newSec({id:b.id,cls:'first',kind:'floor',a0:b.a0,a1:b.a1,am:(b.a0+b.a1)/2});
+    for(let k=0;k<13;k++) seatsAlong(sec,pt,face,b.a0,b.a1,9+k,.05,k);
+    const hit=new THREE.Mesh(sweep(pt,[[8.5,0],[8.5,1.4],[22,1.4],[22,0]],b.a0,b.a1,12),new THREE.MeshBasicMaterial({visible:false,side:THREE.DoubleSide})); g.add(hit); hitFor(g,sec,hit);
+    const [lx,lz]=pt(sec.am,8.2); sec.labelPos=new THREE.Vector3(lx,1.9,lz); });
+  buildStage(g,'marquee',4.2,[-52,-34,-17,0,17,34,52].map(a=>{ const [x,z]=pt(deg(a),24); return [x,z,7.5]; })); fohTent(g,24.2); addHills(g);
+  const truss=M({color:0x5f646d,roughness:.45,metalness:.6});
+  [-1,1].forEach(s=>{ const [x,z]=pt(s*deg(30),24.2); const t=new THREE.Mesh(new THREE.BoxGeometry(.8,11,.8),truss); t.position.set(x,5.5,z); g.add(t);
+    for(let k=0;k<4;k++){ const b=new THREE.Mesh(new THREE.BoxGeometry(1.2,.45,.8),M({color:0x1a1c21})); b.position.set(x,10.4-k*.48,z-.6); g.add(b); }
+    const [lx,lz]=pt(s*deg(68),52); const lt=new THREE.Mesh(new THREE.BoxGeometry(1,20,1),truss); lt.position.set(lx,10,lz); g.add(lt);
+    const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:new THREE.Color(2,1.9,1.7),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true})); gl.scale.set(6,3,1); gl.position.set(lx,20.5,lz); g.add(gl); });
+  return {groundTex:grassTex, look:new THREE.Vector3(0,3,20), r:112, phi:.84, stageStyle:'outdoor', physical:{first:0x151618,business:0x5a616c,economy:0x4a515c}};
+}
+
+/* ---------- VENUE 2/3: bowl (stadium or indoor arena) ---------- */
+function buildBowl(g, o){
+  const pt=(th,d)=>[(o.A+d)*Math.sin(th), o.cz+(o.B+d)*Math.cos(th)], face=th=>{ const nx=Math.sin(th)/o.A, nz=Math.cos(th)/o.B; return Math.atan2(-nx,-nz); };
+  const mat=M({color:0xffffff,map:concreteTex,vertexColors:true,roughness:.95,side:THREE.DoubleSide,envMapIntensity:.25});
+  const TH0=-o.span, TH1=o.span;
+  o.tiers.forEach(t=>{
+    const front = t.kind==='lower' ? [[0,0],[0,t.y0]] : [[t.d0-.8,t.y0-2.4],[t.d0-.8,t.y0]];
+    const back = t.kind==='lower' ? (eD,eY)=>[[eD,eY+1.4],[eD+.7,eY+1.4],[eD+.7,0]] : (eD,eY)=>[[eD,eY+1.8],[eD+.8,eY+1.8],[eD+.8,t.y0-2.4],[t.d0-.8,t.y0-2.4]];
+    const {P,endD,endY}=stepProfile(t,front,back); t.endD=endD; t.endY=endY;
+    const span=(TH1-TH0)/t.n;
+    for(let i=0;i<t.n;i++){ const a0=TH0+i*span, a1=a0+span;
+      const mesh=new THREE.Mesh(sweep(pt,P,a0,a1,30,treadRiser([.95,.95,.96],[.62,.63,.66])),mat); g.add(mesh);
+      const sec=newSec({id:String(t.first+i),cls:t.cls,kind:t.kind,a0,a1,am:(a0+a1)/2}); hitFor(g,sec,mesh);
+      for(let k=0;k<t.rows;k++){ const d=t.d0+k*t.run+t.run*.5, y=t.y0+k*t.rise, gap=.75/((o.A+o.B)/2+d); seatsAlong(sec,pt,face,a0+gap,a1-gap,d,y,k); }
+      g.add(new THREE.Mesh(sweep(pt,P.map(([d,y])=>[d,y+.015]),a0-.003,a0+.003,1,()=>[1.1,1.1,1.05]),mat));
+      const [lx,lz]=pt(sec.am, t.kind==='lower'?-.4:t.d0-1.0); sec.labelPos=new THREE.Vector3(lx, t.kind==='lower'?2.5:t.y0+1.6, lz); }
+    if(t.kind==='upper') g.add(new THREE.Mesh(sweep(pt,[[t.d0-.88,t.y0-2.1],[t.d0-.88,t.y0-.6]],TH0,TH1,200,null,'strip'),new THREE.MeshBasicMaterial({map:ribbonTex,color:new THREE.Color(1.05,1.05,1.05),side:THREE.DoubleSide})));
+  });
+  g.add(new THREE.Mesh(sweep(pt,[[-.02,.3],[-.02,1.0]],TH0,TH1,200,null,'strip'),new THREE.MeshBasicMaterial({map:ribbonTex,color:new THREE.Color(.9,.9,.9),side:THREE.DoubleSide})));
+  const up=o.tiers[o.tiers.length-1], outD=up.endD+1;
+  g.add(new THREE.Mesh(sweep(pt,[[0,0],[0,4.5],[10,4.5],[10,0]],TH1,Math.PI*2-o.span,30,()=>[.55,.56,.6]),mat));
+  // pitch / floor
+  const shape=new THREE.Shape(); for(let i=0;i<=96;i++){ const th=i/96*Math.PI*2, [x,z]=pt(th,0); i?shape.lineTo(x,-z):shape.moveTo(x,-z); }
+  const fg=new THREE.ShapeGeometry(shape,48); fg.rotateX(-Math.PI/2); const uv=fg.attributes.uv; for(let i=0;i<uv.count;i++) uv.setXY(i,(uv.getX(i)+o.A)/(2*o.A),(uv.getY(i)-o.cz+o.B)/(2*o.B));
+  g.add(new THREE.Mesh(fg,M({map:o.indoor?floorTex:pitchTex,roughness:.9,color:o.indoor?0x9a9a9a:0xffffff})));
+  if(!o.indoor){ const tiles=new THREE.Mesh(new THREE.PlaneGeometry(o.A*1.6,o.B*1.5),M({map:floorTex,roughness:.85})); tiles.rotation.x=-Math.PI/2; tiles.position.set(0,.02,o.cz); g.add(tiles); }
+  if(o.indoor){ // enclosing walls, cut-away ceiling with rigging grid
+    g.add(new THREE.Mesh(sweep(pt,[[outD,0],[outD,up.endY+6]],0,Math.PI*2,160,null,'strip'),M({color:0x2a2d34,roughness:.9,side:THREE.DoubleSide})));
+    const tr=M({color:0x2a2d33,metalness:.5,roughness:.6}), gy=up.endY+5, W=(o.A+outD)*1.6, Dp=(o.B+outD)*1.6;
+    for(let x=-W/2;x<=W/2;x+=14){ const b=new THREE.Mesh(new THREE.BoxGeometry(.3,.3,Dp),tr); b.position.set(x,gy,o.cz); g.add(b); }
+    for(let z=-Dp/2;z<=Dp/2;z+=14){ const b=new THREE.Mesh(new THREE.BoxGeometry(W,.3,.3),tr); b.position.set(0,gy,o.cz+z); g.add(b); }
+    const L=[]; for(let x=-W/2+4;x<W/2;x+=8) for(let z=-Dp/2+4;z<Dp/2;z+=8) if(Math.hypot(x/(o.A+outD),z/(o.B+outD))<.95) L.push(x,gy-.4,o.cz+z);
+    const lg=new THREE.BufferGeometry(); lg.setAttribute('position',new THREE.Float32BufferAttribute(L,3));
+    g.add(new THREE.Points(lg,new THREE.PointsMaterial({map:GLOW,color:new THREE.Color(1.5,1.35,1.1),size:2.4,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})));
+  } else { // stadium: facade, roof membrane on steel ring, floodlight gantry
+    g.add(new THREE.Mesh(sweep(pt,[[outD+.3,0],[outD+.3,up.endY+4]],0,Math.PI*2,240,null,'strip'),M({color:0x80858e,map:concreteTex,roughness:.85,side:THREE.DoubleSide})));
+    const steel=M({color:0x7f868f,roughness:.4,metalness:.7,envMapIntensity:.6});
+    g.add(new THREE.Mesh(sweep(pt,[[outD+1.4,up.endY+5.8],[up.endD-3.4,up.endY+4.8]],0,Math.PI*2,240),M({color:0xc9ced6,roughness:.6,side:THREE.DoubleSide})));
+    for(let i=0;i<48;i++){ const th=i/48*Math.PI*2, [x,z]=pt(th,outD+.6); const c=new THREE.Mesh(new THREE.BoxGeometry(.7,up.endY+6,.7),steel); c.position.set(x,(up.endY+6)/2,z); g.add(c); }
+    const L=[]; for(let i=0;i<120;i++){ const th=i/120*Math.PI*2, [x,z]=pt(th,up.endD-3.5); L.push(x,up.endY+4.4,z); }
+    const lg=new THREE.BufferGeometry(); lg.setAttribute('position',new THREE.Float32BufferAttribute(L,3));
+    g.add(new THREE.Points(lg,new THREE.PointsMaterial({map:GLOW,color:new THREE.Color(1.6,1.55,1.45),size:3.2,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})));
+  }
+  const n=Math.round((o.A*1.2)/6.5), bw=(o.A*1.2)/3; const x0=-bw*1.5;
+  floorBlocksStraight(g, o.floorZ0, o.floorRows, .95, [{id:'A',x0:x0,x1:x0+bw-1.2},{id:'B',x0:x0+bw,x1:x0+2*bw-1.2},{id:'C',x0:x0+2*bw,x1:x0+3*bw-1.2}].map(b=>({id:b.id,x0:b.x0+.6,x1:b.x1+.6})));
+  buildStage(g,o.indoor?'truss':'marquee',o.floorZ0-1.4,(()=>{ const zz=o.floorZ0+o.floorRows*.95+2, xs=o.indoor?[-14,-7,0,7,14]:[-22,-11,0,11,22]; return xs.map(x=>[x,zz,o.indoor?8:7.5]); })()); if(!o.indoor) fohTent(g,o.floorZ0+o.floorRows*.95+4); else { const fm=new THREE.Mesh(new THREE.BoxGeometry(5,1.2,3.5),M({color:0x1a1c21})); fm.position.set(0,.6,o.floorZ0+o.floorRows*.95+3.5); g.add(fm); }
+}
+function buildStadium(g){ buildBowl(g,{A:34,B:48,cz:34,span:deg(140),indoor:false,floorZ0:3.5,floorRows:22,
+    tiers:[{kind:'lower',cls:'business',rows:14,d0:1.0,run:.85,rise:.42,y0:1.2,n:10,first:101},{kind:'upper',cls:'economy',rows:16,d0:15.0,run:.8,rise:.55,y0:11.2,n:12,first:201}]});
+  return {groundTex:asphaltTex, look:new THREE.Vector3(0,4,30), r:170, phi:.86, physical:{first:0x151618,business:0x1d4f9c,economy:0x4f5864}}; }
+function buildArena(g){ buildBowl(g,{A:21,B:27,cz:14,span:deg(125),indoor:true,floorZ0:3.2,floorRows:17,
+    tiers:[{kind:'lower',cls:'business',rows:12,d0:1.0,run:.82,rise:.42,y0:1.1,n:8,first:101},{kind:'upper',cls:'economy',rows:13,d0:13.2,run:.78,rise:.56,y0:9.4,n:10,first:201}]});
+  return {groundTex:asphaltTex, look:new THREE.Vector3(0,4,14), r:112, phi:.72, indoor:true, physical:{first:0x151618,business:0x7a1f2b,economy:0x5c2027}}; }
+
+/* ---------- VENUE 4: amphitheatre (half circle) ---------- */
+function buildAmphi(g){
+  const CZ=-3, pt=(th,r)=>[r*Math.sin(th), CZ+r*Math.cos(th)], face=th=>th+Math.PI, TH0=deg(-80), TH1=deg(80);
+  const stone=M({color:0xffffff,map:stoneTex,vertexColors:true,roughness:.92,side:THREE.DoubleSide,envMapIntensity:.25});
+  const low={rows:14,d0:15,run:.9,rise:.45,y0:.6}, lowR=stepProfile(low,[[14.4,0],[14.4,low.y0]],(eD,eY)=>[[eD+.2,eY],[eD+.2,0]]);
+  const yW=lowR.endY, up={rows:12,d0:lowR.endD+2.2,run:.85,rise:.55,y0:yW+.6};
+  const upR=stepProfile(up,[[lowR.endD+.2,0],[lowR.endD+.2,yW],[up.d0-.3,yW],[up.d0-.3,up.y0]],(eD,eY)=>[[eD,eY+1.2],[eD+.6,eY+1.2],[eD+.6,0]]);
+  [['lower','business',low,lowR,6,101],['upper','economy',up,upR,8,201]].forEach(([kind,cls,t,R,n,first])=>{
+    const span=(TH1-TH0)/n;
+    for(let i=0;i<n;i++){ const a0=TH0+i*span, a1=a0+span;
+      const mesh=new THREE.Mesh(sweep(pt,R.P,a0,a1,24,treadRiser([1,1,1],[.72,.7,.66])),stone); g.add(mesh);
+      const sec=newSec({id:String(first+i),cls,kind,a0,a1,am:(a0+a1)/2}); hitFor(g,sec,mesh);
+      for(let k=0;k<t.rows;k++){ const d=t.d0+k*t.run+t.run*.5, y=t.y0+k*t.rise, gap=.8/d; seatsAlong(sec,pt,face,a0+gap,a1-gap,d,y,k); }
+      g.add(new THREE.Mesh(sweep(pt,R.P.map(([d,y])=>[d,y+.02]),a0-.006,a0+.006,1,()=>[.82,.8,.76]),stone));
+      const [lx,lz]=pt(sec.am,t.d0-.7); sec.labelPos=new THREE.Vector3(lx,t.y0+1.3,lz); }
+  });
+  // colonnade along the top
+  const topD=upR.endD+.3, topY=upR.endY+1.2, col=M({color:0xd7cfc3,roughness:.85}), cg=new THREE.CylinderGeometry(.35,.4,4.2,10); cg.translate(0,2.1,0);
+  const nC=40, im=new THREE.InstancedMesh(cg,col,nC), m=new THREE.Matrix4(); for(let i=0;i<nC;i++){ const th=TH0+(TH1-TH0)*i/(nC-1), [x,z]=pt(th,topD); m.makeTranslation(x,topY,z); im.setMatrixAt(i,m); } g.add(im);
+  g.add(new THREE.Mesh(sweep(pt,[[topD-.6,topY+4.2],[topD+.6,topY+4.2],[topD+.6,topY+5],[topD-.6,topY+5],[topD-.6,topY+4.2]],TH0,TH1,60),col));
+  // orchestra: stone paving + chair blocks
+  g.add(new THREE.Mesh(sweep(pt,[[0,.03],[14.4,.03]],deg(-90),deg(90),60,null),M({map:pavingTex,roughness:.9,side:THREE.DoubleSide})));
+  [{id:'A',a0:deg(-58),a1:deg(-20)},{id:'B',a0:deg(-18),a1:deg(18)},{id:'C',a0:deg(20),a1:deg(58)}].forEach(b=>{
+    const sec=newSec({id:b.id,cls:'first',kind:'floor',a0:b.a0,a1:b.a1,am:(b.a0+b.a1)/2});
+    for(let k=0;k<7;k++) seatsAlong(sec,pt,face,b.a0,b.a1,6.8+k*.95,.05,k);
+    const hit=new THREE.Mesh(sweep(pt,[[6.3,0],[6.3,1.4],[13.6,1.4],[13.6,0]],b.a0,b.a1,12),new THREE.MeshBasicMaterial({visible:false,side:THREE.DoubleSide})); g.add(hit); hitFor(g,sec,hit);
+    const [lx,lz]=pt(sec.am,6.1); sec.labelPos=new THREE.Vector3(lx,1.8,lz); });
+  buildStage(g,'shell',2.6,[-60,-30,0,30,60].map(a=>{ const [x,z]=pt(deg(a),14.1); return [x,z,6.5]; })); addHills(g);
+  return {groundTex:pavingTex, look:new THREE.Vector3(0,5,12), r:100, phi:.8, physical:{first:0x151618,business:0x6e2230,economy:0x6e2230}};
+}
+
+/* ---------- VENUE 5: cinema hall ---------- */
+const carpetTex=canvasTex(256,256,(g,w,h)=>{ const r=mulberry(61); g.fillStyle='#1c1a22'; g.fillRect(0,0,w,h); for(let i=0;i<5000;i++){ const v=26+r()*22|0; g.fillStyle=`rgba(${v+6},${v},${v+10},.5)`; g.fillRect(r()*w,r()*h,1.5,1.5);} for(let y=0;y<h;y+=32) for(let x=0;x<w;x+=32){ g.fillStyle='rgba(120,30,40,.25)'; g.fillRect(x+14,y+14,4,4);} },[60,60]);
+const fabricTex=canvasTex(256,256,(g,w,h)=>{ g.fillStyle='#2a1418'; g.fillRect(0,0,w,h); for(let x=0;x<w;x+=64){ const gr=g.createLinearGradient(x,0,x+64,0); gr.addColorStop(0,'#1a0c0f'); gr.addColorStop(.5,'#3a1b21'); gr.addColorStop(1,'#1a0c0f'); g.fillStyle=gr; g.fillRect(x,0,64,h);} },[12,1]);
+function buildCinema(g){
+  const blocks=[['L',-13.2,-6.4],['C',-5.2,5.2],['R',6.4,13.2]];
+  const bands=[{n:1,cls:'economy',rows:5,dz:1.15,sp:.6},{n:2,cls:'business',rows:5,dz:1.15,sp:.6},{n:3,cls:'first',rows:4,dz:1.55,sp:.95}];
+  const stepMat=M({map:carpetTex,roughness:1}), noseMat=new THREE.MeshBasicMaterial({color:new THREE.Color(1.6,1.1,.55)});
+  let z=5, k=0; const rowsInfo=[];
+  bands.forEach(b=>{ for(let r=0;r<b.rows;r++){ const y=k<2?0:(k-1)*.42; rowsInfo.push({z,y,band:b,r}); z+=b.dz; k++; } });
+  const zEnd=z+1.5;
+  rowsInfo.forEach((ri,i)=>{ const next=rowsInfo[i+1]; const depth=(next?next.z:zEnd)-ri.z;
+    if(ri.y>0){ const st=new THREE.Mesh(new THREE.BoxGeometry(29.4,ri.y,depth),stepMat); st.position.set(0,ri.y/2,ri.z-.45+depth/2); g.add(st); }
+    [-5.8,5.8].forEach(x=>{ const l=new THREE.Mesh(new THREE.BoxGeometry(.3,.04,.06),noseMat); l.position.set(x,ri.y+.03,ri.z-.45); g.add(l); }); });
+  bands.forEach(b=>blocks.forEach(([bid,x0,x1])=>{
+    const sec=newSec({id:bid+b.n,cls:b.cls,kind:b.n===3?'recliner':b.n===2?'middle':'front'});
+    rowsInfo.filter(ri=>ri.band===b).forEach(ri=>{ const n=Math.floor((x1-x0)/b.sp); for(let j=0;j<n;j++){ addSeat(sec,x0+(j+.5)*(x1-x0)/n,ri.y,ri.z,Math.PI,ri.r,j+1); if(b.n===3) SEATS[SEATS.length-1].sc=1.45; } });
+    const rs=rowsInfo.filter(ri=>ri.band===b), za=rs[0].z-.6, zb=rs[rs.length-1].z+.8, yt=rs[rs.length-1].y+1.5;
+    const hit=new THREE.Mesh(new THREE.BoxGeometry(x1-x0+.4,yt,zb-za),new THREE.MeshBasicMaterial({visible:false})); hit.position.set((x0+x1)/2,yt/2,(za+zb)/2); g.add(hit); hitFor(g,sec,hit);
+    sec.labelPos=new THREE.Vector3((x0+x1)/2,rs[0].y+1.9,za-.2); sec.am=Math.atan2((x0+x1)/2,20);
+    sec.name='Block '+sec.id;
+    sec.view=(bid==='C'?'Centre':'Side')+', '+(b.n===1?'close to the screen':b.n===2?'ideal viewing distance':'raised recliners');
+    sec.viewShort=bid==='C'?(b.n===2?'Ideal':'Centre'):'Side';
+  }));
+  // open hall: no walls, just floor, screen and projector beam
+  const dark=M({color:0x0b0b0e,roughness:.9});
+  const flr=new THREE.Mesh(new THREE.PlaneGeometry(30.4,zEnd+7),stepMat); flr.rotation.x=-Math.PI/2; flr.position.set(0,.01,(zEnd-7)/2); g.add(flr);
+  // screen with masking + stage apron
+  const scrMat=new THREE.MeshBasicMaterial({map:scrTex,color:new THREE.Color(1.1,1.1,1.1)});
+  const sc=new THREE.Mesh(new THREE.PlaneGeometry(24,10.2),scrMat); sc.position.set(0,7.2,-6.3); g.add(sc);
+  const mask=new THREE.Mesh(new THREE.BoxGeometry(26,11.8,.2),dark); mask.position.set(0,7.2,-6.45); g.add(mask);
+  const apron=new THREE.Mesh(new THREE.BoxGeometry(29,1,3),M({color:0x141418,roughness:.8})); apron.position.set(0,.5,-4.9); g.add(apron);
+  [-12,12].forEach(x=>{ const sp=new THREE.Mesh(new THREE.BoxGeometry(1.2,3,.8),dark); sp.position.set(x,2.5,-5.6); g.add(sp); });
+  const bm=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false,uniforms:{uColor:{value:new THREE.Color(0xdfe8ff)}},
+    vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);} ',
+    fragmentShader:'uniform vec3 uColor; varying vec2 vUv; void main(){ gl_FragColor=vec4(uColor, .05*(.3+.7*vUv.y)); }'});
+  const L=zEnd+6.3, cone=new THREE.Mesh(new THREE.ConeGeometry(7,L,4,1,true),bm); cone.geometry.rotateY(Math.PI/4); cone.geometry.rotateX(Math.PI/2); cone.scale.set(1.7,.72,1); cone.position.set(0,8.9,(zEnd-6.3)/2); g.add(cone);
+  const glow=new THREE.PointLight(0xbfd3ff,1.2,45,1.4); glow.position.set(0,7,2); g.add(glow);
+  return {groundTex:carpetTex, look:new THREE.Vector3(0,3,11), r:66, phi:.7, indoor:true, dim:true, pov:new THREE.Vector3(0,7,-6.3), arc:new THREE.Vector3(0,9,-5.8), focus:new THREE.Vector3(0,7,-6.3),
+    physical:{first:0x3a2a22,business:0x5e1220,economy:0x7c1826}};
+}
+
+/* ---------- VENUE 6: cricket ground ---------- */
+const outfieldTex=canvasTex(512,512,(g,w,h)=>{ for(let x=0;x<w;x+=32){ g.fillStyle=(x/32)%2?'#3f7a35':'#478a3c'; g.fillRect(x,0,32,h);} const r=mulberry(29); for(let i=0;i<9000;i++){ g.fillStyle=`rgba(${30+r()*30|0},${80+r()*50|0},${30+r()*20|0},.25)`; g.fillRect(r()*w,r()*h,1,2);} },[1,1]);
+const pitchStripTex=canvasTex(128,512,(g,w,h)=>{ const r=mulberry(31); g.fillStyle='#c9b27c'; g.fillRect(0,0,w,h); for(let i=0;i<4000;i++){ const v=170+r()*50|0; g.fillStyle=`rgba(${v},${v-20},${v-60},.4)`; g.fillRect(r()*w,r()*h,2,2);} g.fillStyle='rgba(120,100,60,.35)'; g.fillRect(w*.3,h*.08,w*.4,h*.1); g.fillRect(w*.3,h*.82,w*.4,h*.1); });
+function buildCricket(g){
+  const A=62, B=70, pt=(th,d)=>[(A+d)*Math.sin(th),(B+d)*Math.cos(th)], face=th=>{ const nx=Math.sin(th)/A, nz=Math.cos(th)/B; return Math.atan2(-nx,-nz); };
+  // outfield + square
+  const shape=new THREE.Shape(); for(let i=0;i<=120;i++){ const th=i/120*Math.PI*2, [x,z]=pt(th,0); i?shape.lineTo(x,-z):shape.moveTo(x,-z); }
+  const fg=new THREE.ShapeGeometry(shape,60); fg.rotateX(-Math.PI/2); const uv=fg.attributes.uv; for(let i=0;i<uv.count;i++) uv.setXY(i,(uv.getX(i)+A)/(2*A),(uv.getY(i)+B)/(2*B));
+  g.add(new THREE.Mesh(fg,M({map:outfieldTex,roughness:.95})));
+  const pitch=new THREE.Mesh(new THREE.BoxGeometry(3.1,.04,20.2),M({map:pitchStripTex,roughness:1})); pitch.position.y=.02; g.add(pitch);
+  const white=new THREE.MeshBasicMaterial({color:0xf2f2f2});
+  [-8.83,8.83].forEach(z=>{ const c=new THREE.Mesh(new THREE.BoxGeometry(3.6,.01,.06),white); c.position.set(0,.05,z); g.add(c); });
+  [-10.06,10.06].forEach(z=>{ const c=new THREE.Mesh(new THREE.BoxGeometry(2.64,.01,.06),white); c.position.set(0,.05,z); g.add(c);
+    [-.11,0,.11].forEach(x=>{ const s=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.71,6),M({color:0xf4e7c6,roughness:.5})); s.position.set(x,.36,z); g.add(s); }); });
+  { const ptsC=[]; for(let i=0;i<90;i++){ const a=i/90*Math.PI*2; ptsC.push(Math.sin(a)*27,.05,Math.cos(a)*27); } const gg=new THREE.BufferGeometry(); gg.setAttribute('position',new THREE.Float32BufferAttribute(ptsC,3)); g.add(new THREE.Points(gg,new THREE.PointsMaterial({color:0xffffff,size:.35}))); }
+  // boundary rope + advertising boards
+  const ropeC=new THREE.CatmullRomCurve3([...Array(96)].map((_,i)=>{ const [x,z]=pt(i/96*Math.PI*2,-4); return new THREE.Vector3(x,.12,z); }),true);
+  g.add(new THREE.Mesh(new THREE.TubeGeometry(ropeC,240,.12,6,true),M({color:0xf0f0f0,roughness:.6})));
+  g.add(new THREE.Mesh(sweep(pt,[[-.8,.05],[-.8,1.0]],0,Math.PI*2,240,null,'strip'),new THREE.MeshBasicMaterial({map:ribbonTex,color:new THREE.Color(1.05,1.05,1.05),side:THREE.DoubleSide})));
+  // stands: two halves separated by sightscreen gaps at each end of the pitch
+  const mat=M({color:0xffffff,map:concreteTex,vertexColors:true,roughness:.95,side:THREE.DoubleSide,envMapIntensity:.25});
+  const gap=deg(10), halves=[[gap,Math.PI-gap],[Math.PI+gap,Math.PI*2-gap]];
+  const tiers=[{kind:'lower',rows:12,d0:1.0,run:.85,rise:.42,y0:1.3,n:5,first:101},{kind:'upper',rows:14,d0:14.0,run:.8,rise:.56,y0:10.8,n:6,first:201}];
+  let upEnd=null;
+  tiers.forEach(t=>{
+    const front = t.kind==='lower' ? [[0,0],[0,t.y0]] : [[t.d0-.8,t.y0-2.4],[t.d0-.8,t.y0]];
+    const backF = t.kind==='lower' ? (eD,eY)=>[[eD,eY+1.4],[eD+.7,eY+1.4],[eD+.7,0]] : (eD,eY)=>[[eD,eY+1.8],[eD+.8,eY+1.8],[eD+.8,t.y0-2.4],[t.d0-.8,t.y0-2.4]];
+    const {P,endD,endY}=stepProfile(t,front,backF); if(t.kind==='upper') upEnd={endD,endY};
+    let idx=0;
+    halves.forEach(([h0,h1],hi)=>{ const span=(h1-h0)/t.n;
+      for(let i=0;i<t.n;i++){ const a0=h0+i*span, a1=a0+span, am=(a0+a1)/2;
+        const pav = t.kind==='lower' && i===2;
+        const mesh=new THREE.Mesh(sweep(pt,P,a0,a1,26,treadRiser([.95,.95,.96],[.62,.63,.66])),mat); g.add(mesh);
+        const sec=newSec({id:String(t.first+idx),cls:pav?'first':t.kind==='lower'?'business':'economy',kind:t.kind,a0,a1,am}); idx++; hitFor(g,sec,mesh);
+        for(let k=0;k<t.rows;k++){ const d=t.d0+k*t.run+t.run*.5, y=t.y0+k*t.rise, gp=.75/((A+B)/2+d); seatsAlong(sec,pt,face,a0+gp,a1-gp,d,y,k); }
+        const [lx,lz]=pt(am, t.kind==='lower'?-.4:t.d0-1.0); sec.labelPos=new THREE.Vector3(lx, t.kind==='lower'?2.6:t.y0+1.6, lz);
+        const ang=Math.min(Math.abs(am%Math.PI), Math.PI-Math.abs(am%Math.PI))*180/Math.PI;
+        sec.view = ang<35 ? 'Straight, behind the bowler’s arm' : ang<62 ? 'Angled, fine leg / third man' : 'Square of the wicket';
+        sec.viewShort = ang<35 ? 'Straight' : ang<62 ? 'Angled' : 'Square';
+        if(pav){ sec.name='Pavilion '+sec.id; g.add(new THREE.Mesh(sweep(pt,[[endD+.7,endY+6.5],[t.d0+2,endY+5.2]],a0,a1,20,()=>[1,1,1]),M({color:0xe9ecef,roughness:.5,side:THREE.DoubleSide})));
+          for(let q=0;q<=3;q++){ const [cx,cz]=pt(a0+(a1-a0)*q/3,endD+.5); const c=new THREE.Mesh(new THREE.BoxGeometry(.35,endY+6.5,.35),M({color:0x9aa1ab,metalness:.7,roughness:.4})); c.position.set(cx,(endY+6.5)/2,cz); g.add(c); } }
+      } });
+  });
+  // upper roof canopies + facade
+  const steel=M({color:0x8e959e,roughness:.4,metalness:.75});
+  halves.forEach(([h0,h1])=>{ g.add(new THREE.Mesh(sweep(pt,[[upEnd.endD+1,upEnd.endY+7],[upEnd.endD-8,upEnd.endY+6]],h0,h1,80),M({color:0xd5d9de,roughness:.55,side:THREE.DoubleSide})));
+    g.add(new THREE.Mesh(sweep(pt,[[upEnd.endD+1.2,0],[upEnd.endD+1.2,upEnd.endY+7]],h0,h1,80,null,'strip'),M({color:0x6c7178,map:concreteTex,roughness:.85,side:THREE.DoubleSide})));
+    for(let q=0;q<=14;q++){ const [cx,cz]=pt(h0+(h1-h0)*q/14,upEnd.endD+.8); const c=new THREE.Mesh(new THREE.BoxGeometry(.5,upEnd.endY+7,.5),steel); c.position.set(cx,(upEnd.endY+7)/2,cz); g.add(c); } });
+  // sightscreens + scoreboard
+  [0,Math.PI].forEach(th=>{ const [x,z]=pt(th,3); const s=new THREE.Mesh(new THREE.BoxGeometry(20,8,.5),M({color:0x121418,roughness:.9})); s.position.set(x,4,z); s.lookAt(0,4,0); g.add(s); });
+  { const [x,z]=pt(Math.PI,22); const sb=new THREE.Mesh(new THREE.PlaneGeometry(26,11.5),new THREE.MeshBasicMaterial({map:scrTex,color:new THREE.Color(1.05,1.05,1.05)})); sb.position.set(x,17,z); sb.lookAt(0,17,0); g.add(sb);
+    const fr=new THREE.Mesh(new THREE.BoxGeometry(27,12.5,.6),M({color:0x15171b})); fr.position.set(x,17,z-.4); fr.lookAt(0,17,0); fr.translateZ(-.35); g.add(fr);
+    [-10,10].forEach(o=>{ const l=new THREE.Mesh(new THREE.BoxGeometry(.8,12,.8),steel); l.position.set(x+o,5.5,z-1); g.add(l); }); }
+  // floodlight towers
+  const lamps=[];
+  [45,135,225,315].forEach(dg=>{ const th=deg(dg), [x,z]=pt(th,upEnd.endD+9), H=58;
+    const tw=new THREE.Mesh(new THREE.CylinderGeometry(.6,1.3,H,8),steel); tw.position.set(x,H/2,z); g.add(tw);
+    const head=new THREE.Group(); head.position.set(x,H+3,z); head.lookAt(0,0,0); g.add(head);
+    const panel=new THREE.Mesh(new THREE.BoxGeometry(10,7,.6),M({color:0x2a2d33,roughness:.6})); head.add(panel);
+    for(let r=0;r<5;r++) for(let c=0;c<8;c++){ const v=new THREE.Vector3(-4.2+c*1.2,-2.6+r*1.3,.4); head.localToWorld(v); lamps.push(v.x,v.y,v.z); } });
+  scene.updateMatrixWorld();
+  { const lg=new THREE.BufferGeometry(); lg.setAttribute('position',new THREE.Float32BufferAttribute(lamps,3));
+    g.add(new THREE.Points(lg,new THREE.PointsMaterial({map:GLOW,color:new THREE.Color(1.8,1.75,1.6),size:3.4,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}))); }
+  const fl=new THREE.DirectionalLight(0xf4f6ff,.7); fl.position.set(60,90,40); g.add(fl);
+  // players, umpires
+  const kit=M({color:0xf1f1ee,roughness:.8}), kit2=M({color:0x1d3f8f,roughness:.8}), skin=M({color:0x8d5a3b,roughness:.7});
+  const fig=(x,z,m)=>{ const b=new THREE.Mesh(new THREE.CapsuleGeometry(.28,1.0,3,8),m); b.position.set(x,.9,z); g.add(b); const h=new THREE.Mesh(new THREE.SphereGeometry(.17,10,8),skin); h.position.set(x,1.78,z); g.add(h); };
+  [[0,-9.2],[0.9,9.6],[0,-12.5],[.2,12.6]].forEach(([x,z],i)=>fig(x,z,i<2?kit:kit2));
+  [[0,11.8],[-22,0]].forEach(([x,z])=>fig(x,z,M({color:0x202225})));
+  [[14,-20],[-18,-26],[30,-4],[-34,8],[22,28],[-12,38],[40,30],[-44,-30],[8,-46]].forEach(([x,z])=>fig(x,z,kit2));
+  return {groundTex:asphaltTex, look:new THREE.Vector3(0,4,0), r:200, phi:.8, pov:new THREE.Vector3(0,1,0), arc:new THREE.Vector3(0,34,0), focus:new THREE.Vector3(0,0,0),
+    physical:{first:0xe6e6e8,business:0x1d4f9c,economy:0xc49a1f}};
+}
+
+/* ---------- build / dispose ---------- */
+function buildVenue(type){
+  if(V){ scene.remove(V.group); V.group.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material && o.material!==seatMat && o.material!==bodyMat && o.material!==headMat){ (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ if(m.map && m.map!==scrTex && m.map!==ribbonTex && m.map!==GLOW && !m.map.isShared && m.isSpriteMaterial) m.map.dispose(); m.dispose(); }); } }); }
+  SECTIONS=[]; SEATS=[]; hitMeshes=[]; labels=[]; beams=[];
+  const g=new THREE.Group(); scene.add(g);
+  const info = type==='ground'?buildGround(g) : type==='stadium'?buildStadium(g) : type==='arena'?buildArena(g) : type==='cinema'?buildCinema(g) : type==='cricket'?buildCricket(g) : buildAmphi(g);
+  V=Object.assign({group:g,type},info);
+  groundMat.map=info.groundTex; groundMat.needsUpdate=true;
+  // derive per-section facts
+  const floors=SECTIONS.filter(s=>s.kind==='floor');
+  SECTIONS.forEach(sec=>{
+    const mid=sec.rows[Math.floor(sec.rows.length/2)], s=mid[Math.floor(mid.length/2)];
+    sec.center=new THREE.Vector3(s.x,s.y,s.z);
+    const F=info.focus||new THREE.Vector3(0,DECK_H,0); sec.dist=Math.round(Math.hypot(s.x-F.x,s.z-F.z,s.y-F.y));
+    const ang=Math.abs(Math.atan2(s.x,Math.max(1,s.z)))*180/Math.PI;
+    sec.view = sec.view || (sec.kind==='floor' ? 'Front, floor level' : ang<22 ? 'Straight on, raised' : ang<48 ? 'Angled view, raised' : 'Side view, raised');
+    sec.viewShort = sec.viewShort || (sec.kind==='floor' ? 'Front' : ang<22 ? 'Front' : ang<48 ? 'Angled' : 'Side');
+    sec.angAbs=ang;
+    sec.gate = sec.kind==='floor' ? 'F'+(floors.indexOf(sec)+1) : String.fromCharCode(65+Math.min(7,Math.round((Math.atan2(s.x,s.z)+Math.PI*.8)/(Math.PI*1.6)*6)));
+    sec.gridRows=Math.min(sec.rows.length,GRID_MAX_ROWS);
+    sec.name = sec.name || (sec.kind==='floor' ? 'Floor '+sec.id : 'Section '+sec.id);
+    const l=labelSprite(sec.id); l.position.copy(sec.labelPos); g.add(l); labels.push(l);
+  });
+  [...new Set(SECTIONS.map(s=>s.kind))].forEach(k=>{ const ss=SECTIONS.filter(x=>x.kind===k);
+    if(k==='floor'){ ss.forEach(x=>{ x.pf=x.id==='B'?1.12:1; }); return; }
+    const lo=Math.min(...ss.map(x=>x.dist+x.angAbs*.4)), hi=Math.max(...ss.map(x=>x.dist+x.angAbs*.4)); ss.forEach(x=>{ x.pf=1.16-.42*((x.dist+x.angAbs*.4)-lo)/(hi-lo||1); }); });
+  // instanced seats + crowd
+  const NS=SEATS.length, secAttr=new Float32Array(NS); SEATS.forEach((s,i)=>secAttr[i]=s.sec);
+  const sg=SEAT_PARTS(), bg=BODY_PARTS(), hg=new THREE.SphereGeometry(.11,10,8);
+  [sg,bg,hg].forEach(x=>x.setAttribute('aSec',new THREE.InstancedBufferAttribute(secAttr,1)));
+  seatMesh=new THREE.InstancedMesh(sg,seatMat,NS); bodies=new THREE.InstancedMesh(bg,bodyMat,NS); heads=new THREE.InstancedMesh(hg,headMat,NS);
+  const hairG=new THREE.SphereGeometry(.12,10,6,0,Math.PI*2,0,Math.PI*.56); hairG.setAttribute('aSec',new THREE.InstancedBufferAttribute(secAttr,1)); hairs=new THREE.InstancedMesh(hairG,headMat,NS); hatFlag=new Uint8Array(NS);
+  { const rh=mulberry(19), ch=new THREE.Color(); for(let i=0;i<NS;i++){ const hat=rh()<.34; hatFlag[i]=hat?1:0; hairs.setColorAt(i,ch.set(hat?HATS[Math.floor(rh()*HATS.length)]:HAIR[Math.floor(rh()*HAIR.length)])); } }
+  const m=new THREE.Matrix4(), q=new THREE.Quaternion(), Y=new THREE.Vector3(0,1,0), one=new THREE.Vector3(1,1,1), p=new THREE.Vector3(), c=new THREE.Color(), r=mulberry(8);
+  SEATS.forEach((s,i)=>{ q.setFromAxisAngle(Y,s.ry); p.set(s.x,s.y,s.z); one.set(s.sc||1,s.sc?1.1:1,s.sc?1.25:1); m.compose(p,q,one); seatMesh.setMatrixAt(i,m); one.set(1,1,1);
+    bodies.setColorAt(i,c.set(CLOTH[Math.floor(r()*CLOTH.length)])); heads.setColorAt(i,c.set(SKIN[Math.floor(r()*SKIN.length)])); seatMesh.setColorAt(i,c.set(0x444444)); });
+  g.add(seatMesh,bodies,heads,hairs);
+  if(window.__applyScene) window.__applyScene(isDark());
+}
+
+/* ================= scene theme ================= */
+let finalPass=null;
+window.__applyScene=function(dark){
+  const indoor=V&&V.indoor;
+  scene.traverse(o=>{ const m=o.material; if(m&&m.isMeshStandardMaterial){ if(m.userData.env0===undefined) m.userData.env0=m.envMapIntensity; m.envMapIntensity=m.userData.env0*(dark||indoor?.35:1); } });
+  if(dark){ skyU.top.value.set(0x03060f); skyU.mid.value.set(0x0b1630); skyU.hor.value.set(0x1c2540); skyU.sunCol.value.set(0); skyU.sunK.value=0;
+    hemi.intensity=.24; hemi.color.set(0x6f82b8); sunLight.intensity=0; moonLight.intensity=.3; houseLight.intensity=.5; scene.fog.color.set(0x0a0f1c); scene.fog.density=.0022;
+    stars.visible=true; moon.visible=true; groundMat.color.set(0x5a5a5a); beams.forEach(b=>b.mat.uniforms.uK.value=1.2); stageKey.intensity=1.6; if(finalPass) finalPass.uniforms.uExposure.value=.95; }
+  else { skyU.top.value.set(0x1a2f5c); skyU.mid.value.set(0x55688f); skyU.hor.value.set(0xe89a66); skyU.sunCol.value.set(0xffa860); skyU.sunK.value=1;
+    hemi.intensity=.55; hemi.color.set(0xa8b8e0); sunLight.intensity=.85; moonLight.intensity=0; houseLight.intensity=.35; scene.fog.color.set(0x7b6f80); scene.fog.density=.0015;
+    stars.visible=false; moon.visible=false; groundMat.color.set(0x9c9c9c); beams.forEach(b=>b.mat.uniforms.uK.value=.5); stageKey.intensity=1.1; if(finalPass) finalPass.uniforms.uExposure.value=1.0; }
+  if(indoor){ hemi.intensity=.22; hemi.color.set(0xbfc6d8); sunLight.intensity=0; moonLight.intensity=0; houseLight.intensity=.55; stageKey.intensity=1.8; beams.forEach(b=>b.mat.uniforms.uK.value=1.3); }
+};
+
+/* ================= per-event state ================= */
+function secState(sec, ev=EV()){
+  ev.cache ||= {};
+  if(!ev.cache[sec.id]){ const r=mulberry(ev.seed*1000+sec.idx*31+7), sold=ev.sold.includes(sec.id);
+    const fill=sold?1:Math.min(.95,ev.fill*(.6+r()*.8)*(sec.kind==='floor'?1.25:1));
+    const taken=new Uint8Array(sec.seats.length); for(let i=0;i<taken.length;i++){ const s=sec.seats[i], bias=(1-s.row/18)*.2; taken[i]=sold||r()<fill+bias-.1?1:0; }
+    TICKETS.filter(t=>t.code===ev.code&&t.secId===sec.id).forEach(t=>t.seats.forEach(({r,n})=>{ const st=(sec.rows[r]||[]).find(x=>x.num===n); if(st) taken[st.li]=1; }));
+    ev.cache[sec.id]={taken}; }
+  const taken=ev.cache[sec.id].taken; let left=0; for(let i=0;i<taken.length;i++) if(!taken[i]) left++;
+  return {taken,left,total:taken.length,sold:left===0,price:Math.round(((VTYPES[ev.vtype].base||{})[sec.cls]||CLASSES[sec.cls].base)*sec.pf*ev.mult/100)*100};
+}
+let heat=false, priceMin=0, priceMax=1;
+function heatColor(p){ const t=(p-priceMin)/(priceMax-priceMin||1); const stops=[[0,'#2F80ED'],[.35,'#27AE60'],[.7,'#F2C94C'],[1,'#EB5757']]; for(let i=1;i<stops.length;i++){ if(t<=stops[i][0]){ const k=(t-stops[i-1][0])/(stops[i][0]-stops[i-1][0]); return new THREE.Color(stops[i-1][1]).lerp(new THREE.Color(stops[i][1]),k); } } return new THREE.Color('#EB5757'); }
+function refreshStates(){ SECTIONS.forEach(sec=>sec.s=secState(sec)); const ps=SECTIONS.map(s=>s.s.price); priceMin=Math.min(...ps); priceMax=Math.max(...ps); applyColors(); updateCrowd(); }
+function applyColors(){
+  const c=new THREE.Color(), r=mulberry(4), selCol=new THREE.Color(0xf05252).multiplyScalar(1.3);
+  SECTIONS.forEach(sec=>{ const base = heat ? (sec.s.sold?new THREE.Color(0x5b606a):heatColor(sec.s.price)) : new THREE.Color(V.physical[sec.cls]);
+    sec.seats.forEach(s=>{ c.copy(base).multiplyScalar(.9+r()*.14); if(mode!=='overview' && bk.sel.includes(s)) c.copy(selCol); seatMesh.setColorAt(s.gi,c); }); });
+  seatMesh.instanceColor.needsUpdate=true;
+}
+function updateCrowd(){
+  const m=new THREE.Matrix4(), mh=new THREE.Matrix4(), q=new THREE.Quaternion(), Y=new THREE.Vector3(0,1,0), p=new THREE.Vector3(), ph=new THREE.Vector3(), one=new THREE.Vector3(1,1,1), zero=new THREE.Matrix4().makeScale(0,0,0), r=mulberry(evIdx*77+1);
+  SECTIONS.forEach(sec=>{ const tk=sec.s.taken;
+    sec.seats.forEach((s,i)=>{ if(tk[i]){ q.setFromAxisAngle(Y,s.ry+(r()-.5)*.14); const sz=.88+r()*.24; one.set(sz*1.12,sz,sz);
+        p.set(s.x,s.y+.72*sz,s.z); m.compose(p,q,one); bodies.setMatrixAt(s.gi,m);
+        const lean=(r()-.5)*.06; one.set(sz,sz,sz); ph.set(s.x+Math.cos(s.ry)*lean,s.y+1.13*sz,s.z-Math.sin(s.ry)*lean); mh.compose(ph,q,one); heads.setMatrixAt(s.gi,mh);
+        const k=hatFlag[s.gi]?1.14:1.03; one.set(sz*k,sz*(hatFlag[s.gi]?1.05:.95),sz*k); ph.y+=.012*sz; mh.compose(ph,q,one); hairs.setMatrixAt(s.gi,mh); }
+      else { bodies.setMatrixAt(s.gi,zero); heads.setMatrixAt(s.gi,zero); hairs.setMatrixAt(s.gi,zero); } }); });
+  bodies.instanceMatrix.needsUpdate=true; heads.instanceMatrix.needsUpdate=true; hairs.instanceMatrix.needsUpdate=true;
+}
+
+/* ================= route arc & pins ================= */
+const arcMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:false,uniforms:{uTime:{value:0},uProg:{value:0},uColor:{value:new THREE.Color()}},
+  vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);} ',
+  fragmentShader:'uniform float uTime; uniform float uProg; uniform vec3 uColor; varying vec2 vUv; void main(){ if(vUv.x>uProg) discard; float d=step(.4, fract(vUv.x*30.0-uTime*1.2)); if(d<.5) discard; gl_FragColor=vec4(uColor, .95);} '});
+let arcMesh=null, arcCurve=null, arcStart=0;
+const planeDot=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,transparent:true,depthWrite:false,fog:false,color:0xffffff})); planeDot.scale.set(2,2,1); planeDot.visible=false; scene.add(planeDot);
+const marker=new THREE.Mesh(new THREE.RingGeometry(1.4,1.7,64),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,color:0xffffff})); marker.rotation.x=-Math.PI/2; marker.visible=false; scene.add(marker);
+function showArc(sec){
+  if(arcMesh){ scene.remove(arcMesh); arcMesh.geometry.dispose(); arcMesh=null; }
+  if(!sec){ planeDot.visible=marker.visible=false; return; }
+  const end=sec.center.clone().add(new THREE.Vector3(0,2,0)), start=(V.arc||ARC_START).clone(), mid=start.clone().lerp(end,.5); mid.y=Math.max(start.y,end.y)+6+start.distanceTo(end)*.18;
+  arcCurve=new THREE.QuadraticBezierCurve3(start,mid,end); arcMesh=new THREE.Mesh(new THREE.TubeGeometry(arcCurve,100,.1,6,false),arcMat); scene.add(arcMesh);
+  arcMat.uniforms.uColor.value.set(sec.s.sold?0xff8a80:0xffffff); marker.position.set(sec.center.x,sec.center.y+.3,sec.center.z);
+  arcStart=clock.elapsedTime; planeDot.visible=marker.visible=true;
+}
+const pins=[]; { const c=document.createElement('canvas'); c.width=64; c.height=96; const g=c.getContext('2d'); g.fillStyle='#EF4444'; g.beginPath(); g.arc(32,30,26,Math.PI,0); g.quadraticCurveTo(58,60,32,94); g.quadraticCurveTo(6,60,6,30); g.fill(); g.fillStyle='#fff'; g.beginPath(); g.arc(32,30,10,0,Math.PI*2); g.fill();
+  const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; for(let i=0;i<6;i++){ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthWrite:false,depthTest:false})); s.center.set(.5,0); s.scale.set(.5,.75,1); s.visible=false; s.renderOrder=5; scene.add(s); pins.push(s); } }
+
+/* ================= post ================= */
+let composer=null, bloom=null;
+if(HAS_POST){
+  const rt=new THREE.WebGLRenderTarget(2,2,{type:THREE.HalfFloatType, samples:renderer.capabilities.isWebGL2?4:0});
+  composer=new THREE.EffectComposer(renderer,rt); composer.addPass(new THREE.RenderPass(scene,camera));
+  bloom=new THREE.UnrealBloomPass(new THREE.Vector2(256,256),.32,.4,.95); composer.addPass(bloom);
+  finalPass=new THREE.ShaderPass({uniforms:{tDiffuse:{value:null},uExposure:{value:1}},
+    vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);} ',
+    fragmentShader:`uniform sampler2D tDiffuse; uniform float uExposure; varying vec2 vUv;
+      vec3 aces(vec3 x){ return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.); }
+      void main(){ vec3 c=texture2D(tDiffuse,vUv).rgb; c=aces(c*uExposure); c=pow(c,vec3(1./2.2)); float v=smoothstep(1.2,.35,length(vUv-.5)*1.3); c*=mix(.86,1.,v); gl_FragColor=vec4(c,1.); }`});
+  composer.addPass(finalPass);
+}
+
+/* ================= camera ================= */
+const cam={userTheta:0, userPhi:0, zoom:1};
+const camPos=new THREE.Vector3(0,200,300), camLook=new THREE.Vector3(0,3,20);
+let mode='overview', seatZone=null, tween=null, povSeat=null, mapW=1, mapH=1;
+function baseRadius(){ const a=mapW/mapH; return Math.min(V.r*2.3,V.r*Math.max(1,1.35/a)); }
+function overviewTarget(t){ const drift=reduce?0:Math.sin(t*.05)*.3; const th=cam.userTheta+drift, ph=Math.min(1.3,Math.max(.35,V.phi+cam.userPhi)), r=baseRadius()*cam.zoom, L=V.look;
+  return {pos:new THREE.Vector3(L.x+r*Math.sin(ph)*Math.sin(th), L.y+r*Math.cos(ph), L.z+r*Math.sin(ph)*Math.cos(th)), look:L.clone()}; }
+let px=0, py=0;
+function seatTarget(){ const s=povSeat; return {pos:new THREE.Vector3(s.x,s.y+1.22,s.z), look:(V.pov||STAGE_LOOK).clone().add(new THREE.Vector3(px*10,-py*5,0))}; }
+function flyTo(getter,dur=1.8,arcH=0){ tween={from:camPos.clone(),fromLook:camLook.clone(),start:clock.elapsedTime,dur:reduce?.01:dur,getter,arc:arcH}; }
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+
+/* ================= UI: date strip + event card ================= */
+const strip=$('#dateStrip');
+function renderStrip(){ strip.innerHTML=EVENTS.map((e,i)=>`<button class="date" role="tab" aria-selected="${i===evIdx}" data-i="${i}" aria-label="${e.title}, ${e.date}"><small>${e.date.slice(0,3).toUpperCase()}</small><b>${e.d}</b><span>${e.mo[0]+e.mo.slice(1).toLowerCase()}</span></button>`).join(''); }
+strip.addEventListener('click',e=>{ const b=e.target.closest('.date'); if(!b) return; if(mode!=='overview') exitSeat(); setEvent(+b.dataset.i); });
+strip.addEventListener('keydown',e=>{ if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft') return; e.preventDefault(); const n=(evIdx+(e.key==='ArrowRight'?1:-1)+EVENTS.length)%EVENTS.length; if(mode!=='overview') exitSeat(); setEvent(n); strip.children[n].focus(); });
+const NOTE='<svg class="i" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+function renderEvCard(){ const ev=EV(), minP=Math.min(...SECTIONS.filter(s=>!s.s.sold).map(s=>s.s.price));
+  $('#evCard').innerHTML=`<div class="ev-top"><span class="tag">${VTYPES[ev.vtype].label}</span><span class="badge ${statusBadge(ev.status)}">${ev.status}</span></div>
+    <h3>${ev.title}</h3><p class="v">${ev.venue}, ${ev.city} · ${ev.code}</p>
+    <div class="tl"><div><b>${ev.doors}</b><small>Doors open</small></div><div class="tline"><span class="dot f"></span><i></i>${NOTE}<i></i><span class="dot"></span></div><div class="r"><b>${ev.show}</b><small>Show starts</small></div></div>
+    <div class="ev-foot"><div><small>${ev.fare} fare</small><b>from ${fmt(minP)}</b></div><div style="text-align:right"><small>${ev.date}</small><b>${SECTIONS.reduce((a,s)=>a+s.s.left,0).toLocaleString('en-US')} seats</b></div></div>`;
+  $('#doorsTile').textContent=ev.doors; }
+
+/* ================= UI: filters + list ================= */
+function renderChips(){ const opts=[['all','All',null],...Object.entries(CLASSES).map(([k,c])=>[k,c.name,c.css])];
+  $('#classChips').innerHTML=opts.map(([k,l,c])=>`<button data-k="${k}" aria-pressed="${filt.cls===k}" title="${k==='all'?'All classes':tierName(k)}">${c?`<i style="background:${c}"></i>`:''}${l}</button>`).join(''); }
+$('#classChips').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; filt.cls=b.dataset.k; renderChips(); renderList(); });
+const maxPrice=$('#maxPrice');
+function setupPrice(){ const hi=Math.ceil(priceMax/500)*500, lo=Math.floor(priceMin/500)*500; maxPrice.min=lo; maxPrice.max=hi; maxPrice.step=500; maxPrice.value=hi; filt.max=hi; $('#maxPriceOut').textContent=fmt(hi); }
+maxPrice.addEventListener('input',()=>{ filt.max=+maxPrice.value; $('#maxPriceOut').textContent=fmt(filt.max); renderList(); });
+$('#sortPills').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; filt.sort=b.dataset.s; [...$('#sortPills').children].forEach(x=>x.setAttribute('aria-pressed',x===b)); renderList(); });
+function setQty(n){ filt.qty=Math.max(1,Math.min(6,n)); $('#qOut').textContent=filt.qty; $('#q2Out').textContent=filt.qty; $('#qMinus').disabled=$('#q2Minus').disabled=filt.qty<=1; $('#qPlus').disabled=filt.qty>=6; renderList();
+  if(mode==='seat'){ $('#q2Plus').disabled=filt.qty>=Math.min(6,seatZone.s.left); bk.sel=autoPick(filt.qty); if(bk.sel[0]){ povSeat=bk.sel[0]; flyTo(seatTarget,1.1,0);} renderBooking(); } }
+$('#qMinus').addEventListener('click',()=>setQty(filt.qty-1)); $('#qPlus').addEventListener('click',()=>setQty(filt.qty+1));
+$('#q2Minus').addEventListener('click',()=>setQty(filt.qty-1)); $('#q2Plus').addEventListener('click',()=>setQty(filt.qty+1));
+function visibleSections(){ const list=SECTIONS.filter(s=>(filt.cls==='all'||s.cls===filt.cls));
+  const avail=list.filter(s=>!s.s.sold && s.s.left>=filt.qty && s.s.price<=filt.max), un=list.filter(s=>!avail.includes(s));
+  const key={price:s=>s.s.price, dist:s=>s.dist, avail:s=>-s.s.left}[filt.sort]; avail.sort((a,b)=>key(a)-key(b)); return {avail,un}; }
+const secList=$('#secList');
+const PLANE_SM='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>';
+function renderList(){
+  if(!SECTIONS.length || !SECTIONS[0].s) return;
+  const {avail,un}=visibleSections();
+  $('#secCount').textContent=`${avail.length} of ${SECTIONS.length} sections available for ${filt.qty} ticket${filt.qty>1?'s':''}`;
+  const item=(s,dis)=>{ const c=CLASSES[s.cls], low=s.s.left<=40;
+    return `<li><button class="sec-card" data-i="${s.idx}" ${dis?'disabled':''} aria-label="${s.name}, ${c.name}, ${dis?(s.s.sold?'sold out':'not available with current filters'):fmt(s.s.price)+' per ticket, '+s.s.left+' seats left'}">
+      <span class="sc-route"><span><b>${FOC().code}</b><small>${FOC().focus}</small></span><span class="sc-line"><i></i>${PLANE_SM}<i></i></span><span class="r"><b>${s.id}</b><small>${tierName(s.cls)}</small></span></span>
+      <span class="sc-foot"><span>${s.dist} m · ${s.viewShort} view · <span class="left ${low?'low':''}">${s.s.sold?'Sold out':low?'Only '+s.s.left+' left':s.s.left+' left'}</span></span><span class="cls"><i style="background:${c.css}"></i><b>${s.s.sold?'—':fmt(s.s.price)}</b></span></span></button></li>`; };
+  secList.innerHTML=(avail.length?avail.map(s=>item(s,false)).join(''):'<li class="empty">No sections match. Try fewer tickets or a higher max price.</li>')+un.map(s=>item(s,true)).join('');
+}
+secList.addEventListener('mouseover',e=>{ const b=e.target.closest('.sec-card'); if(!b||b.disabled||mode!=='overview') return; setHover(SECTIONS[+b.dataset.i],true); });
+secList.addEventListener('mouseleave',()=>{ if(mode==='overview') setHover(null); });
+secList.addEventListener('focusin',e=>{ const b=e.target.closest('.sec-card'); if(b&&!b.disabled&&mode==='overview') setHover(SECTIONS[+b.dataset.i],true); });
+secList.addEventListener('click',e=>{ const b=e.target.closest('.sec-card'); if(b&&!b.disabled) enterSeat(SECTIONS[+b.dataset.i]); });
+function renderLegend(){
+  if(heat){ $('#legend').innerHTML=`<b>Price per ticket</b><span class="heat"></span><span class="hs"><span>${fmt(priceMin)}</span><span>${fmt(priceMax)}</span></span>`; return; }
+  $('#legend').innerHTML=`<b>${VTYPES[EV().vtype].label}</b>`+Object.entries(CLASSES).map(([k,c])=>`<div><i style="background:${c.css}"></i>${c.name} · ${tierName(k)}</div>`).join('');
+}
+function setEvent(i){
+  const prevType=V&&V.type; evIdx=i; const ev=EV();
+  if(prevType!==ev.vtype){ setHover(null); buildVenue(ev.vtype); cam.userTheta=0; cam.userPhi=0; cam.zoom=1; if(prevType) flyTo(()=>overviewTarget(clock.elapsedTime),1.6,0); }
+  filt.cls='all';
+  refreshStates(); setupPrice(); renderStrip(); renderEvCard(); $('#sortPills [data-s="dist"]').textContent='Closest to '+FOC().focus.toLowerCase(); $('.stage-lbl').textContent=FOC().focus.toUpperCase(); if(typeof renderEvsel==='function') renderEvsel(); renderChips(); renderList(); renderLegend(); setHover(null); drawRibbon(); drawScreen(0);
+}
+$('#heatBtn').addEventListener('click',()=>{ heat=!heat; $('#heatBtn').setAttribute('aria-pressed',heat); applyColors(); renderLegend(); });
+$('#zIn').addEventListener('click',()=>{ cam.zoom=Math.max(.45,cam.zoom*.82); });
+$('#zOut').addEventListener('click',()=>{ cam.zoom=Math.min(1.5,cam.zoom/.82); });
+$('#zReset').addEventListener('click',()=>{ if(mode!=='overview'){ exitSeat(); return; } cam.zoom=1; cam.userTheta=0; cam.userPhi=0; });
+
+/* ================= boarding pass card ================= */
+const passWrap=$('#passWrap');
+function bars(seed){ const r=mulberry(seed); let h=''; for(let i=0;i<32;i++) h+=`<span style="width:${1+Math.floor(r()*3)}px"></span>`; return h; }
+function cardHTML(sec){
+  const ev=EV(), c=CLASSES[sec.cls], s=sec.s, fits=s.left>=filt.qty;
+  const note = s.sold ? '<span class="tk-note cx">Sold out. Try another section.</span>'
+    : !fits ? `<span class="tk-note cx">Only ${s.left} left for ${filt.qty} tickets</span>`
+    : `<span class="tk-note ${s.left<=40?'fast':''}">${s.left<=40?'Selling fast · '+s.left+' left':((touch||small())?'Tap Continue to pick your seats':'Click to see the view from here')}</span>`;
+  return `<div class="tk unfold">
+    <div class="tk-body">
+      <button class="tk-x" data-close aria-label="Close fare card">×</button><div class="tk-head"><span>Boarding pass · ${ev.code}</span><span class="cls"><i style="background:${c.css}"></i>${c.name}</span></div>
+      <div class="sc-route"><span><b>${FOC().code}</b><small>${FOC().focus}</small></span><span class="sc-line"><i></i>${PLANE_SM}<i></i></span><span class="r"><b>${sec.id}</b><small>${tierName(sec.cls)}</small></span></div>
+      <dl class="tk-fields">
+        <div><dt>Date</dt><dd>${ev.d} ${ev.mo[0]+ev.mo.slice(1).toLowerCase()}</dd></div><div><dt>Doors</dt><dd>${ev.doors}</dd></div><div><dt>Gate</dt><dd>${sec.gate}</dd></div>
+        <div><dt>To ${FOC().focus.toLowerCase()}</dt><dd>${sec.dist} m</dd></div><div><dt>View</dt><dd>${sec.viewShort}</dd></div><div><dt>Seats left</dt><dd>${s.left}</dd></div>
+      </dl>
+      ${note}
+      ${s.sold?'<div class="stamp cx">SOLD OUT</div>':''}
+    </div>
+    <div class="tk-tear"></div>
+    <div class="tk-foot"><div><small>Per ticket</small><b class="${s.sold?'strike':''}">${fmt(s.price)}</b></div>${!s.sold&&fits?'<button class="pass-cta" data-go>Continue <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>':''}<div class="barcode" style="width:120px" aria-hidden="true">${bars(sec.idx*31+evIdx)}</div></div>
+  </div>`;
+}
+let hover=null, mouse={x:0,y:0,in:false}, fromList=false;
+function setHover(sec, list=false){
+  fromList=list;
+  secList.querySelectorAll('.sec-card.hl').forEach(b=>b.classList.remove('hl'));
+  if(sec){ const b=secList.querySelector(`.sec-card[data-i="${sec.idx}"]`); b&&b.classList.add('hl'); }
+  if(sec===hover){ placeCard(); return; }
+  hover=sec; U.hover.value=sec?sec.idx:-1;
+  if(!sec){ passWrap.classList.remove('visible'); document.body.classList.remove('card-open'); canvas.classList.remove('pointing'); showArc(null); return; }
+  passWrap.innerHTML=cardHTML(sec); passWrap.classList.add('visible'); document.body.classList.add('card-open'); canvas.classList.toggle('pointing',!sec.s.sold);
+  const go=passWrap.querySelector('[data-go]'); go&&go.addEventListener('click',()=>enterSeat(sec)); const cx=passWrap.querySelector('[data-close]'); cx&&cx.addEventListener('click',()=>setHover(null));
+  placeCard(); showArc(sec);
+}
+const tmpV=new THREE.Vector3();
+function placeCard(){
+  if(!hover||small()) return;
+  let ax=mouse.x, ay=mouse.y;
+  if(fromList){ tmpV.copy(hover.center).setY(hover.center.y+2).project(camera); ax=(tmpV.x*.5+.5)*mapW; ay=(-tmpV.y*.5+.5)*mapH; }
+  const w=passWrap.offsetWidth, h=passWrap.offsetHeight; let x=ax+24, y=ay-h/2;
+  if(x+w>mapW-12) x=ax-w-24; x=Math.max(12,Math.min(mapW-w-12,x)); y=Math.max(12,Math.min(mapH-h-12,y));
+  passWrap.style.transform=`translate(${x}px,${y}px)`;
+}
+
+/* ================= pointer ================= */
+const ray=new THREE.Raycaster(), ndc=new THREE.Vector2(); let down=null, needsPick=false;
+function pickLocal(lx,ly){ ndc.set(lx/mapW*2-1,-(ly/mapH)*2+1); ray.setFromCamera(ndc,camera); const hit=ray.intersectObjects(hitMeshes,false)[0]; return hit?hit.object.userData.sec:null; }
+canvas.addEventListener('pointerdown',e=>{ down={x:e.clientX,y:e.clientY,moved:0,th:cam.userTheta,ph:cam.userPhi}; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove',e=>{
+  const r=canvas.getBoundingClientRect(); mouse.x=e.clientX-r.left; mouse.y=e.clientY-r.top; mouse.in=true; px=mouse.x/r.width-.5; py=mouse.y/r.height-.5;
+  if(down){ const dx=e.clientX-down.x, dy=e.clientY-down.y; down.moved=Math.max(down.moved,Math.hypot(dx,dy));
+    if(mode==='overview'&&down.moved>5){ cam.userTheta=down.th-dx*.005; cam.userPhi=Math.max(-.5,Math.min(.35,down.ph-dy*.003)); if(!touch) setHover(null); } }
+  else if(!touch){ needsPick=true; fromList=false; placeCard(); }
+});
+canvas.addEventListener('pointerup',e=>{ const d=down; down=null; if(!d||d.moved>6||mode!=='overview') return; const r=canvas.getBoundingClientRect(); const sec=pickLocal(e.clientX-r.left,e.clientY-r.top);
+  if(touch||e.pointerType==='touch'||small()){ setHover(sec); return; } if(sec&&!sec.s.sold&&sec.s.left>=filt.qty) enterSeat(sec); });
+canvas.addEventListener('pointerleave',()=>{ mouse.in=false; if(!touch&&!down&&!fromList) setHover(null); });
+canvas.addEventListener('wheel',e=>{ if(mode!=='overview') return; e.preventDefault(); cam.zoom=Math.max(.45,Math.min(1.5,cam.zoom*(1+e.deltaY*.0012))); },{passive:false});
+addEventListener('keydown',e=>{ if(e.key!=='Escape') return; if(!$('#evpop').hidden){ closeEvpop(true); return; }
+  if(!$('#walletModal').hidden){ $('#walletModal').hidden=true; } else if(!$('#authModal').hidden) cancelAuth(); else if(!$('#confirmModal').hidden) closeModal(); else if(mode==='pay') backToSeats(); else if(mode==='seat') exitSeat(); else setHover(null); });
+
+/* ================= seat mode ================= */
+const bk={sel:[]};
+function gridSeat(sec,r,c){ const row=sec.rows[r]; if(!row) return null; const st=Math.max(0,Math.floor((row.length-GRID_COLS)/2)); return row[st+c]||null; }
+const isTaken=(sec,s)=>s?sec.s.taken[s.li]===1:true;
+const seatName=s=>`Row ${s.row+1}, Seat ${s.num}`;
+function showView(v){ ['#viewFind','#viewSeats','#viewPay'].forEach(id=>$(id).hidden=(id!==v)); $('#panel').scrollTop=0; document.body.classList.toggle('wide', v!=='#viewFind'); }
+function enterSeat(sec){
+  if(sec.s.sold) return;
+  seatZone=sec; mode='seat'; setHover(null); U.sel.value=sec.idx; labels.forEach(l=>l.visible=false);
+  const c=CLASSES[sec.cls];
+  showView('#viewSeats'); $('#legend').hidden=true; $('#hint').hidden=true; $('#pov').hidden=false;
+  $('#smWrap').style.setProperty('--cls',c.css);
+  $('#bkTitle').textContent=sec.name; $('#bkSub').textContent=`${EV().date} · ${EV().doors} · ${EV().venue}`;
+  $('#bkClassCard').innerHTML=`<b>${c.name}</b><small>${tierName(sec.cls)} · ${sec.s.left} seats left</small><span class="p">${fmt(sec.s.price)}</span>`; $('#trioCls').textContent=c.name; $('#smHead').textContent=`${sec.name} · Gate ${sec.gate}`;
+  $('#bkFacts').innerHTML=`<span class="badge b-neutral">${sec.dist} m to ${FOC().focus.toLowerCase()}</span><span class="badge b-neutral">${sec.view}</span>`;
+  if(filt.qty>sec.s.left) setQty(sec.s.left);
+  $('#q2Plus').disabled=filt.qty>=Math.min(6,sec.s.left);
+  bk.sel=autoPick(filt.qty); povSeat=bk.sel[0]||gridSeat(sec,Math.floor(sec.gridRows/2),7);
+  renderBooking(); flyTo(seatTarget,2.4,1); $('#backBtn').focus();
+}
+function exitSeat(){
+  stopHold(); mode='overview'; seatZone=null; U.sel.value=-1; bk.sel=[]; pins.forEach(p=>p.visible=false); labels.forEach(l=>l.visible=true); applyColors();
+  showView('#viewFind'); $('#legend').hidden=false; $('#hint').hidden=false; $('#pov').hidden=true;
+  renderList(); flyTo(()=>overviewTarget(clock.elapsedTime),2.2,1);
+}
+$('#backBtn').addEventListener('click',exitSeat); $('#bkChange').addEventListener('click',exitSeat);
+function autoPick(n){
+  const sec=seatZone; let best=null, score=1e9;
+  for(let r=0;r<sec.gridRows;r++) for(let c=0;c<=GRID_COLS-n;c++){ let ok=true; for(let k=0;k<n;k++) if(isTaken(sec,gridSeat(sec,r,c+k))){ ok=false; break; }
+    if(!ok) continue; const sc=r*(sec.kind==='upper'||sec.kind==='rear'?.8:1.6)+Math.abs(c+(n-1)/2-(GRID_COLS-1)/2)+(sec.kind==='floor'?0:Math.abs(r-3)*.6); if(sc<score){ score=sc; best=[...Array(n)].map((_,k)=>gridSeat(sec,r,c+k)); } }
+  if(best) return best;
+  const out=[]; for(let r=0;r<sec.gridRows&&out.length<n;r++) for(let c=0;c<GRID_COLS&&out.length<n;c++){ const s=gridSeat(sec,r,c); if(s&&!isTaken(sec,s)) out.push(s); } return out;
+}
+const totals=()=>{ const fare=seatZone.s.price*bk.sel.length, fee=Math.round(fare*.05); return {fare,fee,total:fare+fee}; };
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function renderBooking(){
+  const sec=seatZone; let h='<span></span>';
+  for(let c=0;c<GRID_COLS;c++){ const st=gridSeat(sec,0,c); h+=`<span class="cn">${st?st.num:''}</span>`; }
+  for(let r=0;r<sec.gridRows;r++){ h+=`<span class="rl">${r+1}</span>`;
+    for(let c=0;c<GRID_COLS;c++){ const st=gridSeat(sec,r,c); if(!st){ h+='<span></span>'; continue; } const tk=isTaken(sec,st), sel=bk.sel.includes(st);
+      h+=`<button class="seat" data-r="${r}" data-c="${c}" ${tk?'disabled':''} aria-pressed="${sel}" aria-label="${seatName(st)}, ${tk?'taken':sel?'selected':'available'}">${sel?CHECK:''}</button>`; } }
+  $('#seatmap').innerHTML=h;
+  $('#picked').innerHTML=bk.sel.length?bk.sel.map((x,i)=>`<button data-k="${i}" aria-current="${x===povSeat}">${seatName(x)}</button>`).join(''):'<span class="eyebrow">No seats selected yet.</span>';
+  $('#trioSeats').textContent=bk.sel.length?bk.sel.map(x=>`R${x.row+1}-${x.num}`).join(', '):'—';
+  const {fare,fee,total}=totals();
+  $('#tFareLbl').textContent=`Tickets × ${bk.sel.length}`; $('#tFare').textContent=fmt(fare); $('#tFee').textContent=fmt(fee); $('#tTotal').textContent=fmt(total); $('#tTotal2').textContent=fmt(total);
+  const need=filt.qty-bk.sel.length; ['#toPayBtn','#toPayBtn2'].forEach(id=>{ $(id).disabled=need!==0; $(id+' .lbl').textContent=need===0?'Continue to pay':`Pick ${need} more seat${need>1?'s':''}`; });
+  updatePov(); applyColors();
+}
+function updatePov(){ const sec=seatZone; $('#povTitle').textContent=`View from ${sec.name}${povSeat?' · '+seatName(povSeat):''}`; $('#povSub').textContent=`${sec.dist} m to ${FOC().focus.toLowerCase()} · ${sec.view}`;
+  pins.forEach((p,i)=>{ const s=bk.sel[i]; p.visible=!!s&&s!==povSeat; if(s) p.position.set(s.x,s.y+1.6,s.z); }); }
+$('#seatmap').addEventListener('click',e=>{ const b=e.target.closest('.seat'); if(!b||b.disabled) return; const st=gridSeat(seatZone,+b.dataset.r,+b.dataset.c);
+  if(bk.sel.includes(st)){ bk.sel=bk.sel.filter(x=>x!==st); if(povSeat===st&&bk.sel[0]){ povSeat=bk.sel[0]; flyTo(seatTarget,1.1,0);} }
+  else { bk.sel.push(st); if(bk.sel.length>filt.qty) bk.sel.shift(); povSeat=st; flyTo(seatTarget,1.1,0); }
+  renderBooking(); const nb=$(`.seat[data-r="${b.dataset.r}"][data-c="${b.dataset.c}"]`); nb&&nb.focus(); });
+$('#picked').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; povSeat=bk.sel[+b.dataset.k]; flyTo(seatTarget,1.1,0); renderBooking(); });
+
+/* ================= payment ================= */
+const f=id=>$('#'+id);
+function toPay(){ mode='pay'; const sec=seatZone, c=CLASSES[sec.cls], ev=EV(), {fee,total}=totals();
+  $('#paySummary').innerHTML=`<div class="row"><span>${ev.date} · ${ev.doors}</span><span>${ev.code}</span></div>
+    <div class="big">${ev.title}</div>
+    <div class="row"><span>${ev.venue}</span></div><hr>
+    <div class="row"><span>${sec.name} · ${c.name}</span><strong>${bk.sel.length} × ${fmt(sec.s.price)}</strong></div>
+    <div class="row"><span>${bk.sel.map(seatName).join(' · ')}</span></div>
+    <div class="row"><span>Service fee</span><strong>${fmt(fee)}</strong></div>`;
+  $('#payTotal').textContent=fmt(total); $('#payTotal2').textContent=fmt(total); $('#payBtn .lbl').textContent='Pay now'; showView('#viewPay'); f('fName').focus(); startHold(); }
+let holdTimer=null, holdLeft=0;
+function startHold(){ stopHold(); holdLeft=600; tickHold(); holdTimer=setInterval(()=>{ holdLeft--; tickHold(); if(holdLeft<=0) holdExpired(); },1000); }
+function stopHold(){ clearInterval(holdTimer); holdTimer=null; }
+function tickHold(){ ['#payHold','#payHold2'].forEach(id=>{ const el=$(id); el.textContent=`seats held ${Math.floor(holdLeft/60)}:${String(holdLeft%60).padStart(2,'0')}`; el.classList.toggle('low',holdLeft<=60); }); }
+function holdExpired(){ stopHold(); if(!$('#authModal').hidden){ clearInterval(authTimer); $('#authModal').hidden=true; }
+  mode='seat'; showView('#viewSeats'); bk.sel=autoPick(filt.qty); if(bk.sel[0]) povSeat=bk.sel[0]; renderBooking();
+  $('#bkFacts').insertAdjacentHTML('afterbegin','<span class="badge b-warn" role="status">Your 10-minute seat hold ended. We picked seats again.</span>'); }
+f('toPayBtn').addEventListener('click',toPay); f('toPayBtn2').addEventListener('click',toPay);
+$('#bestBtn').addEventListener('click',()=>{ bk.sel=autoPick(filt.qty); if(bk.sel[0]){ povSeat=bk.sel[0]; flyTo(seatTarget,1.1,0);} renderBooking(); });
+function backToSeats(){ stopHold(); mode='seat'; showView('#viewSeats'); }
+f('payBack').addEventListener('click',backToSeats);
+const pm=()=>document.querySelector('input[name="pm"]:checked').value;
+document.querySelectorAll('input[name="pm"]').forEach(r=>r.addEventListener('change',()=>{ f('pmCard').hidden=pm()!=='card'; f('cardSide').hidden=pm()!=='card'; f('pmWallet').hidden=pm()!=='wallet'; f('pmBank').hidden=pm()!=='bank'; }));
+const card3d=f('card3d'), scene3=f('cardScene');
+function brandOf(n){ return /^3[47]/.test(n)?'amex':/^(5[1-5]|2[2-7])/.test(n)?'mc':/^4/.test(n)?'visa':''; }
+const BRAND={visa:{t:'VISA',bg:'linear-gradient(135deg,#1f3d7a,#0f2148 60%,#16305f)'}, mc:{t:'mastercard',bg:'linear-gradient(135deg,#2b2b30,#141417 60%,#3a2a22)'}, amex:{t:'AMEX',bg:'linear-gradient(135deg,#2f6f7a,#1b4a54 60%,#37828c)'}, '':{t:'',bg:'linear-gradient(135deg,#3a0d12,#150507 60%,#2a0a0e)'}};
+function updCard(){ const raw=f('fCard').value.replace(/\D/g,''), b=brandOf(raw);
+  const groups=b==='amex'?[4,6,5]:[4,4,4,4]; let out='', i=0; groups.forEach((g,k)=>{ let part=''; for(let j=0;j<g;j++){ part+=raw[i]||'•'; i++; } out+=(k?' ':'')+part; });
+  f('cNum').textContent=out; f('cBrand').textContent=BRAND[b].t; card3d.style.setProperty('--cardbg',BRAND[b].bg);
+  f('cName').textContent=(f('fCName').value.trim()||'YOUR NAME').slice(0,26); f('cExp').textContent=f('fExp').value||'MM/YY';
+  f('cCvv').textContent=(f('fCvv').value||'').replace(/\d/g,'•')||'•••'; }
+f('fCard').addEventListener('input',e=>{ const raw=e.target.value.replace(/\D/g,''), b=brandOf(raw), max=b==='amex'?15:16, v=raw.slice(0,max);
+  e.target.value=b==='amex'?[v.slice(0,4),v.slice(4,10),v.slice(10)].filter(Boolean).join(' '):v.replace(/(.{4})/g,'$1 ').trim(); updCard(); });
+f('fExp').addEventListener('input',e=>{ let v=e.target.value.replace(/\D/g,'').slice(0,4); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); e.target.value=v; updCard(); });
+f('fCvv').addEventListener('input',e=>{ e.target.value=e.target.value.replace(/\D/g,'').slice(0,brandOf(f('fCard').value.replace(/\D/g,''))==='amex'?4:3); updCard(); });
+f('fCName').addEventListener('input',updCard);
+['fPhone','fWallet'].forEach(id=>f(id).addEventListener('input',e=>{ e.target.value=e.target.value.replace(/\D/g,'').replace(/^0/,'').slice(0,9); }));
+f('fCvv').addEventListener('focus',()=>card3d.classList.add('flip')); f('fCvv').addEventListener('blur',()=>card3d.classList.remove('flip'));
+if(!reduce){ scene3.addEventListener('pointermove',e=>{ const r=scene3.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+  card3d.style.transform=`rotateY(${x*18}deg) rotateX(${-y*14}deg)`; card3d.style.setProperty('--gx',(x+.5)*100+'%'); card3d.style.setProperty('--gy',(y+.5)*100+'%'); });
+  scene3.addEventListener('pointerleave',()=>{ card3d.style.transform=''; }); }
+f('demoCard').addEventListener('click',()=>{ f('fCard').value='4242 4242 4242 4242'; f('fCName').value=f('fName').value||'Test Customer'; f('fExp').value='12/29'; f('fCvv').value='123'; updCard();
+  card3d.classList.add('flip'); setTimeout(()=>card3d.classList.remove('flip'),reduce?0:1100); });
+const luhn=n=>{ let s=0, alt=false; for(let i=n.length-1;i>=0;i--){ let d=+n[i]; if(alt){ d*=2; if(d>9) d-=9; } s+=d; alt=!alt; } return s%10===0; };
+function setErr(id,eid,msg){ f(eid).textContent=msg||''; f(id).setAttribute('aria-invalid',msg?'true':'false'); return !msg; }
+function validate(){
+  const res=[];
+  res.push(['fName',setErr('fName','eName', f('fName').value.trim().length<2?'Enter your full name.':'')]);
+  res.push(['fEmail',setErr('fEmail','eEmail', /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f('fEmail').value.trim())?'':'Enter a valid email, like name@example.com.')]);
+  res.push(['fPhone',setErr('fPhone','ePhone', /^\d{9}$/.test(f('fPhone').value)?'':'Enter a 9-digit mobile number without the leading 0.')]);
+  if(pm()==='card'){
+    const raw=f('fCard').value.replace(/\D/g,''), b=brandOf(raw), len=b==='amex'?15:16;
+    res.push(['fCard',setErr('fCard','eCard', raw.length!==len?'Enter the full card number.':!luhn(raw)?'This card number isn\'t valid. Check it and try again.':'')]);
+    res.push(['fCName',setErr('fCName','eCName', f('fCName').value.trim().length<2?'Enter the name printed on the card.':'')]);
+    const m=f('fExp').value.match(/^(\d{2})\/(\d{2})$/); let expMsg=''; if(!m||+m[1]<1||+m[1]>12) expMsg='Use the MM/YY format.'; else { const now=new Date(), y=2000+ +m[2], mo=+m[1]; if(y<now.getFullYear()||(y===now.getFullYear()&&mo<now.getMonth()+1)) expMsg='This card has expired.'; }
+    res.push(['fExp',setErr('fExp','eExp',expMsg)]);
+    res.push(['fCvv',setErr('fCvv','eCvv', f('fCvv').value.length!==(b==='amex'?4:3)?`Enter the ${b==='amex'?4:3}-digit code on the ${b==='amex'?'front':'back'} of the card.`:'')]);
+  }
+  if(pm()==='wallet') res.push(['fWallet',setErr('fWallet','eWallet', /^\d{9}$/.test(f('fWallet').value)?'':'Enter the 9-digit number linked to your wallet.')]);
+  res.push(['fAgree',setErr('fAgree','eAgree', f('fAgree').checked?'':'Please accept the terms to continue.')]);
+  const bad=res.find(r=>!r[1]); if(bad) f(bad[0]).focus(); return !bad;
+}
+f('viewPay').addEventListener('submit',e=>{ e.preventDefault(); if(!validate()) return; openAuth(); });
+const authModal=f('authModal'), authCard=f('authCard'); let attempts=3, authTimer=null;
+function payInfo(){ const {total}=totals(), raw=f('fCard').value.replace(/\D/g,''), b=brandOf(raw);
+  if(pm()==='card') return {label:`${({visa:'Visa',mc:'Mastercard',amex:'Amex','':'Card'})[b]} •••• ${raw.slice(-4)}`, total};
+  if(pm()==='wallet') return {label:`Mobile wallet · +94 ${f('fWallet').value.slice(0,2)} ••• ${f('fWallet').value.slice(-4)}`, total};
+  return {label:'Online banking', total}; }
+function openAuth(){ attempts=3; const {label,total}=payInfo();
+  if(pm()==='card'){
+    authCard.innerHTML=`<div class="modal-top"><div class="lock-ic">${LOCK}</div><div><h2 id="authTitle">Verify your payment</h2><p>3-D Secure check from your card issuer (demo)</p></div></div>
+      <dl class="kv"><dt>Merchant</dt><dd>SkyPass Live</dd><dt>Amount</dt><dd>${fmt(total)}</dd><dt>Card</dt><dd>${label}</dd><dt>Date</dt><dd>${new Date().toLocaleDateString('en-GB')}</dd></dl>
+      <p style="margin:0;font-size:14px">Enter the 6-digit code sent to <b>+94 •• ••• ${(f('fPhone').value||'0000').slice(-4)}</b>.</p>
+      <p class="demo-note" style="margin:0">Demo: the code is <b class="mono">123456</b>.</p>
+      <div class="otp" id="otp" role="group" aria-label="One-time code">${[0,1,2,3,4,5].map(i=>`<input inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}" autocomplete="${i?'off':'one-time-code'}">`).join('')}</div>
+      <div class="err" id="otpErr" role="alert" style="text-align:center"></div>
+      <div class="modal-actions"><button class="btn2" id="authCancel" type="button">Cancel</button><button class="btn-brand" id="authGo" type="button">Verify</button></div>
+      <p class="center" style="font-size:12.5px">Didn't get it? <button class="linkbtn" id="resend" type="button" disabled>Resend in 30s</button></p>`;
+    const ins=[...authCard.querySelectorAll('#otp input')];
+    ins.forEach((inp,i)=>{ inp.addEventListener('input',()=>{ inp.value=inp.value.replace(/\D/g,'').slice(-1); if(inp.value&&ins[i+1]) ins[i+1].focus(); if(ins.every(x=>x.value)) verifyOtp(); });
+      inp.addEventListener('keydown',e=>{ if(e.key==='Backspace'&&!inp.value&&ins[i-1]) ins[i-1].focus(); if(e.key==='Enter') verifyOtp(); });
+      inp.addEventListener('paste',e=>{ const t=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6); if(!t) return; e.preventDefault(); t.split('').forEach((d,k)=>{ if(ins[k]) ins[k].value=d; }); (ins[t.length]||ins[5]).focus(); if(t.length===6) verifyOtp(); }); });
+    f('authGo').addEventListener('click',verifyOtp);
+    let sec=30; clearInterval(authTimer); authTimer=setInterval(()=>{ sec--; const r=f('resend'); if(!r){ clearInterval(authTimer); return; } if(sec<=0){ r.disabled=false; r.textContent='Resend code'; clearInterval(authTimer); } else r.textContent=`Resend in ${sec}s`; },1000);
+    f('resend').addEventListener('click',()=>{ f('otpErr').textContent='A new code was sent (demo code is still 123456).'; });
+    authModal.hidden=false; ins[0].focus();
+  } else {
+    const wallet=pm()==='wallet';
+    authCard.innerHTML=`<div class="modal-top"><div class="lock-ic">${LOCK}</div><div><h2 id="authTitle">${wallet?'Approve on your phone':'Confirm with your bank'}</h2><p>${wallet?'We sent a payment request to your wallet (demo)':'Your bank\'s secure page would open here (demo)'}</p></div></div>
+      <dl class="kv"><dt>Merchant</dt><dd>SkyPass Live</dd><dt>Amount</dt><dd>${fmt(total)}</dd><dt>Method</dt><dd>${label}</dd></dl>
+      <div class="spinner" aria-hidden="true"></div><p class="center" id="waitTxt">${wallet?'Waiting for you to approve… 4:59':'Waiting for bank confirmation…'}</p>
+      <div class="modal-actions"><button class="btn2" id="authCancel" type="button">Cancel</button><button class="btn-brand" id="authGo" type="button">${wallet?'Simulate approval':'Simulate bank approval'}</button></div>`;
+    f('authGo').addEventListener('click',()=>processing());
+    let s=299; clearInterval(authTimer); if(wallet) authTimer=setInterval(()=>{ s--; const w=f('waitTxt'); if(!w||s<0){ clearInterval(authTimer); return; } w.textContent=`Waiting for you to approve… ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; },1000);
+    authModal.hidden=false; f('authGo').focus();
+  }
+  f('authCancel').addEventListener('click',cancelAuth);
+}
+function verifyOtp(){ const ins=[...authCard.querySelectorAll('#otp input')], code=ins.map(x=>x.value).join('');
+  if(code.length<6){ f('otpErr').textContent='Enter all 6 digits.'; return; }
+  if(code==='123456'){ processing(); return; }
+  attempts--; f('otp').classList.add('bad'); ins.forEach(x=>x.value=''); ins[0].focus();
+  if(attempts<=0){ cancelAuth(); f('eAgree').textContent='Verification failed. No money was taken. Try again or use another method.'; return; }
+  f('otpErr').textContent=`That code didn't match. ${attempts} attempt${attempts>1?'s':''} left.`; }
+function cancelAuth(){ clearInterval(authTimer); authModal.hidden=true; f('payBtn').focus(); }
+function processing(){ clearInterval(authTimer);
+  authCard.innerHTML=`<div class="spinner" aria-hidden="true"></div><h2 id="authTitle" style="margin:0;text-align:center;font-size:19px">Processing payment…</h2><p class="center">Please don't close this window.</p>`;
+  setTimeout(()=>{ authModal.hidden=true; openModal(); }, reduce?300:1500); }
+
+/* ================= confirmation ================= */
+function drawQR(cv,seed){ const N=25,m=4,g=cv.getContext('2d'),r=mulberry(seed); cv.width=cv.height=N*m; g.fillStyle='#fff'; g.fillRect(0,0,N*m,N*m); g.fillStyle='#13203A';
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(r()<.5) g.fillRect(x*m,y*m,m,m);
+  [[0,0],[N-7,0],[0,N-7]].forEach(([fx,fy])=>{ g.fillStyle='#fff'; g.fillRect((fx-1)*m,(fy-1)*m,9*m,9*m); g.fillStyle='#13203A'; g.fillRect(fx*m,fy*m,7*m,7*m); g.fillStyle='#fff'; g.fillRect((fx+1)*m,(fy+1)*m,5*m,5*m); g.fillStyle='#13203A'; g.fillRect((fx+2)*m,(fy+2)*m,3*m,3*m); }); }
+let torn=false, fromWallet=false;
+const STORE='skypass-tickets';
+function loadTickets(){ try{ const a=JSON.parse(localStorage.getItem(STORE)||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function saveTickets(){ try{ localStorage.setItem(STORE,JSON.stringify(TICKETS)); }catch(e){} }
+const TICKETS=loadTickets();
+const seatShort=t=>t.seats.map(x=>'R'+(x.r+1)+'-'+x.n).join(', ');
+function updateWalletBadge(){ const n=$('#walletCount'); n.textContent=TICKETS.length; n.dataset.zero=TICKETS.length===0; $('#walletBtn').setAttribute('aria-label',`My tickets, ${TICKETS.length} saved`); }
+function showTicket(t, fresh){
+  $('#cfDate').textContent=`${t.date} · Doors ${t.doors}`; $('#cfTitle').textContent=`Stage → ${t.secName}`;
+  $('#cfSub').textContent=fresh?`${fmt(t.total)} paid with ${t.label} · Tickets sent to ${t.email}`:`${t.title} · ${t.venue}, ${t.city} · ${fmt(t.total)} paid with ${t.label}`;
+  $('#ticketClip').className='ticket-clip'+(fresh?'':' done');
+  $('#ticketClip').innerHTML=`<div class="pt${fresh?'':' still'}">
+    <div class="pt-main">
+      <div><small>Passenger</small><div class="who">${t.name}</div></div>
+      <div class="pt-times"><span>${t.doors}</span><span class="pt-line"><span class="dot f"></span><i></i>${PLANE_SM.replace('<svg','<svg style="width:18px;height:18px;transform:rotate(90deg)"')}<i></i><span class="dot"></span></span><span>${t.show}</span></div>
+      <div class="pt-route"><div><b>${t.focus||'Main stage'}</b><small>${t.venue}</small></div><div><b>${t.secName}</b><small>${t.tier} · ${t.cls}</small></div></div>
+      <div class="pt-ref"><small>Booking reference</small><b>SKY-${t.pnr}</b></div>
+      <div class="pt-grid"><div><small>Gate</small><b>${t.gate}</b></div><div><small>Tickets</small><b>${t.seats.length}</b></div><div><small>Seats</small><b>${seatShort(t)}</b></div></div>
+      <div class="stamp ok" id="stamp">ADMITTED</div>
+    </div>
+    <div class="pt-stub" id="stub" aria-label="Ticket stub. Drag to tear it off."><div class="barcode" aria-hidden="true">${bars(t.pnr.charCodeAt(0)*7+t.pnr.charCodeAt(3)).repeat(2)}</div><canvas id="qr" aria-label="Ticket QR code"></canvas></div>
+  </div>`;
+  drawQR($('#qr'),t.pnr.charCodeAt(0)*97+t.pnr.charCodeAt(5));
+  torn=false; $('#tearBtn').hidden=false;
+  $('#tearHint').textContent=fresh?'Printing your ticket…':`Show this at Gate ${t.gate}. Drag the stub to tear it at entry.`;
+  $('#doneBtn').textContent=fresh?'Done':'Back to my tickets';
+  $('#confirmModal').hidden=false; $('#doneBtn').focus();
+  if(fresh) setTimeout(()=>{ $('#ticketClip').classList.add('done'); if(!torn) $('#tearHint').textContent='Saved to My tickets. Drag the stub to tear it off.'; }, reduce?10:2150);
+  const stub=$('#stub'); let d=null;
+  stub.addEventListener('pointerdown',e=>{ if(torn) return; d={x:e.clientX,y:e.clientY}; stub.setPointerCapture(e.pointerId); stub.classList.add('dragging'); });
+  stub.addEventListener('pointermove',e=>{ if(!d) return; const dx=e.clientX-d.x, dy=e.clientY-d.y; stub.style.transform=`translate(${dx}px,${dy}px) rotate(${dx*.05}deg)`; if(Math.hypot(dx,dy)>90){ d=null; tear(dx,dy); } });
+  stub.addEventListener('pointerup',()=>{ if(!d) return; d=null; stub.classList.remove('dragging'); stub.style.transform=''; });
+}
+function openModal(){
+  stopHold();
+  const sec=seatZone, ev=EV(), c=CLASSES[sec.cls], s=sec.s, sel=bk.sel.slice().sort((a,b)=>a.row-b.row||a.num-b.num);
+  const {total}=totals(), {label}=payInfo(), rr=mulberry(Date.now()%100000), pnr=Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(rr()*32)]).join('');
+  sel.forEach(x=>{ s.taken[x.li]=1; });
+  const t={pnr, code:ev.code, title:ev.title, date:ev.date, doors:ev.doors, show:ev.show, venue:ev.venue, city:ev.city, secId:sec.id, secName:sec.name, tier:tierName(sec.cls), cls:c.name, focus:FOC().focus, gate:sec.gate,
+    seats:sel.map(x=>({r:x.row,n:x.num})), total, label, name:f('fName').value.trim()||'Guest', email:f('fEmail').value.trim(), ts:Date.now()};
+  TICKETS.unshift(t); saveTickets(); updateWalletBadge(); fromWallet=false; showTicket(t,true); refreshStates(); renderEvCard();
+}
+function tear(dx=120,dy=40){ if(torn) return; torn=true; const stub=$('#stub'); stub.classList.remove('dragging'); stub.classList.add('torn');
+  stub.style.transform=`translate(${dx*3}px,${dy*2+220}px) rotate(${24*Math.sign(dx||1)}deg)`; $('#tearBtn').hidden=true; $('#tearHint').textContent='Stub torn. Show the ticket at the gate.';
+  setTimeout(()=>{ $('#stamp').classList.add('show'); const mc=$('#modalCard'); mc.classList.remove('shake'); void mc.offsetWidth; mc.classList.add('shake'); },380); }
+$('#tearBtn').addEventListener('click',()=>tear());
+function closeModal(){ $('#confirmModal').hidden=true; if(fromWallet){ fromWallet=false; openWallet(); return; }
+  ['fCard','fCvv','fExp','fCName'].forEach(id=>f(id).value=''); f('fAgree').checked=false; updCard(); exitSeat(); }
+function openWallet(){
+  $('#wList').innerHTML = TICKETS.length ? TICKETS.map((t,i)=>`<li class="w-item"><b>${t.title}</b><small>${t.date} · Doors ${t.doors} · ${t.venue}</small><small>${t.secName} · ${seatShort(t)} · <span class="ref">SKY-${t.pnr}</span></small><button class="btn-brand" data-i="${i}" style="height:40px;padding:0 16px">View</button></li>`).join('')
+    : '<li class="w-empty">No tickets yet. Book a show and your tickets will appear here.</li>';
+  $('#walletModal').hidden=false; ($('#wList button')||$('#wClose')).focus();
+}
+$('#walletBtn').addEventListener('click',openWallet);
+$('#wClose').addEventListener('click',()=>{ $('#walletModal').hidden=true; $('#walletBtn').focus(); });
+$('#wList').addEventListener('click',e=>{ const b=e.target.closest('button[data-i]'); if(!b) return; $('#walletModal').hidden=true; fromWallet=true; showTicket(TICKETS[+b.dataset.i],false); });
+updateWalletBadge();
+$('#doneBtn').addEventListener('click',closeModal);
+['#confirmModal','#authModal','#walletModal'].forEach(id=>$(id).addEventListener('keydown',e=>{ if(e.key!=='Tab') return; const fs=[...$(id).querySelectorAll('button:not([hidden]):not(:disabled),input')]; if(!fs.length) return; const i=fs.indexOf(document.activeElement); if(e.shiftKey&&i<=0){ e.preventDefault(); fs[fs.length-1].focus(); } else if(!e.shiftKey&&i===fs.length-1){ e.preventDefault(); fs[0].focus(); } }));
+
+
+/* ================= event selector ================= */
+const landingOpen=false;
+const EXTRA={'AT-0204':{iso:'2026-12-04T19:00:00+05:30',genre:'Film · Drama premiere'},'AT-0219':{iso:'2026-12-19T20:30:00+05:30',genre:'Film · Thriller'},'AT-0220':{iso:'2026-12-20T17:00:00+05:30',genre:'Cricket · T20 final'},'AT-0417':{iso:'2027-01-17T09:00:00+05:30',genre:'Cricket · One-day match'},'AT-0214':{iso:'2026-12-12T18:30:00+05:30',genre:'Concert · Indie & electronic'},'AT-0307':{iso:'2026-12-27T19:00:00+05:30',genre:'Concert · Pop'},'AT-0412':{iso:'2027-01-09T17:30:00+05:30',genre:'Festival · Folk & rock'},'AT-0519':{iso:'2027-01-30T18:00:00+05:30',genre:'Concert · Beach sessions'},'AT-0633':{iso:'2027-02-13T18:45:00+05:30',genre:'Classical · Orchestra'}};
+const fromPrice=ev=>Math.round(((VTYPES[ev.vtype].base||{}).economy||CLASSES.economy.base)*.74*ev.mult/100)*100;
+const wave=(y,a,fill)=>`<path d="M0 ${y} Q 37 ${y-a} 75 ${y} T 150 ${y} T 225 ${y} T 300 ${y} V400 H0Z" fill="${fill}"/>`;
+const SV=b=>`<svg class="deco" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${b}</svg>`;
+const DECO=[
+  SV(`<circle cx="205" cy="150" r="58" fill="#ffdca8" opacity=".85"/>${[...Array(14)].map((_,k)=>`<line x1="${20+k*21}" y1="0" x2="${8+k*21}" y2="90" stroke="#cfe3f5" stroke-opacity=".25" stroke-width="1.5"/>`).join('')}${wave(250,16,'rgba(14,40,62,.55)')}${wave(285,12,'rgba(10,28,46,.7)')}${wave(320,10,'rgba(6,18,32,.85)')}`),
+  SV(`${[...Array(13)].map((_,k)=>{ const a=Math.PI*(k/12); return `<polygon points="150,430 ${150+Math.cos(a)*420-10},${430-Math.sin(a)*420} ${150+Math.cos(a)*420+14},${430-Math.sin(a)*420}" fill="#ffd27a" opacity=".12"/>`; }).join('')}${[[60,70,14],[110,40,10],[200,62,16],[250,110,11],[80,140,9]].map(([x,y,r])=>`<line x1="${x}" y1="0" x2="${x}" y2="${y-r}" stroke="#fff" stroke-opacity=".3"/><circle cx="${x}" cy="${y}" r="${r}" fill="#ffb347" opacity=".75"/>`).join('')}<path d="M0 330 L40 300 L70 320 L110 285 L150 310 L190 280 L230 312 L270 292 L300 305 V400 H0Z" fill="rgba(25,6,20,.7)"/>`),
+  SV(`<circle cx="90" cy="120" r="40" fill="#fff2c8" opacity=".6"/><path d="M0 230 Q 80 170 160 225 T 300 200 V400 H0Z" fill="rgba(40,80,60,.55)"/><path d="M0 270 Q 100 220 190 265 T 300 250 V400 H0Z" fill="rgba(25,58,44,.75)"/><path d="M0 310 Q 120 270 220 305 T 300 300 V400 H0Z" fill="rgba(14,36,28,.9)"/>`),
+  SV(`<circle cx="230" cy="110" r="44" fill="#ffd0b0" opacity=".7"/><path d="M0 240 C 60 180 120 300 180 230 S 280 200 300 230 V400 H0Z" fill="rgba(8,50,72,.55)"/><path d="M0 285 C 70 240 130 330 200 275 S 280 260 300 280 V400 H0Z" fill="rgba(5,34,52,.75)"/><path d="M0 330 C 90 300 150 360 220 320 S 290 318 300 325 V400 H0Z" fill="rgba(3,20,34,.9)"/>`),
+  SV(`<g transform="translate(150 330)" opacity=".9">${[-70,-45,-20,0,20,45,70].map((d,k)=>`<ellipse cx="0" cy="-60" rx="${k%2?18:22}" ry="62" transform="rotate(${d})" fill="${k%2?'#f7c6d3':'#ffe1e8'}" opacity=".55"/>`).join('')}</g><path d="M0 340 Q 150 320 300 340 V400 H0Z" fill="rgba(40,12,30,.8)"/>`),
+  SV(`<polygon points="300,60 -40,400 300,400" fill="#ffe7b8" opacity=".10"/><rect x="0" y="0" width="34" height="400" fill="#07080c" opacity=".85"/><rect x="266" y="0" width="34" height="400" fill="#07080c" opacity=".85"/>${[...Array(12)].map((_,k)=>`<rect x="9" y="${10+k*34}" width="16" height="20" rx="3" fill="#2a2d36"/><rect x="275" y="${10+k*34}" width="16" height="20" rx="3" fill="#2a2d36"/>`).join('')}<circle cx="150" cy="150" r="46" fill="#ffc98a" opacity=".55"/>`),
+  SV(`<ellipse cx="150" cy="330" rx="240" ry="120" fill="#2f6b2e"/><ellipse cx="150" cy="330" rx="190" ry="92" fill="#3b7d38"/><rect x="138" y="270" width="24" height="120" fill="#c9b27c"/>${[-60,60].map(o=>`<g opacity=".9"><line x1="${150+o}" y1="0" x2="${150+o*2.2}" y2="-40" stroke="#fff"/></g>`).join('')}<g fill="#fff">${[40,110,190,260].map(x=>`<circle cx="${x}" cy="46" r="7" opacity=".85"/>`).join('')}</g><circle cx="220" cy="190" r="12" fill="#d23a2b"/><path d="M211 183 Q220 190 229 197" stroke="#fff" stroke-width="1.5" fill="none"/>`)];
+function poster(ev,i,cls=''){ const a=ev.art??i; return `<div class="poster pp-${a} ${cls}">${DECO[a]}<span class="p-date"><b>${ev.d}</b><span>${ev.mo}</span></span><span class="p-type">${VTYPES[ev.vtype].label}</span><span class="p-kick">${ev.venue}</span><h4>${ev.title}</h4></div>`; }
+
+const mini=(ev,i,big)=>`<span class="mini pp-${ev.art??i}${big?' big':''}" aria-hidden="true">${DECO[ev.art??i]}<b>${ev.d}</b><small>${ev.mo}</small></span>`;
+const evsel=$('#evsel'), evpop=$('#evpop');
+const VT_ICON={ground:'<path d="M3 20h18M6 20v-6l6-5 6 5v6"/><path d="M9 20v-3h6v3"/>',stadium:'<ellipse cx="12" cy="12" rx="9" ry="6"/><ellipse cx="12" cy="12" rx="4.5" ry="2.8"/>',arena:'<rect x="3" y="6" width="18" height="12" rx="4"/><path d="M8 12h8"/>',amphi:'<path d="M4 9a8 8 0 0 0 16 0"/><path d="M7.5 9a4.5 4.5 0 0 0 9 0"/><path d="M10 5h4"/>',cinema:'<rect x="3" y="5" width="18" height="11" rx="2"/><path d="M8 20h8M12 16v4"/>',cricket:'<ellipse cx="12" cy="12" rx="9" ry="7"/><path d="M12 8v8"/><circle cx="16.5" cy="9.5" r="1.3"/>'};
+const vIco=t=>`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${VT_ICON[t]||VT_ICON.ground}</svg>`;
+const PIN='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>';
+function renderEvsel(){ const ev=EV();
+  evsel.innerHTML=`<span class="cal" aria-hidden="true"><small>${ev.mo}</small><b>${ev.d}</b></span>
+    <span class="t"><span class="top"><b>${ev.title}</b><span class="dot ${statusBadge(ev.status)}" title="${ev.status}"></span></span>
+      <small><span class="m">${ev.date.slice(0,3)} · ${ev.doors}</span><span class="sep"></span><span class="m">${vIco(ev.vtype)}${VTYPES[ev.vtype].label}</span><span class="sep"></span><span class="m">${PIN}${ev.city}</span></small></span>
+    <span class="chevb" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span>`;
+  evsel.setAttribute('aria-label',`Event: ${ev.title}, ${ev.date}. Change event`); }
+function renderEvpop(){ const q=($('#evq')?$('#evq').value:'').trim().toLowerCase();
+  const rows=EVENTS.map((e,i)=>[e,i]).filter(([e])=>!q||[e.title,e.venue,e.city,VTYPES[e.vtype].label,EXTRA[e.code].genre].join(' ').toLowerCase().includes(q));
+  $('#evlist').innerHTML=rows.length?rows.map(([e,i])=>`<li><button class="evrow" role="option" aria-selected="${i===evIdx}" data-i="${i}">${mini(e,i,true)}
+     <span class="d"><span class="g">${EXTRA[e.code].genre}</span><b>${e.title}</b><small>${e.date} · Doors ${e.doors}</small><small>${VTYPES[e.vtype].label} · ${e.venue}, ${e.city}</small></span>
+     <span class="p"><span class="badge ${statusBadge(e.status)}">${e.status}</span><small>from</small><b>${fmt(fromPrice(e))}</b></span></button></li>`).join('')
+    :'<li class="evempty">No shows match that search.</li>'; }
+function openEvpop(){ evpop.hidden=false; evsel.setAttribute('aria-expanded','true'); $('#evq').value=''; renderEvpop(); const cur=evpop.querySelector('.evrow[aria-selected="true"]')||evpop.querySelector('.evrow'); cur&&cur.focus(); }
+function closeEvpop(focus){ evpop.hidden=true; evsel.setAttribute('aria-expanded','false'); if(focus) evsel.focus(); }
+evsel.addEventListener('click',()=> evpop.hidden?openEvpop():closeEvpop());
+$('#evq').addEventListener('input',renderEvpop);
+evpop.addEventListener('click',e=>{ const b=e.target.closest('.evrow'); if(!b) return; const i=+b.dataset.i; closeEvpop(true); if(i!==evIdx){ if(mode!=='overview') exitSeat(); setEvent(i); } });
+evpop.addEventListener('keydown',e=>{ const rows=[...evpop.querySelectorAll('.evrow')], k=rows.indexOf(document.activeElement);
+  if(e.key==='ArrowDown'){ e.preventDefault(); (rows[k+1]||rows[0]).focus(); } else if(e.key==='ArrowUp'){ e.preventDefault(); (k<=0?$('#evq'):rows[k-1]).focus(); } else if(e.key==='Escape'){ e.stopPropagation(); closeEvpop(true); } });
+document.addEventListener('pointerdown',e=>{ if(!evpop.hidden && !evpop.contains(e.target) && !evsel.contains(e.target)) closeEvpop(); });
+renderEvsel();
+/* ================= resizable split ================= */
+(function(){
+  const app=$('#app'), sp=$('#splitter'), panel=$('#panel');
+  const pw={o:null,w:null};
+  try{ const v=JSON.parse(localStorage.getItem('skypass-split')||'{}'); if(v.o) pw.o=v.o; if(v.w) pw.w=v.w; }catch(e){}
+  const k=()=> document.body.classList.contains('wide')&&innerWidth>=1100 ? 'w' : 'o';
+  const clampW=x=>Math.round(Math.max(340, Math.min(innerWidth-330, x)));
+  const save=()=>{ try{ localStorage.setItem('skypass-split',JSON.stringify(pw)); }catch(e){} };
+  function apply(){ ['o','w'].forEach(m=>{ const v=pw[m]; if(v) app.style.setProperty('--pw-'+m, clampW(v)+'px'); else app.style.removeProperty('--pw-'+m); }); requestAnimationFrame(aria); }
+  function aria(){ const pct=Math.round(panel.offsetWidth/innerWidth*100); sp.setAttribute('aria-valuenow',pct); sp.setAttribute('aria-valuetext',`Booking panel ${pct}% of the width`); }
+  let drag=null;
+  sp.addEventListener('pointerdown',e=>{ drag={x0:e.clientX, w0:panel.offsetWidth}; sp.setPointerCapture(e.pointerId); app.classList.add('resizing'); e.preventDefault(); });
+  sp.addEventListener('pointermove',e=>{ if(!drag) return; pw[k()]=clampW(drag.w0+(e.clientX-drag.x0)); apply(); });
+  const end=()=>{ if(!drag) return; drag=null; app.classList.remove('resizing'); save(); };
+  sp.addEventListener('pointerup',end); sp.addEventListener('pointercancel',end);
+  sp.addEventListener('dblclick',()=>{ pw[k()]=null; apply(); save(); });
+  sp.addEventListener('keydown',e=>{ const step=e.shiftKey?96:32; let w=panel.offsetWidth;
+    if(e.key==='ArrowLeft') w-=step; else if(e.key==='ArrowRight') w+=step; else if(e.key==='Home') w=340; else if(e.key==='End') w=innerWidth-330; else if(e.key==='Enter'){ pw[k()]=null; apply(); save(); return; } else return;
+    e.preventDefault(); pw[k()]=clampW(w); apply(); save(); });
+  addEventListener('resize',apply);
+  new MutationObserver(()=>setTimeout(aria,600)).observe(document.body,{attributes:true,attributeFilter:['class']});
+  apply();
+})();
+
+/* ================= loop ================= */
+function resize(){ mapW=Math.max(1,mapEl.clientWidth); mapH=Math.max(1,mapEl.clientHeight); renderer.setSize(mapW,mapH,false); camera.aspect=mapW/mapH; camera.updateProjectionMatrix();
+  if(composer){ composer.setPixelRatio(PR); composer.setSize(mapW,mapH); bloom.resolution.set(mapW*PR/2,mapH*PR/2); } }
+const clock=new THREE.Clock(); let frame=0;
+function tick(){
+  const dt=Math.min(clock.getDelta(),.05), t=clock.elapsedTime; frame++; const k=1-Math.exp(-dt*6); U.time.value=t;
+  if(!reduce){ beams.forEach(b=>{ b.pivot.rotation.x=-.55+Math.sin(t*.35+b.i*.9)*.2; b.pivot.rotation.z=Math.sin(t*.25+b.i*1.4)*.35; }); ribbonTex.offset.x=(t*.02)%1; }
+  else beams.forEach(b=>b.pivot.rotation.x=-.55);
+  if(frame%3===0) drawScreen(t);
+  U.dim.value+=(((hover||mode!=='overview')?1:0)-U.dim.value)*k;
+  const tgt=mode!=='overview'&&povSeat?seatTarget():overviewTarget(t);
+  if(tween){ const p=Math.min(1,(t-tween.start)/tween.dur), e=ease(p), end=tween.getter(); camPos.lerpVectors(tween.from,end.pos,e); camPos.y+=Math.sin(Math.PI*e)*tween.arc*16; camLook.lerpVectors(tween.fromLook,end.look,e); if(p>=1) tween=null; }
+  else { camPos.lerp(tgt.pos,k*.5); camLook.lerp(tgt.look,k*.5); }
+  camera.position.copy(camPos); camera.lookAt(camLook);
+  if(needsPick&&mode==='overview'&&mouse.in&&!down&&!tween){ needsPick=false; setHover(pickLocal(mouse.x,mouse.y)); }
+  if(hover&&fromList&&frame%4===0) placeCard();
+  if(arcMesh&&hover){ const p=Math.min(1,(t-arcStart)/.7); arcMat.uniforms.uProg.value=reduce?1:ease(p); arcMat.uniforms.uTime.value=t; planeDot.position.copy(arcCurve.getPointAt(p<1?p:((t-arcStart-.7)*.3)%1)); const q=(t*1.1)%1; marker.scale.setScalar(1+q*1.8); marker.material.opacity=.9*(1-q); }
+  if(composer) composer.render(); else renderer.render(scene,camera);
+  requestAnimationFrame(tick);
+}
+resize(); new ResizeObserver(resize).observe(mapEl);
+setEvent(1); setQty(2); updCard();
+camPos.copy(overviewTarget(0).pos).multiplyScalar(1.6).setY(200); flyTo(()=>overviewTarget(clock.elapsedTime),3,0);
+if(document.fonts) document.fonts.ready.then(()=>{ drawScreen(0); drawRibbon(); });
+requestAnimationFrame(tick); setTimeout(()=>$('#loader').classList.add('gone'),250);
+window.__sp={enterSeat:i=>enterSeat(SECTIONS[i]), setEvent, get SECTIONS(){return SECTIONS;}, toPay, get cam(){ return [camera.position.toArray().map(v=>+v.toFixed(1)), povSeat&&[povSeat.x,povSeat.y,povSeat.z].map(v=>+v.toFixed(1)), camera.far, V.pov&&V.pov.toArray()]; }};
+})();
+</script>
+
+</body>
+</html>

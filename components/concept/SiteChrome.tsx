@@ -63,9 +63,10 @@ export function SiteFooter() {
           <div>
             <h3>The project</h3>
             <ul>
+              {/* the live site isn't up yet — put this back when it is
               <li>
                 <Link href="/website">Votex website</Link>
-              </li>
+              </li> */}
               <li>
                 <a href="#brand">Brand assets</a>
               </li>
