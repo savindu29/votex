@@ -18,8 +18,8 @@ export const metadata: Metadata = {
     "SkyPass Live: book concerts, cricket and cinema in Sri Lanka the way you board a flight, with a 3D venue, a view from your seat and a ticket you tear at the gate.",
 };
 
-/** The prototype, served from public/skypass-live_8.html. */
-const PROTOTYPE_URL = "/skypass-live_8.html";
+/** The prototype, served from public/skypass-live_7.html. */
+const PROTOTYPE_URL = "/skypass-live_7.html";
 
 /* ==========================================================================
    Screenshots

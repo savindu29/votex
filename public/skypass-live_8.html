@@ -444,7 +444,7 @@ input[type=range]{width:100%;accent-color:var(--brand);height:26px;margin:0;}
   #passWrap.visible{pointer-events:auto;}
   .tk{width:100%;}
   .pass-cta{display:inline-block;}
-  body.card-open .ctrls{visibility:hidden;}
+  body.card-open .ctrls{opacity:0;pointer-events:none;}
   .otp input{width:40px;height:50px;}
 }
 @media (prefers-reduced-motion: reduce){
@@ -526,6 +526,29 @@ input[type=range]{width:100%;accent-color:var(--brand);height:26px;margin:0;}
 .evsel[aria-expanded="true"] .chevb{transform:rotate(180deg);color:var(--link);}
 @media (max-width:860px){ .hd-div,.logo .word small{display:none;} .logo .word{font-size:16px;} .evsel{height:48px;} .evsel .t small .m:not(:first-child),.evsel .t small .sep{display:none;} }
 @media (max-width:480px){ .logo .word{display:none;} .evsel .chevb{display:none;} .evsel{padding-right:12px;} }
+.price-strip{display:none;}
+@media (max-width:860px){
+  .price-strip{display:flex;position:absolute;left:0;right:0;top:0;z-index:6;gap:6px;padding:10px 12px;overflow-x:auto;scrollbar-width:none;background:linear-gradient(var(--overlay),transparent);}
+  .price-strip::-webkit-scrollbar{display:none;}
+  .ps-lbl{flex:none;display:inline-flex;align-items:center;height:30px;padding:0 10px;border-radius:999px;background:var(--brand);color:#fff;font-size:12px;font-weight:600;}
+  .ps-chip{flex:none;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:999px;background:var(--overlay);border:1px solid var(--line);font-size:12px;font-weight:600;color:var(--ink);}
+  .ps-chip i{width:10px;height:10px;border-radius:50%;}
+  .ps-chip small{font-size:10.5px;color:var(--muted);font-weight:500;}
+  body.card-open .price-strip{opacity:0;pointer-events:none;}
+  #passWrap{position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;transform:none!important;z-index:45;filter:drop-shadow(0 -10px 30px rgba(0,0,0,.35));}
+  #passWrap .tk{width:100%;max-width:none;border-radius:24px 24px 0 0;border-bottom:0;animation:sheetUp .28s cubic-bezier(.2,.8,.3,1);padding-bottom:env(safe-area-inset-bottom,0px);}
+  #passWrap .tk::before{content:"";display:block;width:40px;height:4px;border-radius:999px;background:var(--line-2);margin:10px auto 0;}
+  #passWrap .tk-body{padding:14px 18px 12px;gap:14px;}
+  #passWrap .tk-fields{grid-template-columns:repeat(3,minmax(0,1fr));}
+  #passWrap .tk-fields div{display:block!important;}
+  #passWrap .tk-fields dd{font-size:15px;}
+  #passWrap .sc-route b{font-size:26px;}
+  #passWrap .tk-foot{padding:12px 18px 18px;gap:14px;flex-wrap:nowrap;}
+  #passWrap .tk-foot b{font-size:21px;}
+  #passWrap .tk-x{top:18px;right:14px;}
+  body.card-open .ctrls{opacity:0;pointer-events:none;}
+}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
 /* hide scrollbars, keep scrolling */
 .pn,#landing,.seatmap,.w-list,.modal,.seg,.pills,.dates{scrollbar-width:none;-ms-overflow-style:none;}
 .pn::-webkit-scrollbar,#landing::-webkit-scrollbar,.seatmap::-webkit-scrollbar,.w-list::-webkit-scrollbar,.modal::-webkit-scrollbar,.seg::-webkit-scrollbar,.pills::-webkit-scrollbar{display:none;width:0;height:0;}
@@ -665,6 +688,7 @@ input[type=range]{width:100%;accent-color:var(--brand);height:26px;margin:0;}
     <canvas id="scene" aria-label="3D venue. Hover or tap a section to see its fare."></canvas>
     <div class="loader" id="loader">Loading venue…</div>
     <div class="legend card-ui" id="legend"></div>
+    <div class="price-strip" id="priceStrip" aria-label="Price groups"></div>
     <div class="pov card-ui" id="pov" hidden><b id="povTitle"></b><span id="povSub"></span></div>
     <div class="ctrls">
       <button class="toggle card-ui" id="heatBtn" aria-pressed="false"><span class="sw" aria-hidden="true"></span>Colour by price</button>
@@ -1286,7 +1310,7 @@ function buildVenue(type){
   });
   [...new Set(SECTIONS.map(s=>s.kind))].forEach(k=>{ const ss=SECTIONS.filter(x=>x.kind===k);
     if(k==='floor'){ ss.forEach(x=>{ x.pf=x.id==='B'?1.12:1; }); return; }
-    const lo=Math.min(...ss.map(x=>x.dist+x.angAbs*.4)), hi=Math.max(...ss.map(x=>x.dist+x.angAbs*.4)); ss.forEach(x=>{ x.pf=1.16-.42*((x.dist+x.angAbs*.4)-lo)/(hi-lo||1); }); });
+    const lo=Math.min(...ss.map(x=>x.dist+x.angAbs*.4)), hi=Math.max(...ss.map(x=>x.dist+x.angAbs*.4)); ss.forEach(x=>{ const t=((x.dist+x.angAbs*.4)-lo)/(hi-lo||1); x.pf=t<.34?1.15:t<.67?.95:.78; }); });
   // instanced seats + crowd
   const NS=SEATS.length, secAttr=new Float32Array(NS); SEATS.forEach((s,i)=>secAttr[i]=s.sec);
   const sg=SEAT_PARTS(), bg=BODY_PARTS(), hg=new THREE.SphereGeometry(.11,10,8);
@@ -1294,9 +1318,10 @@ function buildVenue(type){
   seatMesh=new THREE.InstancedMesh(sg,seatMat,NS); bodies=new THREE.InstancedMesh(bg,bodyMat,NS); heads=new THREE.InstancedMesh(hg,headMat,NS);
   const hairG=new THREE.SphereGeometry(.12,10,6,0,Math.PI*2,0,Math.PI*.56); hairG.setAttribute('aSec',new THREE.InstancedBufferAttribute(secAttr,1)); hairs=new THREE.InstancedMesh(hairG,headMat,NS); hatFlag=new Uint8Array(NS);
   { const rh=mulberry(19), ch=new THREE.Color(); for(let i=0;i<NS;i++){ const hat=rh()<.34; hatFlag[i]=hat?1:0; hairs.setColorAt(i,ch.set(hat?HATS[Math.floor(rh()*HATS.length)]:HAIR[Math.floor(rh()*HAIR.length)])); } }
+  clothCols=new Float32Array(NS*3);
   const m=new THREE.Matrix4(), q=new THREE.Quaternion(), Y=new THREE.Vector3(0,1,0), one=new THREE.Vector3(1,1,1), p=new THREE.Vector3(), c=new THREE.Color(), r=mulberry(8);
   SEATS.forEach((s,i)=>{ q.setFromAxisAngle(Y,s.ry); p.set(s.x,s.y,s.z); one.set(s.sc||1,s.sc?1.1:1,s.sc?1.25:1); m.compose(p,q,one); seatMesh.setMatrixAt(i,m); one.set(1,1,1);
-    bodies.setColorAt(i,c.set(CLOTH[Math.floor(r()*CLOTH.length)])); heads.setColorAt(i,c.set(SKIN[Math.floor(r()*SKIN.length)])); seatMesh.setColorAt(i,c.set(0x444444)); });
+    c.set(CLOTH[Math.floor(r()*CLOTH.length)]); clothCols[i*3]=c.r; clothCols[i*3+1]=c.g; clothCols[i*3+2]=c.b; bodies.setColorAt(i,c); heads.setColorAt(i,c.set(SKIN[Math.floor(r()*SKIN.length)])); seatMesh.setColorAt(i,c.set(0x444444)); });
   g.add(seatMesh,bodies,heads,hairs);
   if(window.__applyScene) window.__applyScene(isDark());
 }
@@ -1326,14 +1351,21 @@ function secState(sec, ev=EV()){
   const taken=ev.cache[sec.id].taken; let left=0; for(let i=0;i<taken.length;i++) if(!taken[i]) left++;
   return {taken,left,total:taken.length,sold:left===0,price:Math.round(((VTYPES[ev.vtype].base||{})[sec.cls]||CLASSES[sec.cls].base)*sec.pf*ev.mult/100)*100};
 }
-let heat=false, priceMin=0, priceMax=1;
-function heatColor(p){ const t=(p-priceMin)/(priceMax-priceMin||1); const stops=[[0,'#2F80ED'],[.35,'#27AE60'],[.7,'#F2C94C'],[1,'#EB5757']]; for(let i=1;i<stops.length;i++){ if(t<=stops[i][0]){ const k=(t-stops[i-1][0])/(stops[i][0]-stops[i-1][0]); return new THREE.Color(stops[i-1][1]).lerp(new THREE.Color(stops[i][1]),k); } } return new THREE.Color('#EB5757'); }
-function refreshStates(){ SECTIONS.forEach(sec=>sec.s=secState(sec)); const ps=SECTIONS.map(s=>s.s.price); priceMin=Math.min(...ps); priceMax=Math.max(...ps); applyColors(); updateCrowd(); }
+let heat=false, priceMin=0, priceMax=1, clothCols=null;
+let PRICE_GROUPS=[];
+const GROUP_PAL=['#2F80ED','#14B8A6','#27AE60','#A3C43A','#F2C94C','#F2994A','#EB5757','#C2417A'];
+function heatColor(p){ const n=PRICE_GROUPS.length, k=PRICE_GROUPS.indexOf(p); if(k<0||n<2) return new THREE.Color(GROUP_PAL[0]); const idx=Math.round(k*(GROUP_PAL.length-1)/(n-1)); return new THREE.Color(GROUP_PAL[idx]); }
+const groupCss=p=>'#'+heatColor(p).getHexString();
+function refreshStates(){ SECTIONS.forEach(sec=>sec.s=secState(sec)); const ps=SECTIONS.map(s=>s.s.price); priceMin=Math.min(...ps); priceMax=Math.max(...ps); PRICE_GROUPS=[...new Set(SECTIONS.filter(x=>!x.s.sold).map(x=>x.s.price))].sort((a,b)=>a-b); applyColors(); updateCrowd(); }
 function applyColors(){
   const c=new THREE.Color(), r=mulberry(4), selCol=new THREE.Color(0xf05252).multiplyScalar(1.3);
   SECTIONS.forEach(sec=>{ const base = heat ? (sec.s.sold?new THREE.Color(0x5b606a):heatColor(sec.s.price)) : new THREE.Color(V.physical[sec.cls]);
     sec.seats.forEach(s=>{ c.copy(base).multiplyScalar(.9+r()*.14); if(mode!=='overview' && bk.sel.includes(s)) c.copy(selCol); seatMesh.setColorAt(s.gi,c); }); });
   seatMesh.instanceColor.needsUpdate=true;
+  if(bodies&&clothCols){ const b=new THREE.Color(), gc=new THREE.Color();
+    SECTIONS.forEach(sec=>{ const tint=heat&&!sec.s.sold; if(tint) gc.copy(heatColor(sec.s.price));
+      sec.seats.forEach(s=>{ const i=s.gi; b.setRGB(clothCols[i*3],clothCols[i*3+1],clothCols[i*3+2]); if(tint) b.lerp(gc,.9).multiplyScalar(1.15); bodies.setColorAt(i,b); }); });
+    bodies.instanceColor.needsUpdate=true; }
 }
 function updateCrowd(){
   const m=new THREE.Matrix4(), mh=new THREE.Matrix4(), q=new THREE.Quaternion(), Y=new THREE.Vector3(0,1,0), p=new THREE.Vector3(), ph=new THREE.Vector3(), one=new THREE.Vector3(1,1,1), zero=new THREE.Matrix4().makeScale(0,0,0), r=mulberry(evIdx*77+1);
@@ -1435,7 +1467,9 @@ secList.addEventListener('mouseleave',()=>{ if(mode==='overview') setHover(null)
 secList.addEventListener('focusin',e=>{ const b=e.target.closest('.sec-card'); if(b&&!b.disabled&&mode==='overview') setHover(SECTIONS[+b.dataset.i],true); });
 secList.addEventListener('click',e=>{ const b=e.target.closest('.sec-card'); if(b&&!b.disabled) enterSeat(SECTIONS[+b.dataset.i]); });
 function renderLegend(){
-  if(heat){ $('#legend').innerHTML=`<b>Price per ticket</b><span class="heat"></span><span class="hs"><span>${fmt(priceMin)}</span><span>${fmt(priceMax)}</span></span>`; return; }
+  const grp=PRICE_GROUPS.slice().reverse().map(p=>{ const n=SECTIONS.filter(x=>!x.s.sold&&x.s.price===p).length; return {p,n}; });
+  $('#priceStrip').innerHTML=`<span class="ps-lbl">Tap a section</span>`+grp.map(g=>`<span class="ps-chip"><i style="background:${groupCss(g.p)}"></i>${fmt(g.p)}<small>${g.n}</small></span>`).join('');
+  if(heat){ $('#legend').innerHTML=`<b>Price groups</b>`+grp.map(g=>`<div><i style="background:${groupCss(g.p)}"></i>${fmt(g.p)} <span style="color:var(--muted);font-size:12px">· ${g.n} section${g.n>1?'s':''}</span></div>`).join(''); return; }
   $('#legend').innerHTML=`<b>${VTYPES[EV().vtype].label}</b>`+Object.entries(CLASSES).map(([k,c])=>`<div><i style="background:${c.css}"></i>${c.name} · ${tierName(k)}</div>`).join('');
 }
 function setEvent(i){
@@ -1444,7 +1478,10 @@ function setEvent(i){
   filt.cls='all';
   refreshStates(); setupPrice(); renderStrip(); renderEvCard(); $('#sortPills [data-s="dist"]').textContent='Closest to '+FOC().focus.toLowerCase(); $('.stage-lbl').textContent=FOC().focus.toUpperCase(); if(typeof renderEvsel==='function') renderEvsel(); renderChips(); renderList(); renderLegend(); setHover(null); drawRibbon(); drawScreen(0);
 }
-$('#heatBtn').addEventListener('click',()=>{ heat=!heat; $('#heatBtn').setAttribute('aria-pressed',heat); applyColors(); renderLegend(); });
+let heatUser=false;
+function autoHeat(){ if(heatUser) return; const want=small(); if(want!==heat){ heat=want; $('#heatBtn').setAttribute('aria-pressed',heat); if(SECTIONS.length&&SECTIONS[0].s){ applyColors(); renderLegend(); } } }
+addEventListener('resize',autoHeat);
+$('#heatBtn').addEventListener('click',()=>{ heatUser=true; heat=!heat; $('#heatBtn').setAttribute('aria-pressed',heat); applyColors(); renderLegend(); });
 $('#zIn').addEventListener('click',()=>{ cam.zoom=Math.max(.45,cam.zoom*.82); });
 $('#zOut').addEventListener('click',()=>{ cam.zoom=Math.min(1.5,cam.zoom/.82); });
 $('#zReset').addEventListener('click',()=>{ if(mode!=='overview'){ exitSeat(); return; } cam.zoom=1; cam.userTheta=0; cam.userPhi=0; });
@@ -1829,7 +1866,7 @@ function tick(){
   requestAnimationFrame(tick);
 }
 resize(); new ResizeObserver(resize).observe(mapEl);
-setEvent(1); setQty(2); updCard();
+autoHeat(); setEvent(1); setQty(2); updCard();
 camPos.copy(overviewTarget(0).pos).multiplyScalar(1.6).setY(200); flyTo(()=>overviewTarget(clock.elapsedTime),3,0);
 if(document.fonts) document.fonts.ready.then(()=>{ drawScreen(0); drawRibbon(); });
 requestAnimationFrame(tick); setTimeout(()=>$('#loader').classList.add('gone'),250);
