@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import fs from "node:fs";
 import path from "node:path";
+import { Compare } from "./Compare";
 import "./concept.css";
 
 const poppins = Poppins({
@@ -53,42 +54,47 @@ const SHOTS = {
   // Seat map with seats selected and the total (about 4:3).
   gallery3: "04-gallery-seatmap",
 
-  // --- The six venues -------------------------------------------------------
-  // All frame 4:3. The 3D venue only (crop out the side panel if you can).
-  // Pick an event of each type in the event picker to switch venue.
-  venueGround: "12-venue-ground", // Monsoon Frequencies or Tidewave Live
-  venueStadium: "13-venue-stadium", // Hill Country Sessions
-  venueArena: "14-venue-arena", // Neon Perahera
-  venueAmphi: "15-venue-amphitheatre", // Lotus Pond Orchestra
-  venueCinema: "16-venue-cinema", // Sigiri Skies or Last Train to Ella
-  venueCricket: "17-venue-cricket", // Mariners vs Hawks or Stags vs Lions
+  // --- The journey (shown under the four steps) ---------------------------
+  // Shown whole on tinted panels, like the gallery.
+  // Payment step: contact details, methods, the 3D card and "Pay now".
+  journeyPay: "07",
+  // "Payment successful": the printed ticket with the stub and QR code.
+  journeyTicket: "08",
 
-  // --- Details (three tall images side by side) ------------------------------
-  // All frame 4:5, portrait. Crop in on the part that matters.
-  // The boarding-pass fare card that appears when you hover a section.
-  fareCard: "18-detail-fare-card",
-  // The venue with "Colour by price" switched on.
-  heatMap: "19-detail-price-colours",
-  // Seat step: seat map plus the view from the selected seat.
+  // --- The venues (four shown) --------------------------------------------
+  // The 3D venue only. Shown in two rows: ground + cinema, arena + cricket.
+  venueGround: "12-venue-ground", // about 3:2
+  venueArena: "13-venue-arena", // about 3:2
+  venueCinema: "14-venue-cinema", // about 10:9, nearly square
+  venueCricket: "15-venue-cricket", // about 3:2
+
+  // --- Details (two 3:2 images side by side) --------------------------------
+  // 18 and 19 are the same view, before and after "Colour by price". They
+  // are shown as a drag-to-compare slider, so keep the camera identical.
+  fareCard: "18-detail-fare-card", // venue in class colours
+  heatMap: "19-detail-price-colours", // same view, coloured by price
+  // The seat camera: the view from a chosen seat, with the pin.
   seatView: "20-detail-seat-view",
 
-  // --- Payment --------------------------------------------------------------
-  // Frame 2:1, full width. The whole payment step with the 3D card visible.
-  payment: "21-payment",
-  // Frame 1:1, square. The "Verify your payment" pop-up with the 6-digit
-  // code boxes.
-  otp: "22-payment-otp",
-
   // --- Ticket ---------------------------------------------------------------
-  // Frame 1:1, square. The "My tickets" pop-up with at least one ticket saved.
-  wallet: "23-my-tickets",
+  // Shown whole, like the gallery.
+  // The saved ticket opened from My tickets (tall, about 2:3).
+  ticketFull: "22-my-tickets",
+  // The "My tickets" button in the header, with its count (a thin strip).
+  walletButton: "23-my-tickets",
+  // The "My tickets" pop-up listing a saved booking (about 2:1).
+  walletList: "24-my-tickets",
 
   // --- Design ---------------------------------------------------------------
-  // Frame 9:19, a phone screen. The app on a phone, or in the browser's
-  // phone view (F12, then the phone icon), with a fare card open.
-  mobile: "24-mobile",
-  // Frame 16:10. The full app in dark mode (moon button, top right).
-  dark: "25-dark-mode",
+  // Phone screens, about 1:2, shown in phone mockups fanned out in 3D.
+  // Screenshot the app in the browser's phone view (F12, then the phone icon).
+  mobile1: "25-mobile", // venue on top, filters below
+  mobile2: "26-mobile", // fare card docked with Continue
+  mobile3: "27-mobile", // seat view and Continue to pay (shown in the middle)
+  mobile4: "28-mobile", // Approve on your phone (wallet)
+  mobile5: "29-mobile", // the ticket after payment
+  // The full app in dark mode (about 1.9:1), shown in a browser frame.
+  dark: "30-dark-mode",
 } satisfies Record<string, string>;
 
 type ShotKey = keyof typeof SHOTS;
@@ -224,13 +230,19 @@ const JOURNEY = [
   },
 ];
 
-const VENUES: { key: ShotKey; type: string; tiers: string }[] = [
-  { key: "venueGround", type: "Open-air ground", tiers: "VIP Floor · Front Stand · Rear Stand" },
-  { key: "venueStadium", type: "Stadium", tiers: "Pitch Floor · Lower Bowl · Upper Bowl" },
-  { key: "venueArena", type: "Indoor arena", tiers: "Arena Floor · Lower Tier · Upper Tier" },
-  { key: "venueAmphi", type: "Amphitheatre", tiers: "Orchestra · Lower Terrace · Upper Terrace" },
-  { key: "venueCinema", type: "Cinema hall", tiers: "Recliners · Premium Rows · Standard Rows" },
-  { key: "venueCricket", type: "Cricket ground", tiers: "Pavilion · Lower Stand · Upper Stand" },
+const VENUES: { key: ShotKey; type: string; where: string; tiers: string; cls: string }[] = [
+  { key: "venueGround", cls: "is-wide", type: "Open-air ground", where: "Galle Face Green · Galle Fort Esplanade", tiers: "VIP Floor · Front Stand · Rear Stand" },
+  { key: "venueCinema", cls: "is-narrow", type: "Cinema hall", where: "Scope Cinemas · Liberty by Scope", tiers: "Recliners · Premium Rows · Standard Rows" },
+  { key: "venueArena", cls: "is-half", type: "Indoor arena", where: "Sugathadasa Indoor Stadium", tiers: "Arena Floor · Lower Tier · Upper Tier" },
+  { key: "venueCricket", cls: "is-half", type: "Cricket ground", where: "R. Premadasa · Galle International", tiers: "Pavilion · Lower Stand · Upper Stand" },
+];
+
+const PHONES: { id: ShotKey; t: string; d: string; label: string }[] = [
+  { id: "mobile1", t: "Pick a section", d: "Venue on top, filters below", label: "Phone: venue and filters" },
+  { id: "mobile2", t: "Tap for the fare", d: "Fare card docks with Continue", label: "Phone: fare card with Continue" },
+  { id: "mobile3", t: "See your view", d: "Seat camera and the total", label: "Phone: view from the seat" },
+  { id: "mobile4", t: "Approve and pay", d: "Wallet request with a timer", label: "Phone: approve the wallet payment" },
+  { id: "mobile5", t: "Keep the ticket", d: "Printed, saved, ready at the gate", label: "Phone: ticket after payment" },
 ];
 
 const SWATCHES = [
@@ -489,11 +501,33 @@ export default function ConceptPage() {
               </li>
             ))}
           </ol>
+          <div className="sp-bento sp-finish">
+            <figure className="sp-tile is-pay">
+              <div className="sp-panel is-mist">
+                <Piece id="journeyPay" label="Payment step with the 3D card" />
+              </div>
+              <figcaption>
+                <b>03 · Pay</b>
+                The card fills in as you type, the summary shows every seat and
+                the 5% fee, and ‘seats held 7:04’ counts down beside Pay now.
+              </figcaption>
+            </figure>
+            <figure className="sp-tile is-pass">
+              <div className="sp-panel is-night">
+                <Piece id="journeyTicket" label="Printed ticket after payment" />
+              </div>
+              <figcaption>
+                <b>04 · Your ticket</b>
+                Stage to Section 204, gate D, seats R1-7 and R1-8, with a QR
+                stub to tear at the gate.
+              </figcaption>
+            </figure>
+          </div>
         </section>
 
         {/* venues */}
         <section className="sp-col">
-          <Block label="3D venues" title="Six venues, each built to feel like the real place">
+          <Block label="3D venues" title="Six venue types, each built to feel like the real place">
             <p>
               Every venue type has its own shape, stage, lighting and names for
               its tiers. Drag to turn it, scroll to zoom and click a section to
@@ -502,17 +536,26 @@ export default function ConceptPage() {
             </p>
           </Block>
         </section>
-        <section className="sp-wide">
-          <div className="sp-row3">
+        <section className="sp-bleed" id="venues">
+          <div className="sp-venues-stage">
+          <div className="sp-venues">
             {VENUES.map((v) => (
-              <figure key={v.key} className="sp-venue">
-                <Shot id={v.key} label={v.type} ratio="4 / 3" />
+              <figure key={v.key} className={`sp-venue ${v.cls}`}>
+                <div className="sp-venue-frame">
+                  <Piece id={v.key} label={v.type} />
+                  <span className="sp-venue-chip">{v.type}</span>
+                </div>
                 <figcaption>
-                  <b>{v.type}</b>
+                  <b>{v.where}</b>
                   {v.tiers}
                 </figcaption>
               </figure>
             ))}
+          </div>
+          <p className="sp-venues-more">
+            Also modelled: <b>Stadium</b> (Pallekele) and <b>Amphitheatre</b>{" "}
+            (Nelum Pokuna Open-Air Theatre).
+          </p>
           </div>
         </section>
 
@@ -520,19 +563,38 @@ export default function ConceptPage() {
         <section className="sp-col">
           <Block label="Details" title="Small moments that build confidence">
             <p>
-              Hover a section and a boarding pass unfolds beside it, with a
-              dotted arc drawn from the stage. One switch recolours the whole
-              venue by price, from blue for the cheapest to red for the most
-              expensive. In the seat step, tap any seat to see the view from
-              there.
+              One switch recolours the whole venue by price, from blue for the
+              cheapest sections to red for the most expensive, so you can see
+              at a glance where the value is. In the seat step the camera moves
+              to your row, and a pin shows exactly where you&apos;ll sit.
             </p>
           </Block>
         </section>
         <section className="sp-wide">
-          <div className="sp-row3">
-            <Shot id="fareCard" label="Fare card over the venue" ratio="4 / 5" />
-            <Shot id="heatMap" label="Venue coloured by price" ratio="4 / 5" />
-            <Shot id="seatView" label="Seat map with the seat camera" ratio="4 / 5" />
+          <div className="sp-details">
+            <figure className="sp-detail">
+              <Compare
+                before={{ src: findShot(SHOTS.fareCard), alt: "Venue in class colours" }}
+                after={{ src: findShot(SHOTS.heatMap), alt: "Venue coloured by price" }}
+                beforeLabel="Class colours"
+                afterLabel="Colour by price"
+              />
+              <figcaption>
+                <b>Colour by price</b>
+                Drag the handle to compare. Blue is LKR 5,100, red is LKR 35,000.
+              </figcaption>
+            </figure>
+            <figure className="sp-detail">
+              <div className="sp-venue-frame">
+                <Piece id="seatView" label="View from Section 203, Row 12, Seat 13" />
+                <span className="sp-venue-chip">Seat camera</span>
+              </div>
+              <figcaption>
+                <b>See the view from your seat</b>
+                Section 203 · Row 12, Seat 13 · 42 m to the main stage, straight
+                on and raised.
+              </figcaption>
+            </figure>
           </div>
         </section>
 
@@ -548,10 +610,6 @@ export default function ConceptPage() {
             </p>
           </Block>
         </section>
-        <section className="sp-bleed">
-          <Shot id="payment" label="Payment step with the 3D card" ratio="16 / 8" />
-        </section>
-
         {/* ticket */}
         <section className="sp-col">
           <Block label="The ticket" title="A ticket worth keeping">
@@ -564,36 +622,35 @@ export default function ConceptPage() {
           </Block>
         </section>
         <section className="sp-wide">
-          <div className="sp-ticket-row">
-            <div className="sp-ticket-demo" aria-hidden="true">
-              <div className="sp-pt">
-                <div className="sp-pt-main">
-                  <small>Passenger</small>
-                  <b className="sp-pt-who">Guest Name</b>
-                  <div className="sp-pt-route">
-                    <div><b>Main stage</b><small>Galle Face Green</small></div>
-                    <div><b>Section 104</b><small>Front Stand · Business</small></div>
-                  </div>
-                  <div className="sp-pt-grid">
-                    <div><small>Gate</small><b>B</b></div>
-                    <div><small>Tickets</small><b>2</b></div>
-                    <div><small>Seats</small><b>R4 · 11–12</b></div>
-                  </div>
-                  <div><small>Booking reference</small><b className="sp-pt-ref">SKY-7KQ2MX</b></div>
-                  <span className="sp-stamp">ADMITTED</span>
-                </div>
-                <div className="sp-pt-stub">
-                  <div className="sp-barcode">
-                    {Array.from({ length: 44 }, (_, i) => (
-                      <span key={i} style={{ width: `${1 + ((i * 5) % 3)}px` }} />
-                    ))}
-                  </div>
-                  <span className="sp-qr" />
+          <div className="sp-bento">
+            <figure className="sp-tile is-ticket">
+              <div className="sp-panel is-night">
+                <div className="sp-print">
+                  <Piece id="ticketFull" label="Saved ticket for Section 204" />
                 </div>
               </div>
-            </div>
-            <Shot id="otp" label="3-D Secure code" ratio="1 / 1" />
-            <Shot id="wallet" label="My tickets" ratio="1 / 1" />
+              <figcaption>
+                <b>The ticket</b>
+                Passenger, route from stage to section, gate, seats and a SKY-
+                reference, with a barcode and QR code on the stub.
+              </figcaption>
+            </figure>
+            <figure className="sp-tile is-wallet">
+              <div className="sp-panel is-mist sp-wallet">
+                <div className="sp-wallet-btn">
+                  <Piece id="walletButton" label="My tickets button with a count" />
+                </div>
+                <span className="sp-wallet-arrow" aria-hidden="true" />
+                <div className="sp-wallet-list">
+                  <Piece id="walletList" label="My tickets list" />
+                </div>
+              </div>
+              <figcaption>
+                <b>Always one tap away</b>
+                The My tickets button in the header counts your bookings. Open
+                it to see each show, seats and reference, then tap View.
+              </figcaption>
+            </figure>
           </div>
         </section>
 
@@ -617,10 +674,63 @@ export default function ConceptPage() {
             </ul>
           </Block>
         </section>
-        <section className="sp-wide">
-          <div className="sp-pair">
-            <Shot id="mobile" label="Mobile layout" phone />
-            <Shot id="dark" label="Dark mode" ratio="16 / 10" />
+        <section className="sp-bleed">
+          <div className="sp-stage is-dark">
+            <div className="sp-browser">
+              <div className="sp-browser-bar" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+                <span>skypass.live</span>
+              </div>
+              <Piece id="dark" label="SkyPass Live in dark mode, seat step" />
+            </div>
+          </div>
+          <p className="sp-stage-cap">
+            <b>Dark mode</b> The seat step at night: the panel, seat map and the
+            whole 3D scene switch together.
+          </p>
+        </section>
+
+        {/* mobile */}
+        <section className="sp-col">
+          <Block label="On your phone" title="The whole booking, one thumb">
+            <p>
+              On a phone the venue sits on top and the booking panel below. The
+              fare card docks at the bottom with a Continue button, and every
+              step, from the seat view to wallet approval, fits one hand.
+            </p>
+          </Block>
+        </section>
+        <section className="sp-bleed" id="phones">
+          <div className="sp-phones">
+            <ol className="sp-phones-row">
+              {PHONES.map((ph, i) => (
+                <li key={ph.id} className="sp-phone-slot" style={{ "--i": i } as React.CSSProperties}>
+                  <div className="sp-phone">
+                    <span className="sp-phone-island" aria-hidden="true" />
+                    <div className="sp-phone-screen">
+                      <div className="sp-phone-status" aria-hidden="true">
+                        <span>9:41</span>
+                        <i />
+                      </div>
+                      <div className="sp-phone-app">
+                        <Piece id={ph.id} label={ph.label} />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <ol className="sp-phones-caps">
+              {PHONES.map((ph, i) => (
+                <li key={ph.id}>
+                  <span>{String(i + 1).padStart(2, "0")}</span>
+                  <b>{ph.t}</b>
+                  {ph.d}
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 

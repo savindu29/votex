@@ -389,6 +389,41 @@ html:has(.sp) {
   background: radial-gradient(circle at 1px 1px, rgba(17, 19, 24, 0.07) 1px, transparent 0) 0 0 / 22px 22px;
   mask-image: linear-gradient(180deg, #000 0%, transparent 70%);
 }
+.sp-stage.is-dark {
+  background:
+    radial-gradient(55% 70% at 15% 10%, rgba(217, 54, 90, 0.35), transparent 62%),
+    radial-gradient(50% 70% at 90% 25%, rgba(79, 99, 210, 0.3), transparent 62%),
+    linear-gradient(180deg, #1b1c21, #0b0c0f);
+}
+.sp-stage.is-dark::before {
+  background: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.07) 1px, transparent 0) 0 0 / 22px 22px;
+}
+.sp-stage.is-dark .sp-browser {
+  background: #0a0a0b;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 40px 90px -30px rgba(0, 0, 0, 0.9);
+}
+.sp-stage.is-dark .sp-browser-bar {
+  background: #16171b;
+  border-bottom-color: #26282e;
+}
+.sp-stage.is-dark .sp-browser-bar span {
+  background: #0d0e11;
+  border-color: #26282e;
+  color: #8a909b;
+}
+.sp-stage-cap {
+  max-width: calc(var(--sp-wide));
+  margin: 14px auto 0;
+  padding: 0 calc(var(--sp-gutter) - var(--sp-edge));
+  font-size: 14px;
+  color: var(--sp-muted);
+}
+.sp-stage-cap b {
+  color: var(--sp-ink);
+  margin-right: 6px;
+}
 .sp-browser {
   background: #fff;
   border-radius: clamp(10px, 1.2vw, 18px) clamp(10px, 1.2vw, 18px) 0 0;
@@ -461,6 +496,8 @@ html:has(.sp) {
 .sp-tile.is-sections { grid-column: span 4; }
 .sp-tile.is-events { grid-column: span 5; }
 .sp-tile.is-seats { grid-column: span 7; }
+.sp-tile.is-pay { grid-column: span 8; }
+.sp-tile.is-pass { grid-column: span 4; }
 .sp-panel {
   position: relative;
   display: flex;
@@ -475,6 +512,19 @@ html:has(.sp) {
 .is-sections .sp-panel { aspect-ratio: 0.725; }
 .is-events .sp-panel { aspect-ratio: 1.024; }
 .is-seats .sp-panel { aspect-ratio: 1.45; }
+.is-pay .sp-panel { aspect-ratio: 1.45; }
+.is-pass .sp-panel { aspect-ratio: 0.708; }
+.sp-finish {
+  margin-top: clamp(28px, 3vw, 44px);
+}
+.sp-panel.is-night {
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(217, 54, 90, 0.35), transparent 65%),
+    linear-gradient(180deg, #24262c, #111318);
+}
+.is-night .sp-piece {
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.7);
+}
 .sp-panel.is-rose {
   background:
     radial-gradient(120% 80% at 100% 0%, #ffd3dd 0%, transparent 60%),
@@ -572,11 +622,103 @@ html:has(.sp) {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(10px, 1.2vw, 18px);
 }
+/* Venues sit on a dark stage, like the phones, so the lit scenes glow */
+.sp-venues-stage {
+  position: relative;
+  border-radius: var(--sp-r);
+  overflow: hidden;
+  isolation: isolate;
+  padding: clamp(24px, 4.4vw, 72px);
+  background:
+    radial-gradient(50% 40% at 30% 0%, rgba(217, 54, 90, 0.3), transparent 70%),
+    radial-gradient(45% 45% at 90% 100%, rgba(79, 99, 210, 0.25), transparent 70%),
+    linear-gradient(180deg, #1b1c21, #0d0e11);
+}
+.sp-venues-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.06) 1px, transparent 0) 0 0 / 24px 24px;
+}
+.sp-venues-stage .sp-venues {
+  max-width: 1400px;
+  margin: 0 auto;
+  perspective: 1600px;
+}
+
+/* Venues: two rows whose shapes pair up, 7 + 5 then 6 + 6 columns */
+.sp-venues {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(28px, 3vw, 44px) clamp(10px, 1.2vw, 18px);
+}
 .sp-venue {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: clamp(12px, 1.6vw, 24px);
+  gap: 14px;
+  min-width: 0;
+}
+.sp-venue.is-wide { grid-column: span 7; }
+.sp-venue.is-narrow { grid-column: span 5; }
+.sp-venue.is-half { grid-column: span 6; }
+.sp-venue-frame {
+  position: relative;
+  border-radius: var(--sp-r);
+  overflow: hidden;
+  background: var(--sp-dark);
+  aspect-ratio: 1.48;
+}
+.sp-venues-stage .sp-venue-frame {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 30px 60px -24px rgba(0, 0, 0, 0.8);
+  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.6s;
+}
+.sp-venues-stage .sp-venue:hover .sp-venue-frame {
+  transform: rotateX(4deg) translateY(-6px);
+  box-shadow:
+    0 0 0 1px rgba(255, 127, 154, 0.5),
+    0 40px 70px -24px rgba(217, 54, 90, 0.45);
+}
+/* a soft shade at the foot so the label always reads */
+.sp-venue-frame::after {
+  content: "";
+  position: absolute;
+  inset: 55% 0 0;
+  background: linear-gradient(180deg, transparent, rgba(8, 9, 12, 0.55));
+  pointer-events: none;
+}
+.sp-venue.is-narrow .sp-venue-frame { aspect-ratio: 1.05; }
+.sp-venue.is-half .sp-venue-frame { aspect-ratio: 1.48; }
+.sp-venue-frame .sp-piece {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.sp-venue:hover .sp-venue-frame .sp-piece {
+  transform: scale(1.03);
+}
+.sp-venue-frame .sp-piece-empty {
+  border-radius: 0;
+}
+.sp-venue-chip {
+  position: absolute;
+  z-index: 1;
+  left: 14px;
+  bottom: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(17, 19, 24, 0.72);
+  backdrop-filter: blur(8px);
 }
 .sp-venue figcaption {
   font-size: 13.5px;
@@ -586,6 +728,130 @@ html:has(.sp) {
   display: block;
   font-size: 16px;
   color: var(--sp-ink);
+}
+.sp-venues-more {
+  max-width: 1400px;
+  margin: clamp(24px, 3vw, 40px) auto 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 14px;
+  color: #a2a7b0;
+}
+.sp-venues-more b {
+  color: #fff;
+}
+.sp-venues-stage .sp-venue figcaption {
+  color: #a2a7b0;
+}
+.sp-venues-stage .sp-venue figcaption b {
+  color: #fff;
+}
+
+/* --- details: a before/after slider beside the seat camera -------------- */
+.sp-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 3vw, 44px) clamp(10px, 1.2vw, 18px);
+}
+.sp-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.sp-detail figcaption {
+  font-size: 13.5px;
+  color: var(--sp-muted);
+}
+.sp-detail figcaption b {
+  display: block;
+  font-size: 16px;
+  color: var(--sp-ink);
+}
+.sp-compare {
+  --pos: 50%;
+  position: relative;
+  aspect-ratio: 1.48;
+  border-radius: var(--sp-r);
+  overflow: hidden;
+  background: var(--sp-dark);
+  user-select: none;
+  touch-action: pan-y;
+}
+.sp-compare img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.sp-compare-after {
+  clip-path: inset(0 0 0 var(--pos));
+}
+.sp-compare-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos);
+  width: 2px;
+  translate: -1px 0;
+  background: #fff;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+.sp-compare-handle i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--sp-ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+.sp-compare-handle svg {
+  width: 20px;
+  height: 20px;
+}
+.sp-compare input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+}
+.sp-compare:has(input:focus-visible) .sp-compare-handle i {
+  outline: 3px solid color-mix(in srgb, var(--sp-brand) 60%, transparent);
+  outline-offset: 3px;
+}
+.sp-compare-tag {
+  position: absolute;
+  bottom: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(17, 19, 24, 0.72);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+.sp-compare-tag.is-left { left: 14px; }
+.sp-compare-tag.is-right { right: 14px; background: var(--sp-brand); }
+.sp-compare.is-empty {
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #a2a7b0;
 }
 
 /* --- journey: four steps on a dark band, linked like a flight route ---- */
@@ -694,146 +960,52 @@ html:has(.sp) {
   color: #e6e8ec;
 }
 
-/* --- ticket --------------------------------------------------------------- */
-.sp-ticket-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(10px, 1.2vw, 18px);
-  align-items: stretch;
-}
-.sp-ticket-demo {
-  background: var(--sp-dark);
-  border-radius: var(--sp-r);
-  padding: clamp(24px, 3.5vw, 48px);
-  display: grid;
-  place-items: center;
-}
-.sp-pt {
-  width: min(360px, 100%);
-  background: #fff;
-  color: #111318;
-  border-radius: 22px;
-  animation: sp-print 1.8s cubic-bezier(0.3, 0.1, 0.3, 1) both;
-  animation-timeline: view();
-  animation-range: entry 10% cover 40%;
-}
-@keyframes sp-print {
-  from {
-    clip-path: inset(0 0 100% 0 round 22px);
-    transform: translateY(-24px);
-  }
-  to {
-    clip-path: inset(0 0 0 0 round 22px);
-    transform: none;
-  }
-}
-.sp-pt-main {
-  position: relative;
-  padding: 22px 22px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.sp-pt small {
-  display: block;
-  font-size: 12px;
-  color: #6b7280;
-}
-.sp-pt-who {
-  display: block;
-  font-size: 22px;
-  letter-spacing: -0.01em;
-}
-.sp-pt-route {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-.sp-pt-route b,
-.sp-pt-grid b {
-  display: block;
-  font-size: 16px;
-}
-.sp-pt-route div:last-child {
-  text-align: right;
-}
-.sp-pt-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.sp-pt-grid div:nth-child(2) {
-  text-align: center;
-}
-.sp-pt-grid div:nth-child(3) {
-  text-align: right;
-}
-.sp-pt-ref {
-  font-size: 19px;
-  letter-spacing: 0.03em;
-}
-.sp-stamp {
-  position: absolute;
-  right: 22px;
-  bottom: 22px;
-  border: 3px solid var(--sp-ok);
-  color: var(--sp-ok);
-  padding: 3px 12px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 17px;
-  letter-spacing: 0.1em;
-  rotate: -12deg;
-  opacity: 0.85;
-}
-.sp-pt-stub {
-  position: relative;
-  border-top: 2px dashed #d5d9df;
-  padding: 16px 22px 20px;
+/* --- ticket: the saved ticket beside the My tickets flow ----------------- */
+.sp-tile.is-ticket { grid-column: span 5; }
+.sp-tile.is-wallet { grid-column: span 7; }
+.is-ticket .sp-panel { aspect-ratio: 0.82; }
+.is-wallet .sp-panel { aspect-ratio: 1.158; }
+.sp-print {
+  height: 100%;
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
 }
-.sp-pt-stub::before,
-.sp-pt-stub::after {
+.sp-wallet {
+  flex-direction: column;
+  gap: 0;
+}
+.sp-wallet-btn {
+  align-self: flex-end;
+  width: 72%;
+}
+.sp-wallet-btn .sp-piece {
+  width: 100%;
+  border-radius: 999px;
+}
+.sp-wallet-list {
+  width: 92%;
+}
+.sp-wallet-list .sp-piece {
+  width: 100%;
+}
+/* a dashed hand-off from the button down to the list */
+.sp-wallet-arrow {
+  align-self: flex-end;
+  margin-right: 30%;
+  width: 2px;
+  height: clamp(28px, 4vw, 56px);
+  border-left: 2px dashed var(--sp-brand);
+  position: relative;
+}
+.sp-wallet-arrow::after {
   content: "";
   position: absolute;
-  top: -13px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--sp-dark);
-}
-.sp-pt-stub::before {
-  left: -12px;
-}
-.sp-pt-stub::after {
-  right: -12px;
-}
-.sp-barcode {
-  flex: 1;
-  display: flex;
-  gap: 1.5px;
-  height: 44px;
-  overflow: hidden;
-}
-.sp-barcode span {
-  flex: none;
-  background: #111318;
-}
-.sp-qr {
-  flex: none;
-  width: 58px;
-  height: 58px;
-  border-radius: 6px;
-  background:
-    conic-gradient(#13203a 25%, transparent 0 50%, #13203a 0 75%, transparent 0) 0 0 / 12px 12px,
-    conic-gradient(transparent 25%, #13203a 0 50%, transparent 0 75%, #13203a 0) 3px 3px / 18px 18px;
-  outline: 4px solid #fff;
-  outline-offset: -4px;
-}
-.sp-ticket-row > .sp-shot {
-  height: 100%;
+  bottom: -2px;
+  left: -7px;
+  border: 6px solid transparent;
+  border-top: 8px solid var(--sp-brand);
+  border-bottom: 0;
 }
 
 /* --- design --------------------------------------------------------------- */
@@ -867,6 +1039,251 @@ html:has(.sp) {
 .sp-pair .is-phone {
   max-width: 320px;
   justify-self: center;
+}
+
+/* --- phones: five mockups fanned out in 3D ------------------------------ */
+.sp-phones {
+  position: relative;
+  border-radius: var(--sp-r);
+  overflow: hidden;
+  isolation: isolate;
+  padding: clamp(56px, 7vw, 110px) var(--sp-gutter) clamp(36px, 4vw, 56px);
+  background:
+    radial-gradient(45% 55% at 50% 42%, rgba(217, 54, 90, 0.42), transparent 70%),
+    radial-gradient(40% 50% at 12% 90%, rgba(79, 99, 210, 0.28), transparent 70%),
+    radial-gradient(40% 50% at 88% 90%, rgba(12, 143, 106, 0.2), transparent 70%),
+    linear-gradient(180deg, #1b1c21, #0d0e11);
+  color: #f4f5f7;
+}
+.sp-phones::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.07) 1px, transparent 0) 0 0 / 24px 24px;
+  mask-image: radial-gradient(70% 70% at 50% 40%, #000, transparent);
+}
+.sp-phones-row {
+  --w: clamp(160px, 16vw, 262px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  perspective: 1800px;
+  transform-style: preserve-3d;
+}
+.sp-phone-slot {
+  flex: none;
+  width: var(--w);
+  margin: 0 calc(var(--w) * -0.02);
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+/* the fan: outer phones turn in and sit further back, the centre one leads */
+.sp-phone-slot:nth-child(1) { transform: translateZ(-240px) rotateY(32deg) translateY(26px); z-index: 1; }
+.sp-phone-slot:nth-child(2) { transform: translateZ(-110px) rotateY(18deg) translateY(10px); z-index: 2; }
+.sp-phone-slot:nth-child(3) { transform: translateZ(40px) translateY(-8px); z-index: 3; }
+.sp-phone-slot:nth-child(4) { transform: translateZ(-110px) rotateY(-18deg) translateY(10px); z-index: 2; }
+.sp-phone-slot:nth-child(5) { transform: translateZ(-240px) rotateY(-32deg) translateY(26px); z-index: 1; }
+.sp-phone-slot:hover { z-index: 5; }
+.sp-phone-slot:hover .sp-phone { translate: 0 -14px; }
+.sp-phone {
+  position: relative;
+  padding: calc(var(--w) * 0.045);
+  border-radius: calc(var(--w) * 0.17);
+  background: linear-gradient(145deg, #3a3d45, #0b0c10 45%, #1d1f25);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.14),
+    inset 0 0 0 4px #050608,
+    0 40px 60px -20px rgba(0, 0, 0, 0.75),
+    0 18px 30px -12px rgba(0, 0, 0, 0.5);
+  transition: translate 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation: sp-bob 6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -1.2s);
+}
+@keyframes sp-bob {
+  50% { transform: translateY(-8px); }
+}
+/* side buttons */
+.sp-phone::before,
+.sp-phone::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  border-radius: 2px;
+  background: #2a2c33;
+}
+.sp-phone::before {
+  left: -3px;
+  top: 22%;
+  height: 10%;
+  box-shadow: 0 calc(var(--w) * 0.26) 0 #2a2c33;
+}
+.sp-phone::after {
+  right: -3px;
+  top: 28%;
+  height: 16%;
+}
+.sp-phone-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: calc(var(--w) * 0.13);
+  overflow: hidden;
+  background: #fff;
+}
+/* a status bar above the app, so the island never covers its header */
+.sp-phone-status {
+  flex: none;
+  height: calc(var(--w) * 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10% 0 12%;
+  font-size: calc(var(--w) * 0.05);
+  font-weight: 600;
+  color: #111318;
+  background: #fff;
+}
+/* signal bars and battery, drawn with gradients */
+.sp-phone-status i {
+  width: calc(var(--w) * 0.14);
+  height: calc(var(--w) * 0.035);
+  background:
+    linear-gradient(#111318, #111318) 0 100% / 12% 40% no-repeat,
+    linear-gradient(#111318, #111318) 16% 100% / 12% 65% no-repeat,
+    linear-gradient(#111318, #111318) 32% 100% / 12% 100% no-repeat,
+    linear-gradient(#111318, #111318) 100% 50% / 42% 100% no-repeat;
+  border-radius: 2px;
+}
+.sp-phone-app {
+  position: relative;
+}
+/* the whole screenshot, full width, at its own height */
+.sp-phone-screen .sp-piece {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none !important;
+}
+.sp-phone-screen .sp-piece-empty {
+  aspect-ratio: 1 / 2;
+}
+/* soft glare across the glass */
+.sp-phone-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.18) 0%, transparent 30%),
+    linear-gradient(180deg, transparent 70%, rgba(0, 0, 0, 0.1));
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.18),
+    inset 0 0 calc(var(--w) * 0.08) rgba(0, 0, 0, 0.14);
+  border-radius: inherit;
+  pointer-events: none;
+}
+/* angled phones get a darker far edge, as if lit from the centre */
+.sp-phone-slot .sp-phone-app::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.sp-phone-slot:nth-child(1) .sp-phone-app::after { background: linear-gradient(90deg, rgba(0, 0, 0, 0.32), transparent 55%); }
+.sp-phone-slot:nth-child(2) .sp-phone-app::after { background: linear-gradient(90deg, rgba(0, 0, 0, 0.16), transparent 50%); }
+.sp-phone-slot:nth-child(4) .sp-phone-app::after { background: linear-gradient(270deg, rgba(0, 0, 0, 0.16), transparent 50%); }
+.sp-phone-slot:nth-child(5) .sp-phone-app::after { background: linear-gradient(270deg, rgba(0, 0, 0, 0.32), transparent 55%); }
+/* a soft floor shadow under each phone */
+.sp-phone-slot {
+  position: relative;
+}
+.sp-phone-slot::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: calc(var(--w) * -0.16);
+  height: calc(var(--w) * 0.12);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.7), transparent);
+  filter: blur(6px);
+  z-index: -1;
+}
+.sp-phone-island {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--w) * 0.062);
+  left: 50%;
+  translate: -50% 0;
+  width: 30%;
+  height: calc(var(--w) * 0.068);
+  border-radius: 999px;
+  background: #050608;
+}
+.sp-phone-screen .sp-piece-empty {
+  border: 0;
+  border-radius: 0;
+  font-size: 11px;
+}
+.sp-phones-caps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 1100px;
+  margin: clamp(48px, 6vw, 80px) auto 0;
+  padding: 0;
+  list-style: none;
+}
+.sp-phones-caps li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  color: #a2a7b0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.sp-phones-caps span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff7f9a;
+}
+.sp-phones-caps b {
+  font-size: 15px;
+  color: #fff;
+}
+@media (max-width: 720px) {
+  /* on phones: a flat, swipeable row */
+  .sp-phones-row {
+    --w: 200px;
+    justify-content: flex-start;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 10px var(--sp-gutter) 30px;
+    margin: 0 calc(var(--sp-gutter) * -1);
+    perspective: none;
+    scrollbar-width: none;
+  }
+  .sp-phone-slot,
+  .sp-phone-slot:nth-child(n) {
+    margin: 0;
+    transform: none;
+    scroll-snap-align: center;
+  }
+  .sp-phone-slot:nth-child(n) .sp-phone-app::after {
+    background: none;
+  }
+  .sp-phones-caps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
 }
 
 /* --- thanks + footer ------------------------------------------------------ */
@@ -942,12 +1359,6 @@ html:has(.sp) {
   .sp-swatches {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-  .sp-ticket-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-  .sp-ticket-demo {
-    grid-column: 1 / -1;
-  }
 }
 @media (max-width: 720px) {
   .sp-stats {
@@ -962,6 +1373,7 @@ html:has(.sp) {
     border-top: 1px solid var(--sp-line);
   }
   .sp-services,
+  .sp-details,
   .sp-pair {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -971,9 +1383,21 @@ html:has(.sp) {
   .sp-tile.is-venue,
   .sp-tile.is-sections,
   .sp-tile.is-events,
-  .sp-tile.is-seats {
+  .sp-venue.is-wide,
+  .sp-venue.is-narrow,
+  .sp-venue.is-half,
+  .sp-tile.is-seats,
+  .sp-tile.is-ticket,
+  .sp-tile.is-wallet,
+  .sp-tile.is-pay,
+  .sp-tile.is-pass {
     grid-column: 1 / -1;
   }
+  .is-pass .sp-panel { aspect-ratio: 0.85; }
+  .sp-venue .sp-venue-frame { aspect-ratio: 1.48; }
+  .is-pay .sp-panel { aspect-ratio: 1.3; }
+  .is-ticket .sp-panel { aspect-ratio: 0.8; }
+  .is-wallet .sp-panel { aspect-ratio: auto; }
   .is-sections .sp-panel { aspect-ratio: 0.85; }
   .is-seats .sp-panel { aspect-ratio: 1.3; }
   .sp-panel:not(.is-scene) { padding: 14px; }
@@ -1008,8 +1432,7 @@ html:has(.sp) {
   }
 }
 @media (max-width: 480px) {
-  .sp-row3,
-  .sp-ticket-row {
+  .sp-row3 {
     grid-template-columns: minmax(0, 1fr);
   }
   .sp-swatches {
