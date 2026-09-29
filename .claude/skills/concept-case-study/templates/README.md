@@ -2,7 +2,8 @@
 
 A complete, working case-study page (SkyPass Live) for Next.js App Router.
 
-- `page.tsx`: the page. Its content is SkyPass-specific: replace all of it
+- `page.tsx`: the page. It loads Poppins (body) and Bricolage Grotesque
+  (headings) itself, so the root layout needs no fonts and no Tailwind. Its content is SkyPass-specific: replace all of it
   with facts from the new product. Keep the structure, `SHOTS`, `findShot`,
   `Piece` and `Block`.
 - `concept.css`: all styles, scoped under `.sp`. Rename the root class and

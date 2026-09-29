@@ -43,19 +43,25 @@
 .sp *::after {
   box-sizing: border-box;
 }
-:where(.sp) :is(h1, h2, h3, p, ul, dl, dd, figure) {
+:where(.sp) :is(h1, h2, h3, h4, p, ul, ol, dl, dd, figure) {
   margin: 0;
 }
-:where(.sp) ul {
+:where(.sp) :is(ul, ol) {
   list-style: none;
   padding: 0;
 }
 .sp h1,
 .sp h2,
 .sp h3 {
+  font-family: var(--font-bricolage), var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  color: #14202e;
+  line-height: 1.2;
   font-weight: 600;
   letter-spacing: -0.02em;
   text-wrap: balance;
+}
+.sp h3 {
+  line-height: 1.35;
 }
 .sp b {
   font-weight: 600;
@@ -199,61 +205,6 @@ html:has(.sp) {
 }
 
 /* --- screenshots ---------------------------------------------------------- */
-.sp-shot {
-  position: relative;
-  width: 100%;
-  border-radius: var(--sp-r);
-  overflow: hidden;
-  background: var(--sp-soft);
-}
-.sp-shot img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-}
-.sp-shot-empty {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px;
-  text-align: center;
-  color: var(--sp-muted);
-  background:
-    radial-gradient(circle at 1px 1px, var(--sp-line-2) 1px, transparent 0) 0 0 / 20px 20px,
-    var(--sp-soft);
-}
-.sp-shot-empty span {
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--sp-brand-ink);
-  background: var(--sp-brand-soft);
-  padding: 3px 10px;
-  border-radius: 999px;
-}
-.sp-shot-empty b {
-  color: var(--sp-ink-2);
-  font-size: clamp(13px, 1.3vw, 16px);
-  max-width: 30ch;
-}
-.sp-shot-empty code {
-  font-size: 11.5px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: #fff;
-  border: 1px solid var(--sp-line);
-}
-.sp-shot.is-phone {
-  border-radius: 40px;
-  border: 8px solid var(--sp-dark);
-}
 
 /* --- text blocks ---------------------------------------------------------- */
 .sp-block {
@@ -608,11 +559,6 @@ html:has(.sp) {
   color: var(--sp-ink);
   margin-bottom: 2px;
 }
-.sp-row3 {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(10px, 1.2vw, 18px);
-}
 /* Venues sit on a dark stage, like the phones, so the lit scenes glow */
 .sp-venues-stage {
   position: relative;
@@ -882,12 +828,6 @@ html:has(.sp) {
     0 30px 60px -24px rgba(0, 0, 0, 0.8);
   transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.6s;
 }
-.sp-venues-stage .sp-venue:hover .sp-venue-frame {
-  transform: rotateX(4deg) translateY(-6px);
-  box-shadow:
-    0 0 0 1px rgba(255, 127, 154, 0.5),
-    0 40px 70px -24px rgba(217, 54, 90, 0.45);
-}
 /* a soft shade at the foot so the label always reads */
 .sp-venue-frame::after {
   content: "";
@@ -896,8 +836,6 @@ html:has(.sp) {
   background: linear-gradient(180deg, transparent, rgba(8, 9, 12, 0.55));
   pointer-events: none;
 }
-.sp-venue.is-narrow .sp-venue-frame { aspect-ratio: 1.05; }
-.sp-venue.is-half .sp-venue-frame { aspect-ratio: 1.48; }
 .sp-venue-frame .sp-piece {
   width: 100%;
   height: 100%;
@@ -907,9 +845,6 @@ html:has(.sp) {
   border-radius: 0;
   box-shadow: none;
   transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.sp-venue:hover .sp-venue-frame .sp-piece {
-  transform: scale(1.03);
 }
 .sp-venue-frame .sp-piece-empty {
   border-radius: 0;
@@ -927,15 +862,6 @@ html:has(.sp) {
   background: rgba(17, 19, 24, 0.72);
   backdrop-filter: blur(8px);
 }
-.sp-venue figcaption {
-  font-size: 13.5px;
-  color: var(--sp-muted);
-}
-.sp-venue figcaption b {
-  display: block;
-  font-size: 16px;
-  color: var(--sp-ink);
-}
 .sp-venues-more {
   max-width: 1400px;
   margin: clamp(24px, 3vw, 40px) auto 0;
@@ -945,12 +871,6 @@ html:has(.sp) {
   color: #a2a7b0;
 }
 .sp-venues-more b {
-  color: #fff;
-}
-.sp-venues-stage .sp-venue figcaption {
-  color: #a2a7b0;
-}
-.sp-venues-stage .sp-venue figcaption b {
   color: #fff;
 }
 
@@ -1236,16 +1156,6 @@ html:has(.sp) {
 }
 .sp-swatches code {
   color: var(--sp-muted);
-}
-.sp-pair {
-  display: grid;
-  grid-template-columns: minmax(0, 0.34fr) minmax(0, 1fr);
-  gap: clamp(10px, 1.2vw, 18px);
-  align-items: center;
-}
-.sp-pair .is-phone {
-  max-width: 320px;
-  justify-self: center;
 }
 
 /* --- phones: five mockups fanned out in 3D ------------------------------ */
@@ -1730,19 +1640,12 @@ html:has(.sp) {
     border-top: 1px solid var(--sp-line);
   }
   .sp-services,
-  .sp-details,
-  .sp-pair {
+  .sp-details {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .sp-row3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .sp-tile.is-venue,
   .sp-tile.is-sections,
   .sp-tile.is-events,
-  .sp-venue.is-wide,
-  .sp-venue.is-narrow,
-  .sp-venue.is-half,
   .sp-tile.is-seats,
   .sp-tile.is-ticket,
   .sp-tile.is-wallet,
@@ -1751,7 +1654,6 @@ html:has(.sp) {
     grid-column: 1 / -1;
   }
   .is-pass .sp-panel { aspect-ratio: 0.85; }
-  .sp-venue .sp-venue-frame { aspect-ratio: 1.48; }
   .is-pay .sp-panel { aspect-ratio: 1.3; }
   .is-ticket .sp-panel { aspect-ratio: 0.8; }
   .is-wallet .sp-panel { aspect-ratio: auto; }
@@ -1789,9 +1691,6 @@ html:has(.sp) {
   }
 }
 @media (max-width: 480px) {
-  .sp-row3 {
-    grid-template-columns: minmax(0, 1fr);
-  }
   .sp-swatches {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }

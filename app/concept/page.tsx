@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Bricolage_Grotesque, Poppins } from "next/font/google";
 import fs from "node:fs";
 import path from "node:path";
 import { Compare } from "./Compare";
@@ -10,6 +10,12 @@ const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+});
+
+/* headings */
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -263,7 +269,7 @@ function Block({
 
 export default function ConceptPage() {
   return (
-    <div className={`sp ${poppins.variable}`}>
+    <div className={`sp ${poppins.variable} ${bricolage.variable}`}>
       <nav className="sp-bar" aria-label="Case study">
         <a className="sp-logo" href="#top">
           <Logo />
